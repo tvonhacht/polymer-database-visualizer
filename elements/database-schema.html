@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="../bower_components/polymer/polymer.html" rel="import">
+    <link href="database-table.html" rel="import">
+    <!-- Element Imports -->
+</head>
+
+<dom-module id="database-schema">
+    <style>
+        :host {
+            margin: 0 0 20px;
+            position: relative;
+            left: 20px;
+            top: 20px;
+        }
+
+    </style>
+    <template>
+        <div class="database-view-div-header background-color-primary">
+            <h2>{{schema.name}}</h2>
+        </div>
+        <template is="dom-repeat" items="{{schema.tables}}">
+            <database-table id="{{schema.name}}_{{item.name}}" schemaname="{{schema.name}}" table="{{item}}"></database-table>
+        </template>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+                is: "database-schema",
+                properties: {
+
+                    schema: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {
+                                name: "schema1",
+                                tables:  [{name: "table1"}],
+                                left: 400
+                            };
+                        }
+                    },
+                    view: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {};
+                        }
+                    },
+                    tables: {
+                        type: Array,
+                        notify: true,
+                        value: function() {
+                            return [];
+                        }
+                    },
+                    left: Number,
+                    top: Number,
+                    width: Number,
+                    height: Number/*,
+                    resizeLeft: Number,
+                    resizeTop: Number,
+                    resizeWidth: Number,
+                    resizeHeight: Number*/
+                },
+
+                registerTable(table) {
+                    this.tables.push(table);
+
+                    if (this.schema.tables.length === this.tables.length) {
+                        console.log("hier");
+                        this.view.registerSchema(this);
+                    }
+
+                },
+
+                getScale() {
+                    return this.view.getScale();
+                },
+
+                getTables() {
+                    return this.tables;
+                },
+
+                refresh() {
+                    $.each(this.tables, function() {
+                        this.refresh();
+                    });
+                },
+
+                setTop(top) {
+                    this.top = top;
+                    $(this).css({top: this.top});
+                },
+
+                setHeight(height) {
+                    this.height = height;
+                    $(this).css({height: this.height});
+                },
+
+                setLeft(left) {
+                    this.left = left;
+                    $(this).css({left: this.left});
+                },
+
+                setWidth(width) {
+                    this.width = width;
+                    $(this).css({width: this.width});
+                },
+
+                setDraggingChild(b) {
+                    this.view.setDraggingChild(b);
+                },
+
+                refreshMinimap() {
+                    this.view.refreshMinimap();
+                },
+
+                ready: function() {
+
+                },
+
+                attached: function() {
+                    this.view = $('database-view')[0];
+
+                    this.left = parseInt(this.schema.left);
+                    this.top = parseInt(this.schema.top);
+                    this.width = parseInt(this.schema.width);
+                    this.height = parseInt(this.schema.height);
+
+                    $(this).css({
+                        left: this.left,
+                        top: this.top,
+                        width: this.width,
+                        height: this.height
+                    });
+
+                    $(this).draggable({
+                        //grid: [10,10],
+                        //handle: "> .database-view-div-header",
+                        start: function(event, ui) {
+                            ui.position.left = 0;
+                            ui.position.top = 0;
+                            this.setDraggingChild(true);
+                        },
+                        drag: function(event, ui) {
+                            var changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
+                            var newLeft = ui.originalPosition.left + changeLeft / this.getScale(); // adjust new left by our zoomScale
+
+                            var changeTop = ui.position.top - ui.originalPosition.top; // find change in top
+                            var newTop = ui.originalPosition.top + changeTop / this.getScale(); // adjust new top by our zoomScale
+
+                            ui.position.left = newLeft;
+                            ui.position.top = newTop;
+
+                            this.refresh();
+                        },
+                        stop: function(event, ui) {
+                            // TODO make short and beautiful
+                            var changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
+                            var newLeft = ui.originalPosition.left + changeLeft / this.getScale(); // adjust new left by our zoomScale
+
+                            var changeTop = ui.position.top - ui.originalPosition.top; // find change in top
+                            var newTop = ui.originalPosition.top + changeTop / this.getScale(); // adjust new top by our zoomScale
+
+                            this.left = newLeft * this.getScale();
+                            this.top = newTop * this.getScale();
+
+                            this.refresh();
+                            this.view.refreshMinimap();
+                            this.setDraggingChild(false);
+                        }
+                    });
+
+                    $(this).mouseenter(function() {
+                        $(this).addClass("draggable");
+                    });
+                    $(this).mouseleave(function() {
+                        $(this).removeClass("draggable");
+                    });
+
+                    $(this).resizable({
+                         grid: [ 10, 10 ],
+                         handles: "ne, nw, se, sw",
+                         /*handles: { 'ne': '.ui-resizable-handle.ui-resizable-ne', 'nw': '.ui-resizable-handle.ui-resizable-nw', 'se': '.ui-resizable-handle.ui-resizable-se', 'sw': '.ui-resizable-handle.ui-resizable-sw'},*/
+
+                         minWidth: -($(this).width()) * 10, // these need to be large and negative
+                         minHeight: -($(this).height()) * 10, // so we can shrink our resizable while scaled
+                         start: function(event, ui) {
+                             /*
+                             this.resizeLeft = this.left;
+                             this.resizeTop = this.top;
+                             this.resizeWidth = this.width;
+                             this.resizeHeight = this.height;
+                             */
+                         },
+                         resize: function(event, ui) {
+
+                             /** get axis **/
+                             var axis = $(event.target).data('uiResizable').axis;
+
+                             /** calculate new dimensions (width, height, left, top) **/
+                             var changeWidth = ui.size.width - ui.originalSize.width; // find change in width
+                             var newWidth = ui.originalSize.width + changeWidth / this.getScale(); // adjust new width by our zoomScale
+
+                             var changeHeight = ui.size.height - ui.originalSize.height; // find change in height
+                             var newHeight = ui.originalSize.height + changeHeight / this.getScale(); // adjust new height by our zoomScale
+
+                             var changeLeft = (ui.position.left - ui.originalPosition.left) / this.getScale(); // find change in left
+                             var newLeft = ui.originalPosition.left + changeLeft; // adjust new left by our zoomScale
+
+                             var changeTop = (ui.position.top - ui.originalPosition.top) / this.getScale(); // find change in top
+                             var newTop = ui.originalPosition.top + changeTop; // adjust new top by our zoomScale
+
+                             /*
+                             console.log("changeWidth: " + changeWidth);
+                             console.log("newWidth: " + newWidth);
+
+                             console.log("changeHeight: " + changeHeight);
+                             console.log("newHeight: " + newHeight);
+*/
+                             console.log("changeLeft: " + changeLeft);
+                             console.log("newLeft: " + newLeft);
+/*
+                             console.log("changeTop: " + changeTop);
+                             console.log("newTop: " + newTop);
+                             */
+
+                             //TODO dont do this always, only when necessary with axis
+                             //TODO remove 10 with constant
+                             var scale = this.getScale();
+                             var left = newWidth;
+                             var top = newHeight;
+                             var right = 0;
+                             var bottom = 0;
+                             $.each(this.tables, function() {
+                                 left = left > (this.left + (changeLeft * -1)) ? (this.left + (changeLeft * -1)) : left;
+                                 top = top > (this.top + (changeTop * -1)) ? (this.top + (changeTop * -1)) : top;
+                                 right = right < (this.left + this.width) ? (this.left + this.width) : right;
+                                 bottom = bottom < (this.top + this.height) ? (this.top + this.height) : bottom;
+                             });
+                             top = top - 72;
+
+                             /*
+                             console.log("left: " + left);
+                             console.log("top: " + top);
+                             console.log("right: " + right);
+                             console.log("bottom: " + bottom);
+                             */
+
+                             var CONSTANT_BORDER_WIDTH = 10;
+
+                             var diffWidth = newWidth;
+                             if (axis.indexOf("w") >= 0) {
+                                 if (left <= CONSTANT_BORDER_WIDTH) {
+                                     newWidth = newWidth - (left - CONSTANT_BORDER_WIDTH);
+                                     newLeft = newLeft + (left - CONSTANT_BORDER_WIDTH);
+                                 }
+                             }
+                             if (axis.indexOf("n") >= 0) {
+                                 if (top <= 10) {
+                                     newHeight = newHeight - (top - 10);
+                                     newTop = newTop + (top - 10);
+                                 }
+                             }
+                             if (axis.indexOf("e") >= 0) {
+                                 if (right > (newWidth - 10)) {
+                                     newWidth = right + 10;
+                                 }
+                             }
+                             if (axis.indexOf("s") >= 0) {
+                                 if (bottom > (newHeight - 10 - 30)) {
+                                     newHeight = bottom + 10 + 30;
+                                 }
+                             }
+
+                             diffWidth = diffWidth - newWidth;
+
+                            // console.log("bottom: " + bottom);
+                            // console.log("newWidth: " + newWidth);
+                            // console.log("newLeft" + newLeft);
+
+                             this.width = newWidth;
+                             ui.size.width = newWidth;
+                             this.left = newLeft;
+                             ui.position.left = newLeft;
+
+                             this.height = newHeight;
+                             ui.size.height = newHeight;
+                             this.top = newTop;
+                             ui.position.top = newTop;
+
+                             changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
+                             changeTop = ui.position.top - ui.originalPosition.top; // find change in top
+
+                             $.each(this.tables, function() {
+                                 this.resizeLeft(changeLeft * -1);
+                                 this.resizeTop(changeTop * -1);
+                             });
+                         },
+                         stop: function(event, ui) {
+                             /*this.left = this.resizeLeft;
+                             this.top = this.resizeTop;
+                             this.width = this.resizeWidth;
+                             this.height = this.resizeHeight;*/
+
+                             $.each(this.tables, function() {
+                                 this.setResizeLeft();
+                                 this.setResizeTop();
+                             });
+
+                             this.refreshMinimap();
+                         }
+
+                    });
+                },
+                getPosition() {
+                    let position = $(this).css([ "left", "top", "width", "height" ]);
+                    return {
+                        left: parseInt(position.left, 10),
+                        top: parseInt(position.top, 10),
+                        width: parseInt(position.width, 10),
+                        height: parseInt(position.height, 10)
+                    };
+                }
+            });
+</script>
+</html>

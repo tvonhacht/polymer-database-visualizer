@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="../bower_components/polymer/polymer.html" rel="import">
+    <!-- Element Imports -->
+</head>
+
+<dom-module id="database-column">
+    <style>
+        /* CSS rules for your element */
+    </style>
+    <template>
+        <div>{{column.keyType}}</div>
+        <div>{{convertToNullableString(column.nullable)}}</div>
+        <div>{{column.name}}</div>
+        <div>{{column.type}}</div>
+        <div>{{column.default}}</div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+                is: "database-column",
+                properties: {
+                    column: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {
+                                name: "column1"
+                            };
+                        }
+                    },
+                    table: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {};
+                        }
+                    },
+                    schemaname: String,
+                    tablename: String
+                },
+
+                convertToNullableString(b) {
+                    return b ? "" : "*";
+                },
+
+                ready: function() {
+
+                },
+
+                attached: function() {
+                    this.table = $('#'+this.schemaname+"_"+this.tablename)[0];
+                    this.table.registerColumn(this);
+                }
+            });
+</script>
+</html>

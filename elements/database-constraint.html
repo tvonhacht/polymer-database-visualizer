@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="../bower_components/polymer/polymer.html" rel="import">
+    <!-- Element Imports -->
+</head>
+
+<dom-module id="database-constraint">
+    <style>
+        /* CSS rules for your element */
+    </style>
+    <template>
+        {{constraint.name}}
+        <database-constraint-line class$="{{constraint.name}}" constraint="{{constraint}}"></database-constraint-line>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+                is: "database-constraint",
+                properties: {
+                    schemaname: String,
+                    tablename: String,
+                    constraint: {
+                        type: Object,
+                                notify: true,
+                                value: function() {
+                            return {
+                                "name":"FK_Table1_Table2",
+                                "schema":"Schema1",
+                                "table":"Table1",
+                                "columns": ["Column1", "Column2"],
+                                "r_schema":"Schema1",
+                                "r_table":"Table2",
+                                "r_columns": ["Column3", "Column4"]
+                            };
+                        }
+                    },
+                    table: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {};
+                        }
+                    },
+                },
+
+                ready: function() {
+
+                },
+
+                attached: function() {
+                    this.table = $('#'+this.schemaname+"_"+this.tablename)[0];
+
+                    var connection = $('.' + this.constraint.name)[0];
+                    $('.database-constraints-storage').append(connection);
+
+                    $(this).mouseenter(function() {
+                        connection.highlight(true);
+                        connection.highlightColumn(true, this.table);
+                    });
+                    $(this).mouseleave(function() {
+                        connection.highlight(false);
+                        connection.highlightColumn(false, this.table);
+                    });
+                }
+            });
+</script>
+</html>

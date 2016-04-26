@@ -1,0 +1,167 @@
+<!doctype html
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>database-view Demo</title>
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="../database-view.html">
+  </head>
+  <body>
+
+<!--    <p>An example of <code>&lt;database-view&gt;</code>:</p>
+
+    <button>Say Something</button> -->
+    <!-- <div style="    margin: 20px;
+    height: 100%;"> -->
+      <database-view
+              database='{"schemas":
+                          [
+                            {
+                              "name":"Schema1",
+                              "left":"590",
+                              "top":"170",
+                              "width":"660",
+                              "height":"310",
+                              "tables":
+                                [
+                                  {
+                                     "name":"Table1",
+                                     "left":"10",
+                                     "top":"100",
+                                     "columns":
+                                        [
+                                            {
+                                              "name":"Column1",
+                                              "keyType":"PK",
+                                              "nullable":false,
+                                              "type":"Number",
+                                              "default":"_seq.NEXTVAL"
+                                            }
+                                           ,{
+                                              "name":"Column2",
+                                              "keyType":"",
+                                              "nullable":true,
+                                              "type": "Varchar",
+                                              "default":"blub"
+                                            }
+                                        ],
+                                     "constraints":
+                                        [
+                                          {
+                                            "name":"FK_Schema1_Table1_Schema1_Table2",
+                                            "schema":"Schema1",
+                                            "table":"Table1",
+                                            "columns": ["Column1", "Column2"],
+                                            "r_schema":"Schema1",
+                                            "r_table":"Table2",
+                                            "r_columns": ["Column3", "Column4"]
+                                          },
+                                          {
+                                            "name":"FK_Schema1_Table1_Schema2_Table4",
+                                            "schema":"Schema1",
+                                            "table":"Table1",
+                                            "columns":["Column1"],
+                                            "r_schema":"Schema2",
+                                            "r_table":"Table4",
+                                            "r_columns":["Column3"]
+                                          }
+                                        ]
+                                  },
+                                  {
+                                      "name":"Table2",
+                                      "left":"370",
+                                      "top":"100",
+                                      "columns":
+                                        [
+                                            {
+                                              "name":"Column3",
+                                              "keyType":"PK",
+                                              "nullable":false,
+                                              "type":"Number",
+                                              "default":"_seq.NEXTVAL"
+                                            },
+                                            {
+                                              "name":"Column4",
+                                              "keyType": "",
+                                              "nullable": true,
+                                              "type":"Number",
+                                              "default":"2"
+                                            }
+                                        ],
+                                     "constraints":[]
+                                  }
+                                ]
+                            },
+                            {
+                              "name":"Schema2",
+                              "left":"60",
+                              "top":"70",
+                              "width":"440",
+                              "height":"396",
+                              "tables":
+                                [
+                                  {
+                                     "name":"Table3",
+                                     "left":"10",
+                                     "top":"80",
+                                     "columns":
+                                        [
+                                            {
+                                              "name":"Column1",
+                                              "keyType": "PK",
+                                              "nullable": false,
+                                              "type":"Number",
+                                              "default":"_seq.NEXTVAL"
+                                            }
+                                           ,{
+                                              "name":"Column2",
+                                              "keyType": "",
+                                              "nullable": true,
+                                              "type":"Varchar",
+                                              "default":""
+                                            }
+                                        ],
+                                     "constraints":[]
+                                  },
+                                  {
+                                      "name":"Table4",
+                                      "left":"150",
+                                      "top":"240",
+                                      "columns":
+                                        [
+                                            {
+                                              "name":"Column3",
+                                              "keyType": "PK",
+                                              "nullable": false,
+                                              "type":"Number",
+                                              "default":"_seq.NEXTVAL"
+                                            },
+                                            {
+                                              "name":"Column4",
+                                              "keyType": "",
+                                              "nullable": true,
+                                              "type":"Number",
+                                              "default":"1"
+                                            }
+                                        ],
+                                      "constraints":[]
+                                  }
+                                ]
+                            }
+                          ]
+                         }'
+              fancy>
+      </database-view>
+    <!-- </div> -->
+  </body>
+</html>

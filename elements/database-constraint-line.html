@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="../bower_components/polymer/polymer.html" rel="import">
+    <!-- Element Imports -->
+</head>
+
+<dom-module id="database-constraint-line">
+    <style>
+        /* CSS rules for your element */
+    </style>
+    <template>
+        <svg>
+            <line class="broom-left-top"></line>
+            <line class="broom-left-middle"></line>
+            <line class="broom-left-bottom"></line>
+            <line class="changeable"/>
+            <line class="broom-right-top"></line>
+            <line class="broom-right-middle"></line>
+            <line class="broom-right-bottom"></line>
+        </svg>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+                is: "database-constraint-line",
+                properties: {
+                    constraint: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {
+                                name: "name",
+                                schema: "schema1",
+                                table: "table1",
+                                columns: ["column1"],
+                                r_schema: "schema1",
+                                r_table: "table2",
+                                r_columns: ["column1"]
+                            };
+                        }
+                    },
+                    line: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {};
+                        }
+                    },
+                    broomLeftTop: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {};
+                        }
+                    },
+                    broomLeftMiddle: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {};
+                        }
+                    },
+                    broomLeftBottom: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {};
+                        }
+                    },
+                    broomRightTop: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {};
+                        }
+                    },
+                    broomRightMiddle: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {};
+                        }
+                    },
+                    broomRightBottom: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {};
+                        }
+                    },
+                    table: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {};
+                        }
+                    },
+                    columns: {
+                        type: Array,
+                        notify: true,
+                        value: function() {
+                            return [];
+                        }
+                    },
+                    column_pos: Number,
+                    column_height: Number,
+                    r_table: {
+                        type: Object,
+                        notify: true,
+                        value: function() {
+                            return {};
+                        }
+                    },
+                    r_columns: {
+                        type: Array,
+                        notify: true,
+                        value: function() {
+                            return [];
+                        }
+                    },
+                    r_column_pos: Number,
+                    r_column_height: Number
+                },
+
+                ready: function() {
+
+                },
+
+                attached: function() {
+                    var databaseConstraintLine = this;
+
+                    //TODO remove document selector
+                    this.line = $(this).children('svg').children('.changeable')[0];
+
+                    this.broomLeftTop = $(this).children('svg').children('.broom-left-top')[0];
+                    this.broomLeftMiddle = $(this).children('svg').children('.broom-left-middle')[0];
+                    this.broomLeftBottom = $(this).children('svg').children('.broom-left-bottom')[0];
+
+                    this.broomRightTop = $(this).children('svg').children('.broom-right-top')[0];
+                    this.broomRightMiddle = $(this).children('svg').children('.broom-right-middle')[0];
+                    this.broomRightBottom = $(this).children('svg').children('.broom-right-bottom')[0];
+
+                    $(this).mouseenter(function() {
+                        databaseConstraintLine.highlight(true);
+                        databaseConstraintLine.highlightColumn(true, this.table);
+                    });
+                    $(this).mouseleave(function() {
+                        databaseConstraintLine.highlight(false);
+                        databaseConstraintLine.highlightColumn(false, this.table);
+                    });
+
+                    var databaseConstraintLine = this;
+                    $.each(this.constraint.columns, function() {
+                        databaseConstraintLine.columns.push($('database-column#'+databaseConstraintLine.constraint.schema+"_"+databaseConstraintLine.constraint.table+"_"+this))
+                    });
+                    $.each(this.constraint.r_columns, function() {
+                        databaseConstraintLine.r_columns.push($('database-column#'+databaseConstraintLine.constraint.r_schema+"_"+databaseConstraintLine.constraint.r_table+"_"+this))
+                    });
+
+                    this.column_pos = $(this.columns[0]).position();
+                    this.column_height = $(this.columns[0]).height() / 2;
+                    this.r_column_pos = $(this.r_columns[0]).position();
+                    this.r_column_height = $(this.r_columns[0]).height() / 2;
+
+                    this.table = document.querySelector('database-table#'+this.constraint.schema+"_"+this.constraint.table);
+                    this.table.addConstraint(this);
+                    this.r_table = document.querySelector('database-table#'+this.constraint.r_schema+"_"+this.constraint.r_table);
+                    this.r_table.addConstraint(this);
+
+                    //this.refresh();
+                },
+                refresh() {
+                    //console.log(this.constraint.name);
+
+
+                  /*  console.log("refresh()");
+                    console.log($(this.column).position());
+                    console.log($(this.column).offset());
+                    console.log($(this.r_column).position());
+                    console.log($(this.r_column).offset());
+
+                    console.log("svg");
+                    console.log($(this.connection).position());
+                    console.log($(this.connection).offset());
+
+                    var pos1 = $(this.column)[0].getBoundingClientRect();
+                    var pos2 = $(this.r_column)[0].getBoundingClientRect();
+                    */
+
+                    var table_pos = this.table.getPosition();
+                    var r_table_pos = this.r_table.getPosition();
+
+                    //console.log(table_pos);
+                    //console.log(r_table_pos);
+//$(this)[0].getBoundingClientRect().width
+
+                    var diffX = 40;
+                    var diffY = 12;
+                    var diffBroomX = 25;
+                    if (table_pos.left < r_table_pos.left) {
+
+                        $(this.broomLeftTop).show();
+                        $(this.broomLeftBottom).show();
+
+                        $(this.broomRightTop).hide();
+                        $(this.broomRightBottom).hide();
+
+                        $(this.line).attr('x1',table_pos.left + table_pos.width + diffX).attr('y1',table_pos.top + this.column_pos.top + this.column_height).attr('x2',r_table_pos.left - diffX).attr('y2',r_table_pos.top + this.r_column_pos.top + this.r_column_height);
+                        $(this.broomLeftTop).attr('x1',r_table_pos.left).attr('y1',r_table_pos.top + this.r_column_pos.top + this.r_column_height - diffY).attr('x2',r_table_pos.left - diffBroomX).attr('y2',r_table_pos.top + this.r_column_pos.top + this.column_height);
+                        $(this.broomLeftMiddle).attr('x1',r_table_pos.left).attr('y1',r_table_pos.top + this.r_column_pos.top + this.r_column_height).attr('x2',r_table_pos.left - diffX).attr('y2',r_table_pos.top + this.r_column_pos.top + this.column_height);
+                        $(this.broomLeftBottom).attr('x1',r_table_pos.left).attr('y1',r_table_pos.top + this.r_column_pos.top + this.r_column_height + diffY).attr('x2',r_table_pos.left - diffBroomX).attr('y2',r_table_pos.top + this.r_column_pos.top + this.column_height);
+                        $(this.broomRightTop).attr('x1',table_pos.left + table_pos.width).attr('y1',table_pos.top + this.column_pos.top + this.column_height - diffY).attr('x2',table_pos.left + table_pos.width + diffBroomX).attr('y2',table_pos.top + this.column_pos.top + this.column_height);
+                        $(this.broomRightMiddle).attr('x1',table_pos.left + table_pos.width).attr('y1',table_pos.top + this.column_pos.top + this.column_height).attr('x2',table_pos.left + table_pos.width + diffX).attr('y2',table_pos.top + this.column_pos.top + this.column_height);
+                        $(this.broomRightBottom).attr('x1',table_pos.left + table_pos.width).attr('y1',table_pos.top + this.column_pos.top + this.column_height + diffY).attr('x2',table_pos.left + table_pos.width + diffBroomX).attr('y2',table_pos.top + this.column_pos.top + this.column_height);
+                    } else {
+
+                        $(this.broomLeftTop).show();
+                        $(this.broomLeftBottom).show();
+
+                        $(this.broomRightTop).hide();
+                        $(this.broomRightBottom).hide();
+
+                        $(this.line).attr('x1',table_pos.left - diffX).attr('y1',table_pos.top + this.column_pos.top + this.column_height).attr('x2',r_table_pos.left + r_table_pos.width + diffX).attr('y2',r_table_pos.top + this.r_column_pos.top + this.r_column_height);
+                        $(this.broomLeftTop).attr('x1',r_table_pos.left + r_table_pos.width).attr('y1',r_table_pos.top + this.r_column_pos.top + this.r_column_height - diffY).attr('x2',r_table_pos.left + r_table_pos.width + diffBroomX).attr('y2',r_table_pos.top + this.r_column_pos.top + this.column_height);
+                        $(this.broomLeftMiddle).attr('x1',r_table_pos.left + r_table_pos.width).attr('y1',r_table_pos.top + this.r_column_pos.top + this.r_column_height).attr('x2',r_table_pos.left + r_table_pos.width + diffX).attr('y2',r_table_pos.top + this.r_column_pos.top + this.column_height);
+                        $(this.broomLeftBottom).attr('x1',r_table_pos.left + r_table_pos.width).attr('y1',r_table_pos.top + this.r_column_pos.top + this.r_column_height + diffY).attr('x2',r_table_pos.left + r_table_pos.width + diffBroomX).attr('y2',r_table_pos.top + this.r_column_pos.top + this.column_height);
+                        $(this.broomRightTop).attr('x1',table_pos.left).attr('y1',table_pos.top + this.column_pos.top + this.column_height - diffY).attr('x2',table_pos.left - diffBroomX).attr('y2',table_pos.top + this.column_pos.top + this.column_height);
+                        $(this.broomRightMiddle).attr('x1',table_pos.left).attr('y1',table_pos.top + this.column_pos.top + this.column_height).attr('x2',table_pos.left - diffX).attr('y2',table_pos.top + this.column_pos.top + this.column_height);
+                        $(this.broomRightBottom).attr('x1',table_pos.left).attr('y1',table_pos.top + this.column_pos.top + this.column_height + diffY).attr('x2',table_pos.left - diffBroomX).attr('y2',table_pos.top + this.column_pos.top + this.column_height);
+                    }
+
+
+                },
+                highlight(b) {
+                    if (b) {
+                        $(this).addClass('highlight');
+                    } else {
+                        if (!this.table.selected && !this.r_table.selected) {
+                            $(this).removeClass('highlight');
+                        }
+                    }
+                },
+                highlightColumn(b) {
+                    if (b) {
+                        $.each(this.columns, function() {
+                            $(this).addClass('highlight');
+                        });
+                        $.each(this.r_columns, function() {
+                            $(this).addClass('highlight');
+                        });
+                    } else {
+                        $.each(this.columns, function() {
+                            $(this).removeClass('highlight');
+                        });
+                        $.each(this.r_columns, function() {
+                            $(this).removeClass('highlight');
+                        });
+                    }
+                }
+            });
+</script>
+</html>

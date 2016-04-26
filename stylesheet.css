@@ -1,0 +1,246 @@
+.background-color-primary {
+    background: #004358;
+}
+.background-color-secondary {
+    background-color: #1F8A70;
+}
+.background-color-tertiar {
+    background-color: #BEDB39;
+}
+.background-color-alternative-primary {
+    background-color: #FF2700;
+}
+.background-color-alternative-secondary {
+    background-color: #BE10FD;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+}
+
+database-view {
+    cursor: -webkit-grab;
+}
+
+database-view h1 {
+    color: #DCDCDC;
+    padding: 15px;
+    margin: 0;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;   /* Chrome/Safari/Opera */
+    -khtml-user-select: none;    /* Konqueror */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* Internet Explorer/Edge */
+    user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+
+
+database-schema,
+database-table {
+    display: inline-block;
+    box-sizing: border-box;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    background: white;
+    cursor: move;
+}
+
+database-schema.ui-resizable,
+database-table {
+    position: absolute;
+}
+
+database-schema .ui-resizable-handle {
+   /* background: black; */
+    width: 30px;
+    height: 30px;
+}
+database-schema .ui-resizable-handle {
+    visibility: hidden;
+}
+
+database-schema.draggable .ui-resizable-handle {
+    visibility: visible;
+}
+
+database-schema .ui-resizable-handle:before {
+    font-family: 'FontAwesome';
+    font-size: 24px;
+    padding: 4px;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
+    display: inline-block;
+}
+
+database-schema .ui-resizable-handle.ui-resizable-ne:before {
+    content: "\f062";
+    color: white;
+    padding-top: 6px;
+    padding-left: 4px;
+}
+database-schema .ui-resizable-handle.ui-resizable-se {
+    right: -5px;
+    bottom: -5px;
+    background-image: none;
+    text-indent: 0;
+}
+database-schema .ui-resizable-handle.ui-resizable-se:before {
+    content: "\f061";
+    color: #004358;
+    padding-left: 5px;
+    padding-top: 3px;
+}
+database-schema .ui-resizable-handle.ui-resizable-sw:before {
+    content: "\f063";
+    color: #004358;
+    padding-left: 5px;
+    padding-top: 3px;
+}
+database-schema .ui-resizable-handle.ui-resizable-nw:before {
+    content: "\f060";
+    color: white;
+    padding-top: 4px;
+    padding-left: 7px;
+}
+
+svg {
+    overflow: visible;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    position: absolute;
+}
+
+database-constraint {
+    padding: 5px;
+    display: block;
+    text-align: center;
+}
+
+database-constraint:hover {
+    background: #7ec699;
+}
+
+database-constraint-line svg line {
+    stroke: #FF2700;
+    stroke-width:2;
+}
+
+database-constraint-line.highlight svg line {
+    stroke: #BE10FD;
+    stroke-width: 4;
+}
+
+database-table {
+  /* margin: 15px;*/
+}
+
+
+
+.database-view-div-header {
+    padding: 0 24px;
+    line-height: 56px;
+    font-size: 12px;
+    font-weight: 500;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.database-view-div-body {
+    background: white;
+}
+
+.database-view-div-footer {
+    border-top: #aaaaaa 4px double;
+}
+
+.database-view-div-header h2 {
+    margin: 0;
+    font-size: 36px;
+    line-height: 2em;
+    color: white;
+}
+
+.database-view-div-header h3 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 2em;
+    text-align: center;
+}
+/*
+database-table .database-table {
+    display: table;
+    width: auto;
+}
+*/
+
+database-column {
+    display: table-row;
+    width: auto;
+}
+
+database-column.highlight,
+database-column.highlight:nth-child(even) {
+    background-color: #BE10FD;
+    color: white;
+}
+
+database-column .database-column {
+    display: table-cell;
+    padding: 5px;
+}
+
+database-column:nth-child(even) {
+    background: #ECECEC;
+}
+
+.database-view-canvas {
+    cursor: -webkit-grab;
+    font-size: 14px;
+    line-height: 20px;
+    overflow-x: visible;
+    overflow-y: visible;
+    position: relative;
+    width: 50px;
+    height: 50px;
+}
+
+.cursor-webkit-grabbing {
+    cursor: -webkit-grabbing !important;
+}
+
+.minimap {
+    position: absolute;
+    border-radius: 3px;
+    background: white;
+    overflow: hidden;
+    width: 150px;
+    height: 150px;
+    top: 30px;
+    right: 30px;
+    z-index: 10;
+    border: #ECECEC 1px solid;
+    cursor: initial;
+}
+
+.minimap .visible-area {
+    position: absolute;
+    background: rgba(255,100,100,0.4);
+    cursor: -webkit-grab;
+    z-index: 11;
+}
+
+.minimap .schema,
+.minimap .table {
+    background: rgba(0,0,100,0.2);
+    position: absolute;
+}
