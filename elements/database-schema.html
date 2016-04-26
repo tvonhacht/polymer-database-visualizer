@@ -17,7 +17,7 @@
 
     </style>
     <template>
-        <div class="database-view-div-header background-color-primary">
+        <div class="database-visualizer-div-header background-color-primary">
             <h2>{{schema.name}}</h2>
         </div>
         <template is="dom-repeat" items="{{schema.tables}}">
@@ -122,7 +122,7 @@
                 },
 
                 attached: function() {
-                    this.view = $('database-view')[0];
+                    this.view = $('database-visualizer')[0];
 
                     this.left = parseInt(this.schema.left);
                     this.top = parseInt(this.schema.top);
@@ -138,7 +138,7 @@
 
                     $(this).draggable({
                         //grid: [10,10],
-                        //handle: "> .database-view-div-header",
+                        //handle: "> .database-visualizer-div-header",
                         start: function(event, ui) {
                             ui.position.left = 0;
                             ui.position.top = 0;

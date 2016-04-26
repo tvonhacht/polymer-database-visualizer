@@ -1,5 +1,5 @@
 {
-  "name": "database-view",
+  "name": "database-visualizer",
   "version": "1.0.0",
   "authors": [
     "Anonymous <anonymous@example.com>"
@@ -11,9 +11,9 @@
     "polymer",
     "seed"
   ],
-  "main": "database-view.html",
+  "main": "database-visualizer.html",
   "license": "http://polymer.github.io/LICENSE.txt",
-  "homepage": "https://github.com/<USERNAME>/database-view/",
+  "homepage": "https://github.com/<USERNAME>/database-visualizer/",
   "ignore": [
     "/.*",
     "/test/",
