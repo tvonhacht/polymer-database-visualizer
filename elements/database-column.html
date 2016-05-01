@@ -19,40 +19,40 @@
 </dom-module>
 <script>
     Polymer({
-                is: "database-column",
-                properties: {
-                    column: {
-                        type: Object,
-                        notify: true,
-                        value: function() {
-                            return {
-                                name: "column1"
-                            };
-                        }
-                    },
-                    table: {
-                        type: Object,
-                        notify: true,
-                        value: function() {
-                            return {};
-                        }
-                    },
-                    schemaname: String,
-                    tablename: String
-                },
-
-                convertToNullableString(b) {
-                    return b ? "" : "*";
-                },
-
-                ready: function() {
-
-                },
-
-                attached: function() {
-                    this.table = $('#'+this.schemaname+"_"+this.tablename)[0];
-                    this.table.registerColumn(this);
+        is: "database-column",
+        properties: {
+            schemaname: String,
+            tablename: String,
+            column: {
+                type: Object,
+                notify: true,
+                value: function() {
+                    return {
+                        name: "column1"
+                    };
                 }
-            });
+            },
+            table: {
+                type: Object,
+                notify: true,
+                value: function() {
+                    return {};
+                }
+            }
+        },
+
+        convertToNullableString(b) {
+            return b ? "" : "*";
+        },
+
+        ready: function() {
+
+        },
+
+        attached: function() {
+            var table = $(this).parent().parent('#'+this.schemaname+"_"+this.tablename)[0];
+            table.registerColumn(this);
+        }
+    });
 </script>
 </html>

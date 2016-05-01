@@ -13,7 +13,7 @@
     </style>
     <template>
 
-        <div class$="database-visualizer-div-header {{selectedClass(selected)}}">
+        <div class$="database-visualizer-div-header {{selectedClass(_selected)}}">
             <h3>{{table.name}}</h3>
         </div>
         <div class="database-visualizer-div-body">
@@ -33,6 +33,7 @@
     Polymer({
                 is: "database-table",
                 properties: {
+                    schemaname: String,
                     table: {
                         type: Object,
                         notify: true,
@@ -43,208 +44,124 @@
                             };
                         }
                     },
-                    schema: {
+                    _schema: {
                         type: Object,
                         notify: true,
                         value: function() {
                             return {};
                         }
                     },
-                    columns: {
+                    _columns: {
                         type: Array,
                         notify: true,
                         value: function() {
                             return [];
                         }
                     },
-                    constraints: {
+                    _constraints: {
                         type: Array,
                         notify: true,
                         value: function() {
                             return [];
                         }
                     },
-                    schemaname: String,
-                    left: Number,
-                    top: Number,
-                    width: Number,
-                    height: Number,
-                    selected: {
+                    _left: Number,
+                    _top: Number,
+                    _width: Number,
+                    _height: Number,
+                    _selected: {
                         type: Boolean,
                         notify: true,
                         value: false,
                         observer: 'selectedChanged'
                     },
-                    resizableLeft: Number,
-                    resizableTop: Number
+                    _calcLeft: Number,
+                    _calcTop: Number
                 },
+                /** observer listening for selection changing **/
                 selectedChanged: function(value) {
                     var table = this;
-                    $.each(this.constraints, function() {
+                    $.each(this._constraints, function() {
                         this.highlight(value, table);
                     });
                 },
 
+                /** changing class on selection **/
                 selectedClass(b) {
                     return b ? "background-color-tertiar" : "background-color-secondary";
                 },
 
                 registerColumn(column) {
-                    this.columns.push(column);
+                    this._columns.push(column);
+                },
+                registerConstraint(constraint) {
+                    this._constraints.push(constraint);
                 },
 
-                resizeTop(resizableTop) {
-                    this.resizableTop = this.top + resizableTop;
-                    $(this).css({top: this.resizableTop});
+                setSchema(schema) {
+                    this._schema = schema;
                 },
-                resizeLeft(resizableLeft) {
-                    this.resizableLeft = this.left + resizableLeft
-                    $(this).css({left: this.resizableLeft});
+                getSchema() {
+                    return this._schema;
                 },
 
+                calcTop(changeTop) {
+                    this._calcTop = this._top + changeTop;
+                    $(this).css({top: this._calcTop});
+                },
+                setCalcTop() {
+                    if (!isNaN(this._calcTop)) {
+                        this._top = this._calcTop;
+                    }
+                },
+                calcLeft(changeLeft) {
+                    this._calcLeft = this._left + changeLeft
+                    $(this).css({left: this._calcLeft});
+                },
+                setCalcLeft() {
+                    if (!isNaN(this._calcLeft)) {
+                        this._left = this._calcLeft;
+                    }
+                },
+
+                getScale() {
+                    return this._schema.getScale();
+                },
+
+                setTop(top) {
+                    this._top = top;
+                    $(this).css({top: this.getTop()});
+                },
+                getTop() {
+                    return this._top;
+                },
                 setLeft(left) {
-                    this.left = left;
+                    this._left = left;
+                    $(this).css({left: this.getLeft()});
+                },
+                getLeft() {
+                    return this._left;
+                },
+                getWidth() {
+                    return this._width;
+                },
+                getHeight() {
+                    return this._height;
                 },
 
-                setResizeLeft() {
-                    this.top = this.resizableTop;
+                isSelected() {
+                    return this._selected;
                 },
-                setResizeTop() {
-                    this.left = this.resizableLeft;
-                },
-
-                ready: function() {
-
+                setSelected(selected) {
+                    this._selected = selected;
                 },
 
-                attached: function() {
-
-                    this.left = parseInt(this.table.left);
-                    this.top = parseInt(this.table.top);
-                    this.width = $(this).width();
-                    this.height = $(this).height();
-
-                    this.schema = $('#'+this.schemaname)[0];
-                    this.schema.registerTable(this);
-
-                    $(this).css({
-                        left: this.left,
-                        top: this.top,
-                        width: this.width,
-                        height: this.height
-                    });
-
-                    $(this).first().on('mouseup', function(e) {
-                        this.selected = !this.selected;
-                    });
-
-                    var selectedBeforeDrag;
-
-                    $(this).draggable({
-                        //grid: [10,10],
-                        //handle: "> .database-visualizer-div-header",
-                        start: function(event, ui) {
-                            ui.position.left = 0;
-                            ui.position.top = 0;
-
-                            selectedBeforeDrag = this.selected;
-                            this.selected = true;
-                            this.setDraggingChild(true);
-                        },
-                        drag: function(event, ui) {
-                            function round(number, increment, offset) {
-                                return Math.ceil((number - offset) / increment ) * increment + offset;
-                            }
-
-                            let draggingTable = this;
-
-                            var changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
-                            var newLeft = ui.originalPosition.left + changeLeft / this.schema.getScale(); // adjust new left by our zoomScale
-
-                            var changeTop = ui.position.top - ui.originalPosition.top; // find change in top
-                            var newTop = ui.originalPosition.top + changeTop / this.schema.getScale(); // adjust new top by our zoomScale
-
-                            let tablePosition = this.getPosition();
-                            let schemaPosition = this.schema.getPosition();
-
-                            // TODO change into function of element to change css and variable on element too
-                            if (tablePosition.left + tablePosition.width > schemaPosition.left + schemaPosition.width - 10) {
-                                this.schema.setWidth(schemaPosition.width + 10);
-                            }
-                            if (tablePosition.left < schemaPosition.left + 20) {
-                                let diff = round(Math.abs(tablePosition.left - (schemaPosition.left + 20)), 10, 10);
-                                this.schema.setWidth(schemaPosition.width + diff);
-                                this.schema.setLeft(schemaPosition.left - diff);
-                                $.each(this.schema.getTables(), function() {
-                                    if (draggingTable !== this) {
-                                        this.left = this.left + diff;
-                                        $(this).css({left: this.left});
-                                    }
-                                });
-                            }
-                            if (tablePosition.top + tablePosition.height > schemaPosition.top + schemaPosition.height - 10 - 25) {
-                                this.schema.setHeight(schemaPosition.height + 10);
-                            }
-
-                            // TODO remove 72
-                            if (tablePosition.top < schemaPosition.top + 72 + 10) {
-                                let diff = round(Math.abs(tablePosition.top - (schemaPosition.top + 72 + 10)), 10, 10);
-                                this.schema.setHeight(schemaPosition.height + diff);
-                                this.schema.setTop(schemaPosition.top - diff);
-                                $.each(this.schema.getTables(), function() {
-                                    if (draggingTable !== this) {
-                                        this.top = this.top + diff;
-                                        $(this).css({top: this.top});
-                                    }
-                                });
-
-                            }
-
-                            newLeft = newLeft <= 0 ? 10 : newLeft;
-                            ui.position.left = newLeft;
-                            // TODO try to remove this this.left updating while dragging, just do it in stop
-                            this.left = newLeft;
-                            newTop = newTop <= 75 ? 80 : newTop;
-                            ui.position.top = newTop;
-                            this.top = newTop;
-
-                            $(this).css('left', newLeft + 'px');
-                            $(this).css('top', newTop + 'px');
-
-                            this.refresh();
-
-                        },
-                        stop: function(event, ui) {
-                            // TODO make short and beautiful
-                            var changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
-                            var newLeft = ui.originalPosition.left + changeLeft / this.schema.getScale(); // adjust new left by our zoomScale
-
-                            var changeTop = ui.position.top - ui.originalPosition.top; // find change in top
-                            var newTop = ui.originalPosition.top + changeTop / this.schema.getScale(); // adjust new top by our zoomScale
-
-                            this.left = newLeft * this.schema.getScale();
-                            this.top = newTop * this.schema.getScale();
-
-                            this.refresh();
-                            this.schema.refreshMinimap();
-                            this.selected = selectedBeforeDrag;
-                            this.setDraggingChild(false);
-                        }
-                    });
+                setDraggingChild(bool) {
+                    this._schema.setDraggingChild(bool);
                 },
-                addConstraint(constraint) {
-                    this.constraints.push(constraint);
-                },
-                setDraggingChild(b) {
-                    this.schema.setDraggingChild(b);
-                },
-                refresh() {
-                    $.each(this.constraints, function() {
-                        this.refresh();
-                    })
-                },
+
                 getPosition() {
-                    let parent = this.schema.getPosition();
+                    let parent = this._schema.getPosition();
                     let position = $(this).css([ "left", "top", "width", "height" ]);
                     return {
                         left: parseInt(position.left, 10) + parseInt(parent.left, 10),
@@ -252,7 +169,140 @@
                         width: $(this).width(),
                         height: $(this).height()
                     };
+                },
+
+                ready: function() {
+
+                },
+
+                attached: function() {
+                    /** parse positions **/
+                    this._left = parseInt(this.table.left);
+                    this._top = parseInt(this.table.top);
+                    this._width = $(this).width();
+                    this._height = $(this).height();
+
+                    $(this).css({
+                        left: this._left,
+                        top: this._top,
+                        width: this._width,
+                        height: this._height
+                    });
+
+                    /** find schema **/
+                    this.setSchema($(this).parent('#'+this.schemaname)[0]);
+                    this.getSchema().registerTable(this);
+
+                    /** toggle select on clicking table **/
+                    $(this).first().on('mouseup', function() {
+                        this.setSelected(!this.isSelected());
+                    });
+
+                    /** add drag to table **/
+                    var selectedBeforeDrag;
+                    $(this).draggable({
+                        //TODO drag only on header
+                        //handle: "> .database-visualizer-div-header",
+                        start: function(event, ui) {
+                            /** set zero for zoom in and out bug behaviour **/
+                            ui.position.top = 0;
+                            ui.position.left = 0;
+
+                            selectedBeforeDrag = this.isSelected();
+                            this.setSelected(true);
+                            this.setDraggingChild(true);
+                        },
+                        drag: function(event, ui) {
+                            function round(number, increment, offset) {
+                                return Math.ceil((number - offset) / increment ) * increment + offset;
+                            }
+
+                            let tablePosition = this.getPosition();
+                            let schemaPosition = this.getSchema().getPosition();
+
+                            let draggingTable = this;
+
+                            /** dragging table to the right **/
+                            if (tablePosition.left + tablePosition.width > schemaPosition.left + schemaPosition.width - getPadding()) {
+                                this.getSchema().setWidth(tablePosition.left + tablePosition.width - schemaPosition.left + getPadding());
+                            }
+
+                            /** dragging table to the left **/
+                            var changeLeft = getChangeLeft(ui, this.getScale());
+                            if (changeLeft < getPadding()) {
+                                let diff = getPadding() - changeLeft;
+                                this.getSchema().calcWidth(diff);
+                                this.getSchema().calcLeft(diff);
+                                $.each(this.getSchema().getTables(), function() {
+                                    if (draggingTable !== this) {
+                                        this.calcLeft(diff);
+                                    }
+                                });
+                            }
+
+                            /** dragging table to the bottom **/
+                            if (tablePosition.top + tablePosition.height > schemaPosition.top + schemaPosition.height - getPadding() - 25) {
+                                this._schema.setHeight(tablePosition.top + tablePosition.height - schemaPosition.top + getPadding() + 25);
+                            }
+
+                            /** dragging table to the top **/
+                            var changeTop = getChangeTop(ui, this.getScale());
+                            if (changeTop < this.getSchema().getHeaderHeight() + getPadding()) {
+                                let diff = this.getSchema().getHeaderHeight() + getPadding() - changeTop;
+                                this.getSchema().calcHeight(diff);
+                                this.getSchema().calcTop(diff);
+                                $.each(this.getSchema().getTables(), function() {
+                                    if (draggingTable !== this) {
+                                        this.calcTop(diff);
+                                    }
+                                });
+                            }
+
+                            let newLeft = getNewLeft(ui, this.getScale());
+                            newLeft = newLeft < getPadding() ? getPadding() : newLeft;
+                            this.setLeft(newLeft);
+
+                            let newTop = getNewTop(ui, this.getScale());
+                            newTop = newTop < this.getSchema().getHeaderHeight() + getPadding() ? this.getSchema().getHeaderHeight() + getPadding() : newTop;
+                            this.setTop(newTop);
+
+                            ui.position.left = this.getLeft();
+                            ui.position.top = this.getTop();
+
+                            this.refresh();
+                        },
+                        stop: function() {
+                            this.getSchema().setCalcLeft();
+                            this.getSchema().setCalcTop();
+                            this.getSchema().setCalcWidth();
+                            this.getSchema().setCalcHeight();
+
+                            var draggingTable = this;
+                            $.each(this.getSchema().getTables(), function() {
+                                if (draggingTable !== this) {
+                                    this.setCalcLeft();
+                                    this.setCalcTop();
+                                }
+                            });
+
+                            this.refresh();
+                            this.refreshMinimap();
+                            this.setSelected(selectedBeforeDrag);
+                            this.setDraggingChild(false);
+                        }
+                    });
+                },
+
+                refresh() {
+                    $.each(this._constraints, function() {
+                        this.refresh();
+                    })
+                },
+                refreshMinimap() {
+                    this.getSchema().refreshMinimap();
                 }
             });
 </script>
+
+<script src="../util/calc.js"></script>
 </html>

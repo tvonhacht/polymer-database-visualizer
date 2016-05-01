@@ -2,9 +2,9 @@
   "name": "database-visualizer",
   "version": "1.0.0",
   "authors": [
-    "Anonymous <anonymous@example.com>"
+    "Thorben von Hacht <thorben@vh8.de>"
   ],
-  "description": "An element providing a solution to no problem in particular.",
+  "description": "An element providing a solution for visualizing a database.",
   "keywords": [
     "web-component",
     "web-components",
@@ -13,7 +13,7 @@
   ],
   "main": "database-visualizer.html",
   "license": "http://polymer.github.io/LICENSE.txt",
-  "homepage": "https://github.com/<USERNAME>/database-visualizer/",
+  "homepage": "https://github.com/thorbenvh8/database-visualizer/",
   "ignore": [
     "/.*",
     "/test/",

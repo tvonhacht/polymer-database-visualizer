@@ -29,7 +29,6 @@
     Polymer({
                 is: "database-schema",
                 properties: {
-
                     schema: {
                         type: Object,
                         notify: true,
@@ -41,80 +40,135 @@
                             };
                         }
                     },
-                    view: {
+                    _visualizer: {
                         type: Object,
                         notify: true,
                         value: function() {
                             return {};
                         }
                     },
-                    tables: {
+                    _tables: {
                         type: Array,
                         notify: true,
                         value: function() {
                             return [];
                         }
                     },
-                    left: Number,
-                    top: Number,
-                    width: Number,
-                    height: Number/*,
-                    resizeLeft: Number,
-                    resizeTop: Number,
-                    resizeWidth: Number,
-                    resizeHeight: Number*/
+                    _left: Number,
+                    _top: Number,
+                    _width: Number,
+                    _height: Number,
+                    _headerHeight: Number,
+                    _calcWidth: Number,
+                    _calcLeft: Number,
+                    _calcTop: Number,
+                    _calcHeight: Number
                 },
 
                 registerTable(table) {
-                    this.tables.push(table);
+                    this._tables.push(table);
 
-                    if (this.schema.tables.length === this.tables.length) {
-                        console.log("hier");
-                        this.view.registerSchema(this);
+                    if (this.schema.tables.length === this._tables.length) {
+                        this._visualizer.registerSchema(this);
                     }
 
                 },
 
                 getScale() {
-                    return this.view.getScale();
+                    return this._visualizer.getScale();
                 },
 
                 getTables() {
-                    return this.tables;
+                    return this._tables;
                 },
 
                 refresh() {
-                    $.each(this.tables, function() {
+                    $.each(this._tables, function() {
                         this.refresh();
                     });
                 },
 
                 setTop(top) {
-                    this.top = top;
-                    $(this).css({top: this.top});
+                    this._top = top;
+                    $(this).css({top: this._top});
+                },
+                getTop() {
+                    return this._top;
                 },
 
                 setHeight(height) {
-                    this.height = height;
-                    $(this).css({height: this.height});
+                    this._height = height;
+                    $(this).css({height: this._height});
+                },
+                getHeight() {
+                    return this._height;
                 },
 
                 setLeft(left) {
-                    this.left = left;
-                    $(this).css({left: this.left});
+                    this._left = left;
+                    $(this).css({left: this._left});
+                },
+                getLeft() {
+                    return this._left;
                 },
 
                 setWidth(width) {
-                    this.width = width;
-                    $(this).css({width: this.width});
+                    this._width = width;
+                    $(this).css({width: this._width});
+                },
+                getWidth() {
+                    return this._width;
+                },
+
+                setHeaderHeight(headerHeight) {
+                    this._headerHeight = headerHeight;
+                },
+                getHeaderHeight() {
+                    return this._headerHeight;
                 },
 
                 setDraggingChild(b) {
-                    this.view.setDraggingChild(b);
+                    this._visualizer.setDraggingChild(b);
+                },
+                calcWidth(changeWidth) {
+                    this._calcWidth = this._width + changeWidth;
+                    $(this).css({width: this._calcWidth});
+                },
+                setCalcWidth() {
+                    if (!isNaN(this._calcWidth) && this._width < this._calcWidth) {
+                        this._width = this._calcWidth;
+                    }
+                },
+                calcLeft(changeLeft) {
+                    this._calcLeft = this._left - changeLeft;
+                    $(this).css({left: this._calcLeft});
+                },
+                setCalcLeft() {
+                    if (!isNaN(this._calcLeft)) {
+                        this._left = this._calcLeft;
+                    }
+                },
+                calcHeight(changeHeight) {
+                    this._calcHeight = this._height + changeHeight;
+                    $(this).css({height: this._calcHeight});
+                },
+                setCalcHeight() {
+                    if (!isNaN(this._calcHeight) && this._height < this._calcHeight) {
+                        this._height = this._calcHeight;
+                    }
+                },
+                calcTop(changeTop) {
+                    this._calcTop = this._top - changeTop;
+                    $(this).css({top: this._calcTop});
+                },
+                setCalcTop() {
+                    if (!isNaN(this._calcTop)) {
+                        this._top = this._calcTop;
+                    }
                 },
 
                 refreshMinimap() {
-                    this.view.refreshMinimap();
+                    this._visualizer.refreshMinimap();
                 },
 
                 ready: function() {
@@ -122,22 +176,24 @@
                 },
 
                 attached: function() {
-                    this.view = $('database-visualizer')[0];
+                    this._visualizer = $(this).parent().parent('database-visualizer')[0];
 
-                    this.left = parseInt(this.schema.left);
-                    this.top = parseInt(this.schema.top);
-                    this.width = parseInt(this.schema.width);
-                    this.height = parseInt(this.schema.height);
+                    this._left = parseInt(this.schema.left);
+                    this._top = parseInt(this.schema.top);
+                    this._width = parseInt(this.schema.width);
+                    this._height = parseInt(this.schema.height);
+
+                    this.setHeaderHeight($(this).children('.database-visualizer-div-header').height());
 
                     $(this).css({
-                        left: this.left,
-                        top: this.top,
-                        width: this.width,
-                        height: this.height
+                        left: this._left,
+                        top: this._top,
+                        width: this._width,
+                        height: this._height
                     });
 
                     $(this).draggable({
-                        //grid: [10,10],
+                        //TODO drag only on header
                         //handle: "> .database-visualizer-div-header",
                         start: function(event, ui) {
                             ui.position.left = 0;
@@ -145,14 +201,8 @@
                             this.setDraggingChild(true);
                         },
                         drag: function(event, ui) {
-                            var changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
-                            var newLeft = ui.originalPosition.left + changeLeft / this.getScale(); // adjust new left by our zoomScale
-
-                            var changeTop = ui.position.top - ui.originalPosition.top; // find change in top
-                            var newTop = ui.originalPosition.top + changeTop / this.getScale(); // adjust new top by our zoomScale
-
-                            ui.position.left = newLeft;
-                            ui.position.top = newTop;
+                            ui.position.left = getNewLeft(ui, this.getScale());
+                            ui.position.top = getNewTop(ui, this.getScale());
 
                             this.refresh();
                         },
@@ -164,11 +214,11 @@
                             var changeTop = ui.position.top - ui.originalPosition.top; // find change in top
                             var newTop = ui.originalPosition.top + changeTop / this.getScale(); // adjust new top by our zoomScale
 
-                            this.left = newLeft * this.getScale();
-                            this.top = newTop * this.getScale();
+                            this._left = newLeft * this.getScale();
+                            this._top = newTop * this.getScale();
 
                             this.refresh();
-                            this.view.refreshMinimap();
+                            this._visualizer.refreshMinimap();
                             this.setDraggingChild(false);
                         }
                     });
@@ -181,7 +231,7 @@
                     });
 
                     $(this).resizable({
-                         grid: [ 10, 10 ],
+                         //grid: [ 10, 10 ],
                          handles: "ne, nw, se, sw",
                          /*handles: { 'ne': '.ui-resizable-handle.ui-resizable-ne', 'nw': '.ui-resizable-handle.ui-resizable-nw', 'se': '.ui-resizable-handle.ui-resizable-se', 'sw': '.ui-resizable-handle.ui-resizable-sw'},*/
 
@@ -189,10 +239,10 @@
                          minHeight: -($(this).height()) * 10, // so we can shrink our resizable while scaled
                          start: function(event, ui) {
                              /*
-                             this.resizeLeft = this.left;
-                             this.resizeTop = this.top;
-                             this.resizeWidth = this.width;
-                             this.resizeHeight = this.height;
+                             this.calcLeft = this._left;
+                             this.calcTop = this._top;
+                             this.resizeWidth = this._width;
+                             this.resizeHeight = this._height;
                              */
                          },
                          resize: function(event, ui) {
@@ -201,61 +251,32 @@
                              var axis = $(event.target).data('uiResizable').axis;
 
                              /** calculate new dimensions (width, height, left, top) **/
-                             var changeWidth = ui.size.width - ui.originalSize.width; // find change in width
-                             var newWidth = ui.originalSize.width + changeWidth / this.getScale(); // adjust new width by our zoomScale
+                             var newWidth = getNewWidth(ui, this.getScale());
 
-                             var changeHeight = ui.size.height - ui.originalSize.height; // find change in height
-                             var newHeight = ui.originalSize.height + changeHeight / this.getScale(); // adjust new height by our zoomScale
+                             var newHeight = getNewHeight(ui, this.getScale());
 
-                             var changeLeft = (ui.position.left - ui.originalPosition.left) / this.getScale(); // find change in left
-                             var newLeft = ui.originalPosition.left + changeLeft; // adjust new left by our zoomScale
+                             var changeLeft = getChangeLeft(ui, this.getScale());
+                             var newLeft = getNewLeft(ui, this.getScale());
 
-                             var changeTop = (ui.position.top - ui.originalPosition.top) / this.getScale(); // find change in top
-                             var newTop = ui.originalPosition.top + changeTop; // adjust new top by our zoomScale
+                             var changeTop = getChangeTop(ui, this.getScale());
+                             var newTop = getNewTop(ui, this.getScale());
 
-                             /*
-                             console.log("changeWidth: " + changeWidth);
-                             console.log("newWidth: " + newWidth);
-
-                             console.log("changeHeight: " + changeHeight);
-                             console.log("newHeight: " + newHeight);
-*/
-                             console.log("changeLeft: " + changeLeft);
-                             console.log("newLeft: " + newLeft);
-/*
-                             console.log("changeTop: " + changeTop);
-                             console.log("newTop: " + newTop);
-                             */
-
-                             //TODO dont do this always, only when necessary with axis
-                             //TODO remove 10 with constant
-                             var scale = this.getScale();
                              var left = newWidth;
                              var top = newHeight;
                              var right = 0;
                              var bottom = 0;
-                             $.each(this.tables, function() {
-                                 left = left > (this.left + (changeLeft * -1)) ? (this.left + (changeLeft * -1)) : left;
-                                 top = top > (this.top + (changeTop * -1)) ? (this.top + (changeTop * -1)) : top;
-                                 right = right < (this.left + this.width) ? (this.left + this.width) : right;
-                                 bottom = bottom < (this.top + this.height) ? (this.top + this.height) : bottom;
+                             $.each(this._tables, function() {
+                                 left = left > (this.getLeft() + (changeLeft * -1)) ? (this.getLeft() + (changeLeft * -1)) : left;
+                                 top = top > (this.getTop() + (changeTop * -1)) ? (this.getTop() + (changeTop * -1)) : top;
+                                 right = right < (this.getLeft() + this.getWidth()) ? (this.getLeft() + this.getWidth()) : right;
+                                 bottom = bottom < (this.getTop() + this.getHeight()) ? (this.getTop() + this.getHeight()) : bottom;
                              });
-                             top = top - 72;
+                             top = top - this.getHeaderHeight();
 
-                             /*
-                             console.log("left: " + left);
-                             console.log("top: " + top);
-                             console.log("right: " + right);
-                             console.log("bottom: " + bottom);
-                             */
-
-                             var CONSTANT_BORDER_WIDTH = 10;
-
-                             var diffWidth = newWidth;
                              if (axis.indexOf("w") >= 0) {
-                                 if (left <= CONSTANT_BORDER_WIDTH) {
-                                     newWidth = newWidth - (left - CONSTANT_BORDER_WIDTH);
-                                     newLeft = newLeft + (left - CONSTANT_BORDER_WIDTH);
+                                 if (left <= getPadding()) {
+                                     newWidth = newWidth - (left - getPadding());
+                                     newLeft = newLeft + (left - getPadding());
                                  }
                              }
                              if (axis.indexOf("n") >= 0) {
@@ -275,39 +296,27 @@
                                  }
                              }
 
-                             diffWidth = diffWidth - newWidth;
-
-                            // console.log("bottom: " + bottom);
-                            // console.log("newWidth: " + newWidth);
-                            // console.log("newLeft" + newLeft);
-
-                             this.width = newWidth;
+                             this._width = newWidth;
                              ui.size.width = newWidth;
-                             this.left = newLeft;
+                             this._left = newLeft;
                              ui.position.left = newLeft;
-
-                             this.height = newHeight;
+                             this._height = newHeight;
                              ui.size.height = newHeight;
-                             this.top = newTop;
+                             this._top = newTop;
                              ui.position.top = newTop;
 
                              changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
                              changeTop = ui.position.top - ui.originalPosition.top; // find change in top
 
-                             $.each(this.tables, function() {
-                                 this.resizeLeft(changeLeft * -1);
-                                 this.resizeTop(changeTop * -1);
+                             $.each(this._tables, function() {
+                                 this.calcLeft(changeLeft * -1);
+                                 this.calcTop(changeTop * -1);
                              });
                          },
-                         stop: function(event, ui) {
-                             /*this.left = this.resizeLeft;
-                             this.top = this.resizeTop;
-                             this.width = this.resizeWidth;
-                             this.height = this.resizeHeight;*/
-
-                             $.each(this.tables, function() {
-                                 this.setResizeLeft();
-                                 this.setResizeTop();
+                         stop: function() {
+                             $.each(this._tables, function() {
+                                 this.setCalcLeft();
+                                 this.setCalcTop();
                              });
 
                              this.refreshMinimap();
@@ -326,4 +335,6 @@
                 }
             });
 </script>
+
+<script src="../util/calc.js"></script>
 </html>
