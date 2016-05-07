@@ -138,13 +138,15 @@ Example:
       _minimapWidth: Number,
       _minimapHeight: Number
     },
-
+    load() {
+      $('.loading').removeClass('hidden');
+    },
     databaseChanged(database) {
       if (database === null || database === "" || database.schemas === null || database.schemas === "" || database.schemas.length <= 0) {
         $('.empty').removeClass('hidden');
         $('.minimap').addClass('hidden');
       } else {
-        $('.loading').removeClass('hidden');
+        this.load();
         $('.empty').addClass('hidden');
         $('.minimap').removeClass('hidden');
       }
