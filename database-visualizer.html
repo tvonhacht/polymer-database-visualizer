@@ -7,9 +7,13 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
-<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="elements/database-schema.html">
-<link rel="import" href="elements/database-constraint-line.html">
+<!--
+<link rel="import" href="bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="bower_components/paper-menu/paper-submenu.html">
+<link rel="import" href="bower_components/paper-item/paper-item.html">
+-->
 <link rel="stylesheet" href="stylesheet.css">
 <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
 
@@ -37,6 +41,16 @@ Example:
 
   <template>
     <h1>&lt;database-visualizer&gt;</h1>
+    <div class="empty hidden">nothing loaded</div>
+    <div class="loading hidden">
+      <div class="spinner">
+        <div class="rect1"></div>
+        <div class="rect2"></div>
+        <div class="rect3"></div>
+        <div class="rect4"></div>
+        <div class="rect5"></div>
+      </div>
+    </div>
     <div class="minimap"><div class="visible-area"></div></div>
     <div class="database-visualizer-canvas" style="left: 0px; top: 0px;">
       <template is="dom-repeat" items="{{database.schemas}}">
@@ -68,7 +82,8 @@ Example:
                         tables: [{name: "table1"}]}],
             foreignKeys: [{column: "column1"}]
           };
-        }
+        },
+        observer: 'databaseChanged'
       },
 
       _schemas: {
@@ -124,6 +139,17 @@ Example:
       _minimapHeight: Number
     },
 
+    databaseChanged(database) {
+      if (database === null || database === "" || database.schemas === null || database.schemas === "" || database.schemas.length <= 0) {
+        $('.empty').removeClass('hidden');
+        $('.minimap').addClass('hidden');
+      } else {
+        $('.loading').removeClass('hidden');
+        $('.empty').addClass('hidden');
+        $('.minimap').removeClass('hidden');
+      }
+    },
+
     getSchemas() {
       return this._schemas;
     },
@@ -131,8 +157,15 @@ Example:
       this.getSchemas().push(schema);
 
       if (this.database.schemas.length === this.getSchemas().length) {
+        this.refresh();
         this.refreshMinimap();
         this.refreshMinimapZoom();
+
+        var databaseVisualizer = this;
+        setTimeout(function() {
+          console.log("refresh");
+          databaseVisualizer.refresh();
+        }, 500);
       }
     },
 

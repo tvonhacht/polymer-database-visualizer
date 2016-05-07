@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link href="../../polymer/polymer.html" rel="import">
     <link href="database-column.html" rel="import">
     <link href="database-constraint.html" rel="import">
     <!-- Element Imports -->
@@ -93,9 +92,20 @@
 
                 registerColumn(column) {
                     this._columns.push(column);
+                    if (this._columns.length === this.table.columns.length) {
+                        console.log("table.registerColumn");
+                        var columns = this._columns;
+                        $.each(this._constraints, function() {
+                           this.registerColumn(columns);
+                        });
+                    }
                 },
                 registerConstraint(constraint) {
                     this._constraints.push(constraint);
+                    if (this._columns.length === this.table.columns.length) {
+                        console.log("table.registerConstraint");
+                        constraint.registerColumn(this._columns);
+                    }
                 },
 
                 setSchema(schema) {
@@ -163,6 +173,7 @@
                 getPosition() {
                     let parent = this._schema.getPosition();
                     let position = $(this).css([ "left", "top", "width", "height" ]);
+                    //TODO remove?!
                     return {
                         left: parseInt(position.left, 10) + parseInt(parent.left, 10),
                         top: parseInt(position.top, 10) + parseInt(parent.top, 10),
@@ -177,8 +188,8 @@
 
                 attached: function() {
                     /** parse positions **/
-                    this._left = parseInt(this.table.left);
-                    this._top = parseInt(this.table.top);
+                    this._left = this.table.left;
+                    this._top = this.table.top;
                     this._width = $(this).width();
                     this._height = $(this).height();
 

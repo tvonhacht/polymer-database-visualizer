@@ -14,150 +14,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <title>database-visualizer Demo</title>
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="../database-visualizer.html">
+      <link rel="import" href="../database-visualizer.html">
+    <!-- <link rel="import" href="../bowercomponents/paper-menu/paper-menu.html">
+    <link rel="import" href="../bowercomponents/paper-menu/paper-submenu.html">
+    <link rel="import" href="../bowercomponents/paper-item/paper-item.html"> -->
+      <!-- TODO <client-uuid> -->
   </head>
   <body>
 
-  <div style="margin: 20px; height: 100%;">
-      <database-visualizer
-              database='{"schemas":
-                          [
-                            {
-                              "name":"Schema1",
-                              "left":"590",
-                              "top":"170",
-                              "width":"660",
-                              "height":"310",
-                              "tables":
-                                [
-                                  {
-                                     "name":"Table1",
-                                     "left":"10",
-                                     "top":"100",
-                                     "columns":
-                                        [
-                                            {
-                                              "name":"Column1",
-                                              "keyType":"PK",
-                                              "nullable":false,
-                                              "type":"Number",
-                                              "default":"_seq.NEXTVAL"
-                                            }
-                                           ,{
-                                              "name":"Column2",
-                                              "keyType":"",
-                                              "nullable":true,
-                                              "type": "Varchar",
-                                              "default":"blub"
-                                            }
-                                        ],
-                                     "constraints":
-                                        [
-                                          {
-                                            "name":"FK_Schema1_Table1_Schema1_Table2",
-                                            "schema":"Schema1",
-                                            "table":"Table1",
-                                            "columns": ["Column1", "Column2"],
-                                            "r_schema":"Schema1",
-                                            "r_table":"Table2",
-                                            "r_columns": ["Column3", "Column4"]
-                                          },
-                                          {
-                                            "name":"FK_Schema1_Table1_Schema2_Table4",
-                                            "schema":"Schema1",
-                                            "table":"Table1",
-                                            "columns":["Column1"],
-                                            "r_schema":"Schema2",
-                                            "r_table":"Table4",
-                                            "r_columns":["Column3"]
-                                          }
-                                        ]
-                                  },
-                                  {
-                                      "name":"Table2",
-                                      "left":"370",
-                                      "top":"100",
-                                      "columns":
-                                        [
-                                            {
-                                              "name":"Column3",
-                                              "keyType":"PK",
-                                              "nullable":false,
-                                              "type":"Number",
-                                              "default":"_seq.NEXTVAL"
-                                            },
-                                            {
-                                              "name":"Column4",
-                                              "keyType": "",
-                                              "nullable": true,
-                                              "type":"Number",
-                                              "default":"2"
-                                            }
-                                        ],
-                                     "constraints":[]
-                                  }
-                                ]
-                            },
-                            {
-                              "name":"Schema2",
-                              "left":"60",
-                              "top":"70",
-                              "width":"440",
-                              "height":"396",
-                              "tables":
-                                [
-                                  {
-                                     "name":"Table3",
-                                     "left":"10",
-                                     "top":"80",
-                                     "columns":
-                                        [
-                                            {
-                                              "name":"Column1",
-                                              "keyType": "PK",
-                                              "nullable": false,
-                                              "type":"Number",
-                                              "default":"_seq.NEXTVAL"
-                                            }
-                                           ,{
-                                              "name":"Column2",
-                                              "keyType": "",
-                                              "nullable": true,
-                                              "type":"Varchar",
-                                              "default":""
-                                            }
-                                        ],
-                                     "constraints":[]
-                                  },
-                                  {
-                                      "name":"Table4",
-                                      "left":"150",
-                                      "top":"240",
-                                      "columns":
-                                        [
-                                            {
-                                              "name":"Column3",
-                                              "keyType": "PK",
-                                              "nullable": false,
-                                              "type":"Number",
-                                              "default":"_seq.NEXTVAL"
-                                            },
-                                            {
-                                              "name":"Column4",
-                                              "keyType": "",
-                                              "nullable": true,
-                                              "type":"Number",
-                                              "default":"1"
-                                            }
-                                        ],
-                                      "constraints":[]
-                                  }
-                                ]
-                            }
-                          ]
-                         }'
-              fancy>
+ <!-- <div style="margin: 20px; height: 100%;"> -->
+      <button id="click">click</button>
+      <database-visualizer database=''>
+                        <!-- -->
+
       </database-visualizer>
-    </div>
+    <!-- </div> -->
   </body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.js"></script>
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+  <script>
+       $('#click').on('click' , function() {
+           $('database-visualizer').attr({database: '{"schemas":[{"id":null,"name":"Schema1","left":590,"top":170,"width":660,"height":310,"tables":[{"id":null,"name":"Table1","left":10,"top":100,"columns":[{"name":"Column1","keyType":"PK","nullable":false,"type":"Number","defaultValue":"_seq.NEXTVAL"},{"name":"Column2","keyType":"","nullable":true,"type":"Varchar","defaultValue":"blub"}],"constraints":[{"name":"FK_Schema1_Table1_Schema1_Table2","schema":"Schema1","table":"Table1","columns":["Column1","Column2"],"rcolumns":["Column3","Column4"],"rtable":"Table2","rschema":"Schema1"},{"name":"FK_Schema1_Table1_Schema2_Table4","schema":"Schema1","table":"Table1","columns":["Column1"],"rcolumns":["Column3"],"rtable":"Table4","rschema":"Schema2"}]},{"id":null,"name":"Table2","left":370,"top":100,"columns":[{"name":"Column3","keyType":"PK","nullable":false,"type":"Number","defaultValue":"_seq.NEXTVAL"},{"name":"Column4","keyType":"","nullable":true,"type":"Number","defaultValue":"2"}],"constraints":[]}]},{"id":null,"name":"Schema2","left":60,"top":70,"width":440,"height":396,"tables":[{"id":null,"name":"Table3","left":10,"top":80,"columns":[{"name":"Column1","keyType":"PK","nullable":false,"type":"Number","defaultValue":"_seq.NEXTVAL"},{"name":"Column2","keyType":"","nullable":true,"type":"Varchar","defaultValue":""}],"constraints":[]},{"id":null,"name":"Table4","left":150,"top":240,"columns":[{"name":"Column3","keyType":"PK","nullable":false,"type":"Number","defaultValue":"_seq.NEXTVAL"},{"name":"Column4","keyType":"","nullable":true,"type":"Number","defaultValue":"1"}],"constraints":[]}]}]}'});
+       })
+
+   </script>
 </html>

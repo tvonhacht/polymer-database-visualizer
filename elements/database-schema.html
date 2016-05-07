@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link href="../../polymer/polymer.html" rel="import">
     <link href="database-table.html" rel="import">
     <!-- Element Imports -->
 </head>
@@ -176,12 +175,14 @@
                 },
 
                 attached: function() {
+                    console.log("attachted schema: " + this.schema.name);
+
                     this._visualizer = $(this).parent().parent('database-visualizer')[0];
 
-                    this._left = parseInt(this.schema.left);
-                    this._top = parseInt(this.schema.top);
-                    this._width = parseInt(this.schema.width);
-                    this._height = parseInt(this.schema.height);
+                    this._left = this.schema.left;
+                    this._top = this.schema.top;
+                    this._width = this.schema.width;
+                    this._height = this.schema.height;
 
                     this.setHeaderHeight($(this).children('.database-visualizer-div-header').height());
 

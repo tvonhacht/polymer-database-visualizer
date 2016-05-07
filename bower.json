@@ -20,13 +20,12 @@
     "/demo/"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.0.0"
+    "polymer": "Polymer/polymer#^1.1.0",
+    "paper-menu": "^1.2.2",
+    "paper-item": "^1.2.1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
     "web-component-tester": "*"
-  },
-  "scripts": {
-    "postinstall": "cd bower_components/database-visualizer/ && bower install"
   }
 }

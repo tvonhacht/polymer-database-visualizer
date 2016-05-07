@@ -2,7 +2,6 @@
   "name": "database-visualizer",
   "version": "0.0.3",
   "description": "An element providing a solution for visualizing a database.",
-  "main": "index.js",
   "directories": {
     "test": "test"
   },
