@@ -13,26 +13,56 @@
 .background-color-alternative-secondary {
     background-color: #BE10FD;
 }
-
+/*
 html {
     height: 100%;
 }
-
+*/
 body {
-    height: 100%;
+  /*  height: 100%;*/
     margin: 0;
 }
 
-database-visualizer {
+paper-drawer-panel #scrim {
+    z-index: 91;
+}
+
+paper-drawer-panel #drawer {
+    z-index: 92;
+}
+
+paper-fab.menu {
+    position: absolute;
+    z-index: 1;
+    top: 10px;
+    left: 10px;
+}
+
+paper-fab.add-setup {
+    margin-top: 10px;
+}
+
+database-visualizer-database {
     cursor: -webkit-grab;
 }
 
-database-visualizer h1 {
+paper-tabs {
+    /*background: #ff4081;*/
+    background: #03a9f4;
+}
+
+database-visualizer-menu paper-input {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+database-visualizer-database h1 {
     color: #DCDCDC;
     padding: 15px;
     margin: 0;
     position: absolute;
     bottom: 0px;
+    right: 0px;
 
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;   /* Chrome/Safari/Opera */
@@ -43,7 +73,7 @@ database-visualizer h1 {
                                   not supported by any browser */
 }
 
-database-visualizer .empty {
+database-visualizer-database .empty {
     margin: 0;
     left: 50%;
     top: 50%;
@@ -62,7 +92,7 @@ database-visualizer .empty {
     user-select: none;
 }
 
-database-visualizer .loading {
+database-visualizer-database .loading {
     background: rgba(255,255,255,0.5);
     height: 100%;
     width: 100%;
@@ -72,8 +102,22 @@ database-visualizer .loading {
     z-index: 92;
 }
 
+database-visualizer-menu {
+    display: block;
+}
+/*
+database-visualizer-menu > paper-menu {
+    height: 100%;
+    box-sizing: border-box;
+}
+*/
 .hidden {
     visibility: hidden;
+}
+
+paper-menu.scrollable {
+    height: 100%;
+    overflow-x: scroll;
 }
 
 

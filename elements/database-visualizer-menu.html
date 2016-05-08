@@ -1,0 +1,168 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../../paper-menu/paper-menu.html">
+<link rel="import" href="../../paper-menu/paper-submenu.html">
+<link rel="import" href="../../paper-item/paper-item.html">
+<link rel="import" href="../../iron-list/iron-list.html">
+<link rel="import" href="../../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../paper-tabs/paper-tabs.html">
+<link rel="import" href="../../iron-pages/iron-pages.html">
+<link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
+<link rel="stylesheet" href="../stylesheet.css">
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
+
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+    <database-visualizer></database-visualizer>
+
+@demo
+-->
+<dom-module id="database-visualizer-menu">
+
+  <style>
+    :host {
+
+    }
+    paper-tabs {
+      --paper-tabs-selection-bar-color: {
+        #ff4081;
+      }
+    }
+    div.paper-header {
+      @apply(--layout-horizontal);
+    }
+
+
+  </style>
+
+  <template>
+    <paper-tabs selected="{{selected}}">
+      <paper-tab>Applications</paper-tab>
+      <paper-tab>Setups</paper-tab>
+    </paper-tabs>
+
+    <iron-pages selected="{{selected}}">
+      <paper-header-panel>
+        <paper-input class="paper-header" label="search" on-input="_filterApplications" value="{{searchTermApplications}}">
+          <iron-icon icon="icons:search" suffix></iron-icon>
+        </paper-input>
+        <div class="content">
+          <template is="dom-repeat" items="{{filteredApplications}}">
+            <paper-item on-tap="_applicationSelected" appid$="{{item.id}}">{{item.name}}</paper-item>
+          </template>
+        </div>
+      </paper-header-panel>
+      <paper-header-panel>
+        <!--
+        <paper-input class="paper-header" label="search" on-input="_filterSetups" value="{{searchTermSetups}}">
+          <iron-icon icon="icons:search" suffix></iron-icon>
+          <paper-fab mini icon="icons:add" on-tap="_openMenu" title="menu" suffix></paper-fab>
+        </paper-input>
+        -->
+        <div class="paper-header" >
+          <paper-input label="search" on-input="_filterSetups" value="{{searchTermSetups}}">
+            <iron-icon icon="icons:search" suffix></iron-icon>
+          </paper-input>
+          <paper-fab class="add-setup" mini icon="icons:add" on-tap="_addSetup" title="add setup" suffix></paper-fab>
+        </div>
+
+
+        <div class="content">
+          <template is="dom-repeat" items="{{filteredSetups}}">
+            <paper-item on-tap="_setupSelected" setupid$="{{item.id}}">{{item.name}}</paper-item>
+          </template>
+        </div>
+      </paper-header-panel>
+    </iron-pages>
+  </template>
+
+</dom-module>
+
+<script>
+  // TODO add testing with nightwatch.js (www.nightwatchjs.org)
+  // TODO screenshot gatlin
+
+  // TODO tryout dc/os
+
+  Polymer({
+
+    is: 'database-visualizer-menu',
+
+    properties: {
+      selected: {
+        type: Number,
+        value: 0
+      },
+      applications: Array,
+      searchTermApplications: String,
+      filteredApplications: Array,
+      setups: Array,
+      searchTermSetups: String,
+      filteredSetups: Array
+    },
+    _filterApplications() {
+      var searchTerm = this.searchTermApplications;
+      this.filteredApplications = this.applications.filter(function(value) {
+        return value.name.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1;
+      });
+    },
+    _applicationSelected(e) {
+      var appid = e.currentTarget.getAttribute('appid');
+      this.fire('applicationSelected', {appid});
+    },
+    _filterSetups() {
+      var searchTerm = this.searchTermSetups;
+      this.filteredSetups = this.setups.filter(function(value) {
+        return value.name.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1;
+      });
+    },
+    _setupSelected(e) {
+      var setupid = e.currentTarget.getAttribute('setupid');
+      this.fire('setupSelected', {setupid});
+    },
+
+    // Element Lifecycle
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+      // necessary), or kick off any processes the element wants to perform.
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+      this._filterApplications();
+      this._filterSetups();
+    },
+
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    }
+
+  });
+
+</script>
+
