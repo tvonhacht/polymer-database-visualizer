@@ -114,9 +114,11 @@ Example:
     },
     _filterApplications() {
       var searchTerm = this.searchTermApplications;
-      this.filteredApplications = this.applications.filter(function(value) {
-        return value.name.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1;
-      });
+      if (this.applications !== null && this.applications !== "") {
+        this.filteredApplications = this.applications.filter(function(value) {
+          return value.name.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1;
+        });
+      }
     },
     _applicationSelected(e) {
       var appid = e.currentTarget.getAttribute('appid');
@@ -124,9 +126,11 @@ Example:
     },
     _filterSetups() {
       var searchTerm = this.searchTermSetups;
-      this.filteredSetups = this.setups.filter(function(value) {
-        return value.name.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1;
-      });
+      if (this.setups !== null && this.setups !== "") {
+        this.filteredSetups = this.setups.filter(function (value) {
+          return value.name.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1;
+        });
+      }
     },
     _setupSelected(e) {
       var setupid = e.currentTarget.getAttribute('setupid');
