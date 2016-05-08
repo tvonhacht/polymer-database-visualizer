@@ -107,19 +107,25 @@ Example:
         value: 0
       },
       applications: {
-        type: Object,
+        type: Array,
         notify: true,
         observer: '_filterApplications'
       },
       searchTermApplications: String,
-      filteredApplications: Array,
+      filteredApplications: {
+        type: Array,
+        notify: true
+      },
       setups: {
-        type: Object,
+        type: Array,
         notify: true,
         observer: '_filterSetups'
       },
       searchTermSetups: String,
-      filteredSetups: Array
+      filteredSetups: {
+        type: Array,
+        notify: true
+      }
     },
     _filterApplications() {
       var searchTerm = this.searchTermApplications;
@@ -163,8 +169,6 @@ Example:
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
       // loading resources, etc).
-      this._filterApplications();
-      this._filterSetups();
     },
 
 
