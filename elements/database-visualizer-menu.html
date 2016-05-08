@@ -106,10 +106,18 @@ Example:
         type: Number,
         value: 0
       },
-      applications: Array,
+      applications: {
+        type: Object,
+        notify: true,
+        observer: '_filterApplications'
+      },
       searchTermApplications: String,
       filteredApplications: Array,
-      setups: Array,
+      setups: {
+        type: Object,
+        notify: true,
+        observer: '_filterSetups'
+      },
       searchTermSetups: String,
       filteredSetups: Array
     },
