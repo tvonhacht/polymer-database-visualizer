@@ -221,6 +221,8 @@
                             this.refresh();
                             this._visualizer.refreshMinimap();
                             this.setDraggingChild(false);
+
+                            this._visualizer.fireSchemaDraggedOrResized(this.schema.id, this._left, this._top, this._width, this._height);
                         }
                     });
 
@@ -269,8 +271,8 @@
                              $.each(this._tables, function() {
                                  left = left > (this.getLeft() + (changeLeft * -1)) ? (this.getLeft() + (changeLeft * -1)) : left;
                                  top = top > (this.getTop() + (changeTop * -1)) ? (this.getTop() + (changeTop * -1)) : top;
-                                 right = right < (this.getLeft() + this.getWidth()) ? (this.getLeft() + this.getWidth()) : right;
-                                 bottom = bottom < (this.getTop() + this.getHeight()) ? (this.getTop() + this.getHeight()) : bottom;
+                                 right = right < (this.getLeft() + $(this).width()) ? (this.getLeft() + $(this).width()) : right;
+                                 bottom = bottom < (this.getTop() + $(this).height()) ? (this.getTop() + $(this).height()) : bottom;
                              });
                              top = top - this.getHeaderHeight();
 
@@ -321,6 +323,8 @@
                              });
 
                              this.refreshMinimap();
+
+                             this._visualizer.fireSchemaDraggedOrResized(this.schema.id, this._left, this._top, this._width, this._height);
                          }
 
                     });

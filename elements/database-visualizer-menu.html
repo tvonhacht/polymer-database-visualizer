@@ -60,7 +60,7 @@ Example:
           <iron-icon icon="icons:search" suffix></iron-icon>
         </paper-input>
         <div class="content">
-          <template is="dom-repeat" items="{{applications}}">
+          <template is="dom-repeat" items="{{filteredApplications}}">
             <paper-item on-tap="_applicationSelected" appid$="{{item.id}}">{{item.name}}</paper-item>
           </template>
         </div>

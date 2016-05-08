@@ -337,6 +337,28 @@ Example:
       });
     },
 
+    fireTableDragged(id, left, top, schema) {
+      this.fire('tableDragged', {
+        setupid: this.database.id,
+        id,
+        left,
+        top
+      });
+
+      this.fireSchemaDraggedOrResized(schema.schema.id, schema._left, schema._top, schema._width, schema._height);
+    },
+
+    fireSchemaDraggedOrResized(id, left, top, width, height) {
+      this.fire('schemaDraggedOrResized', {
+        setupid: this.database.id,
+        id,
+        left,
+        top,
+        width,
+        height
+      });
+    },
+
     // Element Lifecycle
 
     ready: function() {

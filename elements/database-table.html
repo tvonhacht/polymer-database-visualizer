@@ -171,7 +171,7 @@
                 },
 
                 getPosition() {
-                    let parent = this._schema.getPosition();
+                    let parent = this.getSchema().getPosition();
                     let position = $(this).css([ "left", "top", "width", "height" ]);
                     //TODO remove?!
                     return {
@@ -300,6 +300,8 @@
                             this.refreshMinimap();
                             this.setSelected(selectedBeforeDrag);
                             this.setDraggingChild(false);
+
+                            this.getSchema()._visualizer.fireTableDragged(this.table.id, this._left, this._top, this.getSchema());
                         }
                     });
                 },
