@@ -114,7 +114,8 @@ Example:
       searchTermApplications: String,
       filteredApplications: {
         type: Array,
-        notify: true
+        notify: true,
+        observer: '_a'
       },
       setups: {
         type: Array,
@@ -124,9 +125,17 @@ Example:
       searchTermSetups: String,
       filteredSetups: {
         type: Array,
-        notify: true
+        notify: true,
+        observer: '_s'
       }
     },
+    _s() {
+      console.log("filteredSetups updated");
+    },
+    _a() {
+      console.log("filteredApplications updated");
+    },
+
     _filterApplications() {
       var searchTerm = this.searchTermApplications;
       if (this.applications !== null && this.applications !== "") {
