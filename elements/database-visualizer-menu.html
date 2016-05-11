@@ -37,9 +37,12 @@ Example:
 
     }
     paper-tabs {
-      --paper-tabs-selection-bar-color: {
-        #ff4081;
-      }
+      --paper-tabs-selection-bar-color: #ff4081;
+
+    }
+
+    paper-tabs paper-ripple {
+      color: #ff4081;
     }
     div.paper-header {
       @apply(--layout-horizontal);
@@ -50,11 +53,25 @@ Example:
 
   <template>
     <paper-tabs selected="{{selected}}">
+      <paper-tab>Schemas</paper-tab>
+      <!--
       <paper-tab>Applications</paper-tab>
       <paper-tab>Setups</paper-tab>
+      -->
     </paper-tabs>
 
     <iron-pages selected="{{selected}}">
+      <paper-header-panel>
+        <paper-input class="paper-header" label="search" on-input="_filterSchemas" value="{{searchTermSchemas}}">
+          <iron-icon icon="icons:search" suffix></iron-icon>
+        </paper-input>
+        <div class="content">
+          <template is="dom-repeat" items="{{filteredSchemas}}">
+            <paper-item on-tap="_schemaSelected" schemaid$="{{item.id}}">{{item.name}}</paper-item>
+          </template>
+        </div>
+      </paper-header-panel>
+      <!--
       <paper-header-panel>
         <paper-input class="paper-header" label="search" on-input="_filterApplications" value="{{searchTermApplications}}">
           <iron-icon icon="icons:search" suffix></iron-icon>
@@ -66,26 +83,19 @@ Example:
         </div>
       </paper-header-panel>
       <paper-header-panel>
-        <!--
-        <paper-input class="paper-header" label="search" on-input="_filterSetups" value="{{searchTermSetups}}">
-          <iron-icon icon="icons:search" suffix></iron-icon>
-          <paper-fab mini icon="icons:add" on-tap="_openMenu" title="menu" suffix></paper-fab>
-        </paper-input>
-        -->
         <div class="paper-header" >
           <paper-input label="search" on-input="_filterSetups" value="{{searchTermSetups}}">
             <iron-icon icon="icons:search" suffix></iron-icon>
           </paper-input>
           <paper-fab class="add-setup" mini icon="icons:add" on-tap="_addSetup" title="add setup" suffix></paper-fab>
         </div>
-
-
         <div class="content">
           <template is="dom-repeat" items="{{filteredSetups}}">
             <paper-item on-tap="_setupSelected" setupid$="{{item.id}}">{{item.name}}</paper-item>
           </template>
         </div>
       </paper-header-panel>
+      -->
     </iron-pages>
   </template>
 
@@ -106,6 +116,19 @@ Example:
         type: Number,
         value: 0
       },
+      schemas: {
+        type: Array,
+        notify: true,
+        observer: '_filterSchemas'
+      },
+      searchTermSchemas: {
+        type: String,
+        value: ""
+      },
+      filteredSchemas: {
+        type: Array,
+        notify: true
+      },
       applications: {
         type: Array,
         notify: true,
@@ -117,8 +140,7 @@ Example:
       },
       filteredApplications: {
         type: Array,
-        notify: true,
-        observer: '_a'
+        notify: true
       },
       setups: {
         type: Array,
@@ -131,17 +153,18 @@ Example:
       },
       filteredSetups: {
         type: Array,
-        notify: true,
-        observer: '_s'
+        notify: true
       }
     },
-    _s() {
-      console.log("filteredSetups updated");
-    },
-    _a() {
-      console.log("filteredApplications updated");
-    },
 
+    _filterSchemas() {
+      var searchTerm = this.searchTermSchemas;
+      if (this.schemas !== null && this.schemas !== "") {
+        this.filteredSchemas = this.schemas.filter(function(value) {
+          return value.name.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1;
+        });
+      }
+    },
     _filterApplications() {
       var searchTerm = this.searchTermApplications;
       if (this.applications !== null && this.applications !== "") {
@@ -149,6 +172,10 @@ Example:
           return value.name.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1;
         });
       }
+    },
+    _schemaSelected(e) {
+      var schemaid = e.currentTarget.getAttribute('schemaid');
+      this.fire('schemaSelected', {schemaid});
     },
     _applicationSelected(e) {
       var appid = e.currentTarget.getAttribute('appid');

@@ -29,6 +29,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- <database-visualizer-menu></database-visualizer-menu> -->
       <database-visualizer
+              schemas=''
               applications=''
               setups=''
               database=''/>
@@ -43,7 +44,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           console.log("update");
           $('database-visualizer').attr({
               setups: '[{"id":1,"name":"Setup1"},{"id":2,"name":"Setup2"}]',
-              applications: '[{"id":1,"name":"APP_D_USER"},{"id":2,"name":"APP_D_ACCOUNT"}]'
+              applications: '[{"id":1,"name":"APP_D_USER"},{"id":2,"name":"APP_D_ACCOUNT"}]',
+              schemas: '[{"id":1,"name":"DIGIKETTE"},{"id":2,"name":"DIGISTYLE"}]'
           })
       }, 2000);
       document.querySelector('database-visualizer-menu').addEventListener('applicationSelected', function (e) {

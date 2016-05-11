@@ -35,7 +35,7 @@ Example:
 
   <template>
     <paper-drawer-panel responsive-width="3000px">
-      <database-visualizer-menu applications="{{applications}}" setups="{{setups}}" drawer></database-visualizer-menu>
+      <database-visualizer-menu schemas={{schemas}} applications="{{applications}}" setups="{{setups}}" drawer></database-visualizer-menu>
       <div main>
         <paper-fab class="menu" icon="icons:menu" on-tap="_openMenu" title="menu"></paper-fab>
         <database-visualizer-database database="{{database}}"></database-visualizer-database>
@@ -58,6 +58,7 @@ Example:
     is: 'database-visualizer',
 
     properties: {
+      schemas: Object,
       applications: Object,
       setups: Object,
       database: {
