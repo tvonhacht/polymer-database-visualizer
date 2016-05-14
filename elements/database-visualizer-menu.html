@@ -176,6 +176,9 @@ Example:
     _schemaSelected(e) {
       var schemaid = e.currentTarget.getAttribute('schemaid');
       this.fire('schemaSelected', {schemaid});
+
+      $('.loading').removeClass('hidden');
+      $('paper-drawer-panel')[0].closeDrawer();
     },
     _applicationSelected(e) {
       var appid = e.currentTarget.getAttribute('appid');

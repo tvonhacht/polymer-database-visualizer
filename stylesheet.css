@@ -231,7 +231,10 @@ database-table {
     height: auto !important;
 }
 
-
+database-table .database-visualizer-div-body {
+    display: table;
+    width: 100%;
+}
 
 .database-visualizer-div-header {
     padding: 0 24px;
@@ -283,6 +286,7 @@ database-column.highlight:nth-child(even) {
 database-column .database-column {
     display: table-cell;
     padding: 5px;
+    min-width: 20px;
 }
 
 database-column:nth-child(even) {

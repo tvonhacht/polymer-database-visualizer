@@ -337,21 +337,17 @@ Example:
       });
     },
 
-    fireTableDragged(id, left, top, schema) {
-      this.fire('tableDragged', {
-        setupid: this.database.id,
-        id,
+    fireUpdateTable(dvTableId, left, top) {
+      this.fire('updateTable', {
+        dvTableId,
         left,
         top
       });
-
-      this.fireSchemaDraggedOrResized(schema.schema.id, schema._left, schema._top, schema._width, schema._height);
     },
 
-    fireSchemaDraggedOrResized(id, left, top, width, height) {
-      this.fire('schemaDraggedOrResized', {
-        setupid: this.database.id,
-        id,
+    fireUpdateSchema(dvSchemaId, left, top, width, height) {
+      this.fire('updateSchema', {
+        dvSchemaId,
         left,
         top,
         width,
@@ -368,6 +364,7 @@ Example:
       //
       // This is the point where you should make modifications to the DOM (when
       // necessary), or kick off any processes the element wants to perform.
+      console.log("database ready");
     },
 
     attached: function() {
@@ -377,6 +374,7 @@ Example:
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
       // loading resources, etc).
+      console.log("database attached");
 
       var databaseVisualizer = this;
 
@@ -447,7 +445,6 @@ Example:
           scale = 3;
         }
 
-
         // determine the location on the screen at the new scale
         this.setMoveX((screenX - xImage) / scale + this.getMoveDiffX());
         this.setMoveY((screenY - yImage) / scale + this.getMoveDiffY());
@@ -457,11 +454,10 @@ Example:
         yLast = screenY;
 
         // redraw
-
-          this.setScale(scale);
-          $(this).find('.database-visualizer-canvas')
-                  .css('transform', 'scale(' + scale + ')' + 'translate(' + this.getMoveX() + 'px, ' + this.getMoveY() + 'px' + ')')
-                  .css('transform-origin', xImage + 'px ' + yImage + 'px');
+        this.setScale(scale);
+        $(this).find('.database-visualizer-canvas')
+                .css('transform', 'scale(' + scale + ')' + 'translate(' + this.getMoveX() + 'px, ' + this.getMoveY() + 'px' + ')')
+                .css('transform-origin', xImage + 'px ' + yImage + 'px');
 
         this.refreshMinimapZoom();
         return false;

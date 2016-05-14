@@ -46,10 +46,11 @@
         },
 
         ready: function() {
-
+            console.log("column ready");
         },
 
         attached: function() {
+            console.log("column attached");
             var table = $(this).parent().parent('#'+this.schemaname+"_"+this.tablename)[0];
             table.registerColumn(this);
         }

@@ -74,8 +74,14 @@
                         value: false,
                         observer: 'selectedChanged'
                     },
-                    _calcLeft: Number,
-                    _calcTop: Number
+                    _calcLeft: {
+                        type: Number,
+                        value: null
+                    },
+                    _calcTop: {
+                        type: Number,
+                        value: null
+                    }
                 },
                 /** observer listening for selection changing **/
                 selectedChanged: function(value) {
@@ -98,6 +104,12 @@
                         $.each(this._constraints, function() {
                            this.registerColumn(columns);
                         });
+
+                        this._width = $(this).width();
+                        this._height = $(this).height();
+
+                        this.getSchema().setMinWidth(this._left + this._width + getPadding());
+                        this.getSchema().setMinHeight(this._top + this._height + getPadding());
                     }
                 },
                 registerConstraint(constraint) {
@@ -105,6 +117,12 @@
                     if (this._columns.length === this.table.columns.length) {
                         console.log("table.registerConstraint");
                         constraint.registerColumn(this._columns);
+
+                        this._width = $(this).width();
+                        this._height = $(this).height();
+
+                        this.getSchema().setMinWidth(this._left + this._width + getPadding());
+                        this.getSchema().setMinHeight(this._top + this._height + getPadding());
                     }
                 },
 
@@ -120,17 +138,19 @@
                     $(this).css({top: this._calcTop});
                 },
                 setCalcTop() {
-                    if (!isNaN(this._calcTop)) {
-                        this._top = this._calcTop;
+                    if (this._calcTop !== null) {
+                        this._top = Math.round(this._calcTop);
+                        $(this).css({top: this._top});
                     }
                 },
                 calcLeft(changeLeft) {
-                    this._calcLeft = this._left + changeLeft
+                    this._calcLeft = this._left + changeLeft;
                     $(this).css({left: this._calcLeft});
                 },
                 setCalcLeft() {
-                    if (!isNaN(this._calcLeft)) {
-                        this._left = this._calcLeft;
+                    if (this._calcLeft !== null) {
+                        this._left = Math.round(this._calcLeft);
+                        $(this).css({left: this._left});
                     }
                 },
 
@@ -139,14 +159,14 @@
                 },
 
                 setTop(top) {
-                    this._top = top;
+                    this._top = Math.round(top);
                     $(this).css({top: this.getTop()});
                 },
                 getTop() {
                     return this._top;
                 },
                 setLeft(left) {
-                    this._left = left;
+                    this._left = Math.round(left);
                     $(this).css({left: this.getLeft()});
                 },
                 getLeft() {
@@ -182,27 +202,29 @@
                     };
                 },
 
-                ready: function() {
+                fireUpdateTable() {
+                    this.getSchema()._visualizer.fireUpdateTable(this.table.id, this._left, this._top);
+                },
 
+                ready: function() {
+                    console.log("table ready");
                 },
 
                 attached: function() {
-                    /** parse positions **/
-                    this._left = this.table.left;
-                    this._top = this.table.top;
-                    this._width = $(this).width();
-                    this._height = $(this).height();
-
-                    $(this).css({
-                        left: this._left,
-                        top: this._top,
-                        width: this._width,
-                        height: this._height
-                    });
+                    console.log("table attached");
 
                     /** find schema **/
                     this.setSchema($(this).parent('#'+this.schemaname)[0]);
                     this.getSchema().registerTable(this);
+
+                    /** parse positions **/
+                    this._left = this.table.left < getPadding() ? getPadding() : this.table.left;
+                    this._top = this.table.top < this.getSchema().getHeaderHeight() + getPadding() ? this.getSchema().getHeaderHeight() + getPadding() : this.table.top;
+
+                    $(this).css({
+                        left: this._left,
+                        top: this._top
+                    });
 
                     /** toggle select on clicking table **/
                     $(this).first().on('mouseup', function() {
@@ -211,10 +233,13 @@
 
                     /** add drag to table **/
                     var selectedBeforeDrag;
+                    var movedLeftOrTop = false;
                     $(this).draggable({
                         //TODO drag only on header
                         //handle: "> .database-visualizer-div-header",
                         start: function(event, ui) {
+                            movedLeftOrTop = false;
+
                             /** set zero for zoom in and out bug behaviour **/
                             ui.position.top = 0;
                             ui.position.left = 0;
@@ -224,10 +249,6 @@
                             this.setDraggingChild(true);
                         },
                         drag: function(event, ui) {
-                            function round(number, increment, offset) {
-                                return Math.ceil((number - offset) / increment ) * increment + offset;
-                            }
-
                             let tablePosition = this.getPosition();
                             let schemaPosition = this.getSchema().getPosition();
 
@@ -238,9 +259,11 @@
                                 this.getSchema().setWidth(tablePosition.left + tablePosition.width - schemaPosition.left + getPadding());
                             }
 
+                            // TODO buggy with scale, fixed?!
                             /** dragging table to the left **/
                             var changeLeft = getChangeLeft(ui, this.getScale());
                             if (changeLeft < getPadding()) {
+                                movedLeftOrTop = true;
                                 let diff = getPadding() - changeLeft;
                                 this.getSchema().calcWidth(diff);
                                 this.getSchema().calcLeft(diff);
@@ -256,12 +279,15 @@
                                 this._schema.setHeight(tablePosition.top + tablePosition.height - schemaPosition.top + getPadding() + 25);
                             }
 
+                            // TODO buggy with scale, fixed?!
                             /** dragging table to the top **/
                             var changeTop = getChangeTop(ui, this.getScale());
                             if (changeTop < this.getSchema().getHeaderHeight() + getPadding()) {
+                                movedLeftOrTop = true;
                                 let diff = this.getSchema().getHeaderHeight() + getPadding() - changeTop;
                                 this.getSchema().calcHeight(diff);
                                 this.getSchema().calcTop(diff);
+                                console.log("diff: " + diff);
                                 $.each(this.getSchema().getTables(), function() {
                                     if (draggingTable !== this) {
                                         this.calcTop(diff);
@@ -288,6 +314,12 @@
                             this.getSchema().setCalcWidth();
                             this.getSchema().setCalcHeight();
 
+                            this._calcTop = null;
+                            this._calcLeft = null;
+
+                            console.log("this._left: " + this._left);
+                            console.log("this._top: " + this._top);
+
                             var draggingTable = this;
                             $.each(this.getSchema().getTables(), function() {
                                 if (draggingTable !== this) {
@@ -301,7 +333,11 @@
                             this.setSelected(selectedBeforeDrag);
                             this.setDraggingChild(false);
 
-                            this.getSchema()._visualizer.fireTableDragged(this.table.id, this._left, this._top, this.getSchema());
+                            if (movedLeftOrTop) {
+                                this.getSchema().fireUpdateSchemaWithTables();
+                            } else {
+                                this.fireUpdateTable();
+                            }
                         }
                     });
                 },

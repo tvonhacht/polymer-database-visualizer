@@ -88,7 +88,7 @@
                 },
 
                 setTop(top) {
-                    this._top = top;
+                    this._top = Math.round(top);
                     $(this).css({top: this._top});
                 },
                 getTop() {
@@ -96,7 +96,7 @@
                 },
 
                 setHeight(height) {
-                    this._height = height;
+                    this._height = Math.round(height);
                     $(this).css({height: this._height});
                 },
                 getHeight() {
@@ -104,7 +104,7 @@
                 },
 
                 setLeft(left) {
-                    this._left = left;
+                    this._left = Math.round(left);
                     $(this).css({left: this._left});
                 },
                 getLeft() {
@@ -112,7 +112,7 @@
                 },
 
                 setWidth(width) {
-                    this._width = width;
+                    this._width = Math.round(width);
                     $(this).css({width: this._width});
                 },
                 getWidth() {
@@ -124,6 +124,19 @@
                 },
                 getHeaderHeight() {
                     return this._headerHeight;
+                },
+
+                setMinWidth(minWidth) {
+                    if (this._width < minWidth) {
+                        this._width = minWidth;
+                        $(this).css({width: this._width});
+                    }
+                },
+                setMinHeight(minHeight) {
+                    if (this._height < minHeight) {
+                        this._height = minHeight;
+                        $(this).css({height: this._height});
+                    }
                 },
 
                 setDraggingChild(b) {
@@ -170,7 +183,19 @@
                     this._visualizer.refreshMinimap();
                 },
 
+                fireUpdateSchema() {
+                    this._visualizer.fireUpdateSchema(this.schema.id, this._left, this._top, this._width, this._height);
+                },
+
+                fireUpdateSchemaWithTables() {
+                    this.fireUpdateSchema();
+                    $.each(this.getTables(), function() {
+                        this.fireUpdateTable();
+                    });
+                },
+
                 ready: function() {
+                    console.log("schema ready");
 
                 },
 
@@ -215,14 +240,14 @@
                             var changeTop = ui.position.top - ui.originalPosition.top; // find change in top
                             var newTop = ui.originalPosition.top + changeTop / this.getScale(); // adjust new top by our zoomScale
 
-                            this._left = newLeft * this.getScale();
-                            this._top = newTop * this.getScale();
+                            this.setLeft(newLeft * this.getScale());
+                            this.setTop(newTop * this.getScale());
 
                             this.refresh();
                             this._visualizer.refreshMinimap();
                             this.setDraggingChild(false);
 
-                            this._visualizer.fireSchemaDraggedOrResized(this.schema.id, this._left, this._top, this._width, this._height);
+                            this.fireUpdateSchema();
                         }
                     });
 
@@ -299,13 +324,13 @@
                                  }
                              }
 
-                             this._width = newWidth;
+                             this.setWidth(newWidth);
                              ui.size.width = newWidth;
-                             this._left = newLeft;
+                             this.setLeft(newLeft);
                              ui.position.left = newLeft;
-                             this._height = newHeight;
+                             this.setHeight(newHeight);
                              ui.size.height = newHeight;
-                             this._top = newTop;
+                             this.setTop(newTop);
                              ui.position.top = newTop;
 
                              changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
@@ -324,7 +349,7 @@
 
                              this.refreshMinimap();
 
-                             this._visualizer.fireSchemaDraggedOrResized(this.schema.id, this._left, this._top, this._width, this._height);
+                             this.fireUpdateSchemaWithTables();
                          }
 
                     });

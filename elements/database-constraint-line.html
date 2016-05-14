@@ -99,6 +99,9 @@
             this._table.table.registerConstraint(this);
             //TODO make specific to this polymer object
             this._rTable.table = $('database-table#'+this.constraint.rschema+"_"+this.constraint.rtable)[0];
+            if (this._rTable.table === undefined) {
+                console.log("rTable undefined");
+            }
             this._rTable.table.registerConstraint(this);
 
             var databaseConstraintLine = this;
