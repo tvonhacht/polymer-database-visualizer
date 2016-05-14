@@ -174,11 +174,13 @@ Example:
       }
     },
     _schemaSelected(e) {
-      var schemaid = e.currentTarget.getAttribute('schemaid');
-      this.fire('schemaSelected', {schemaid});
-
+      $('database-visualizer').attr({database: ''});
+      $('.minimap').addClass('hidden');
       $('.loading').removeClass('hidden');
       $('paper-drawer-panel')[0].closeDrawer();
+
+      var schemaid = e.currentTarget.getAttribute('schemaid');
+      this.fire('schemaSelected', {schemaid});
     },
     _applicationSelected(e) {
       var appid = e.currentTarget.getAttribute('appid');

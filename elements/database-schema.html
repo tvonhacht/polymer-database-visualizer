@@ -195,13 +195,10 @@
                 },
 
                 ready: function() {
-                    console.log("schema ready");
 
                 },
 
                 attached: function() {
-                    console.log("attachted schema: " + this.schema.name);
-
                     this._visualizer = $(this).parent().parent('database-visualizer-database')[0];
 
                     this._left = this.schema.left;

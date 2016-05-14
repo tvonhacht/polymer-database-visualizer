@@ -70,19 +70,11 @@ Example:
               tables: [{name: "table1"}]}],
             foreignKeys: [{column: "column1"}]
           };
-        },
-        observer: '_databaseChanged'
+        }
       }
 
     },
-    _databaseChanged(database) {
-      $('paper-drawer-panel')[0].closeDrawer();
-    },
-    _openMenu(e) {
-      console.log("openMenu");
-      console.log($('paper-drawer-panel')[0]);
-      //$('paper-drawer-panel')[0].togglePanel();
-      //$('paper-drawer-panel')[0].openDrawer();
+    _openMenu() {
       $('paper-drawer-panel')[0].togglePanel();
     },
 

@@ -98,11 +98,11 @@
 
                 registerColumn(column) {
                     this._columns.push(column);
+
                     if (this._columns.length === this.table.columns.length) {
-                        console.log("table.registerColumn");
                         var columns = this._columns;
                         $.each(this._constraints, function() {
-                           this.registerColumn(columns);
+                            this.registerColumn(columns);
                         });
 
                         this._width = $(this).width();
@@ -111,11 +111,14 @@
                         this.getSchema().setMinWidth(this._left + this._width + getPadding());
                         this.getSchema().setMinHeight(this._top + this._height + getPadding());
                     }
+
+                    if (this._columns.length === this.table.columns.length && this._constraints.length === this.table.constraints.length) {
+                        this.getSchema().registerTable(this);
+                    }
                 },
                 registerConstraint(constraint) {
                     this._constraints.push(constraint);
                     if (this._columns.length === this.table.columns.length) {
-                        console.log("table.registerConstraint");
                         constraint.registerColumn(this._columns);
 
                         this._width = $(this).width();
@@ -123,6 +126,10 @@
 
                         this.getSchema().setMinWidth(this._left + this._width + getPadding());
                         this.getSchema().setMinHeight(this._top + this._height + getPadding());
+                    }
+
+                    if (this._columns.length === this.table.columns.length && this._constraints.length === this.table.constraints.length) {
+                        this.getSchema().registerTable(this);
                     }
                 },
 
@@ -207,15 +214,12 @@
                 },
 
                 ready: function() {
-                    console.log("table ready");
+
                 },
 
                 attached: function() {
-                    console.log("table attached");
-
                     /** find schema **/
                     this.setSchema($(this).parent('#'+this.schemaname)[0]);
-                    this.getSchema().registerTable(this);
 
                     /** parse positions **/
                     this._left = this.table.left < getPadding() ? getPadding() : this.table.left;
@@ -287,7 +291,6 @@
                                 let diff = this.getSchema().getHeaderHeight() + getPadding() - changeTop;
                                 this.getSchema().calcHeight(diff);
                                 this.getSchema().calcTop(diff);
-                                console.log("diff: " + diff);
                                 $.each(this.getSchema().getTables(), function() {
                                     if (draggingTable !== this) {
                                         this.calcTop(diff);
@@ -316,9 +319,6 @@
 
                             this._calcTop = null;
                             this._calcLeft = null;
-
-                            console.log("this._left: " + this._left);
-                            console.log("this._top: " + this._top);
 
                             var draggingTable = this;
                             $.each(this.getSchema().getTables(), function() {

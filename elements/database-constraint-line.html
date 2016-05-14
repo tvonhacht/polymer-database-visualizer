@@ -49,7 +49,7 @@
                 notify: true,
                 value: function() {
                     return {
-                        table: {},
+                        table: null,
                         broom: {
                             top: {},
                             middle: {},
@@ -83,7 +83,6 @@
         },
 
         attached: function() {
-            console.log("hier");
             /** save SVG variables **/
             this._line = $(this).children('svg').children('.changeable')[0];
 
@@ -97,32 +96,8 @@
             //TODO make specific to this polymer object
             this._table.table = $('database-table#'+this.constraint.schema+"_"+this.constraint.table)[0];
             this._table.table.registerConstraint(this);
-            //TODO make specific to this polymer object
-            this._rTable.table = $('database-table#'+this.constraint.rschema+"_"+this.constraint.rtable)[0];
-            if (this._rTable.table === undefined) {
-                console.log("rTable undefined");
-            }
-            this._rTable.table.registerConstraint(this);
 
             var databaseConstraintLine = this;
-            /** save columns **/
-            /*
-            $.each(this.constraint.columns, function() {
-                databaseConstraintLine._table.columns.push($('database-column#'+databaseConstraintLine.constraint.schema+"_"+databaseConstraintLine.constraint.table+"_"+this)[0]);
-            });
-            $.each(this.constraint.rcolumns, function() {
-                databaseConstraintLine._rTable.columns.push($('database-column#'+databaseConstraintLine.constraint.rschema+"_"+databaseConstraintLine.constraint.rtable+"_"+this)[0]);
-            });
-            */
-
-            /** save columns positions in the table **/
-            /*
-            this._table.column_pos = $(this._table.columns[0]).position();
-            this._table.column_height = $(this._table.columns[0]).height() / 2;
-            this._rTable.column_pos = $(this._rTable.columns[0]).position();
-            this._rTable.column_height = $(this._rTable.columns[0]).height() / 2;
-            */
-
             /** highlight on mouseenter **/
             $(this).mouseenter(function() {
                 databaseConstraintLine.highlight(true);
@@ -135,6 +110,11 @@
             });
         },
         refresh() {
+            if (this._rTable.table === null) {
+                this._rTable.table = $('database-table#'+this.constraint.rschema+"_"+this.constraint.rtable)[0];
+                this._rTable.table.registerConstraint(this);
+            }
+
             var tablePos = this._table.table.getPosition();
             var rTablePos = this._rTable.table.getPosition();
 
@@ -163,9 +143,6 @@
 
                 $(this._table.broom.middle).attr('x1',tablePos.left).attr('y1',tablePos.top + this._table.column_pos.top + this._table.column_height).attr('x2',tablePos.left - diffX).attr('y2',tablePos.top + this._table.column_pos.top + this._table.column_height);
             }
-
-            //TODO improve later to only call one time (dirty fix, because not much data?!)
-            $('.loading').addClass('hidden');
         },
         highlight(bool) {
             if (bool) {
@@ -194,7 +171,6 @@
             }
         },
         registerColumn(columns) {
-            console.log("constraintLine.registerColumn");
             var constraintLine = this;
             $.each(columns, function() {
                 /*
@@ -211,14 +187,12 @@
                     var id = constraintLine.constraint.schema + "_" + constraintLine.constraint.table + "_" + this;
                     if (id === $(column).attr('id')) {
                         constraintLine._table.columns.push(column);
-                        console.log("from");
                     }
                 });
 
                 $.each(constraintLine.constraint.rcolumns, function() {
                     var id = constraintLine.constraint.rschema + "_" + constraintLine.constraint.rtable + "_" + this;
                     if (id === $(column).attr('id')) {
-                        console.log("to");
                         constraintLine._rTable.columns.push(column);
                     }
                 });
