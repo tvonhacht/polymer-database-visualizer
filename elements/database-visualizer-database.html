@@ -148,6 +148,25 @@ Example:
     },
     databaseChanged(database) {
       this._schemas = [];
+
+      this._scale = 1;
+
+
+      this._moveX = 0;
+      this._moveY = 0;
+      this._minimapMoveX = 0;
+      this._minimapMoveY = 0;
+      this._moveDiffX = 0;
+      this._moveDiffY = 0;
+      this._yImage = 0;
+      this._xImage = 0;
+      this._xLast = 0;
+      this._yLast = 0;
+
+      $(this).find('.database-visualizer-canvas')
+              .css('transform', 'scale(' + this.getScale() + ')' + 'translate(' + this.getMoveX() + 'px, ' + this.getMoveY() + 'px' + ')')
+              .css('transform-origin', this._xImage + 'px ' + this._yImage + 'px');
+
       $('.database-constraints-storage').empty();
       /*if (database === null || database === "" || database.schemas === null || database.schemas === "" || database.schemas.length <= 0) {
         $('.minimap').addClass('hidden');
