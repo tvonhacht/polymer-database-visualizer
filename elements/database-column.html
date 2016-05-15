@@ -45,13 +45,25 @@
             return b ? "" : "*";
         },
 
+        getScale() {
+            return this.table.getScale();
+        },
+
+        getPosition() {
+            var pos = $(this).position();
+            return {
+                top: pos.top / this.getScale(),
+                left: pos.left / this.getScale()
+            }
+        },
+
         ready: function() {
 
         },
 
         attached: function() {
-            var table = $(this).parent().parent('#'+this.schemaname+"_"+this.tablename)[0];
-            table.registerColumn(this);
+            this.table = $(this).parent().parent('#'+this.schemaname+"_"+this.tablename)[0];
+            this.table.registerColumn(this);
         }
     });
 </script>

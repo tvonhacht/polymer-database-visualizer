@@ -198,12 +198,14 @@
                 });
             });
 
+            console.log("registerColumn");
             /** save columns positions in the table **/
-            this._table.column_pos = $(this._table.columns[0]).position();
+            this._table.column_pos = this._table.columns[0].getPosition();
             this._table.column_height = $(this._table.columns[0]).height() / 2;
-            this._rTable.column_pos = $(this._rTable.columns[0]).position();
-            this._rTable.column_height = $(this._rTable.columns[0]).height() / 2;
-
+            if (this._rTable.columns.length > 0) {
+                this._rTable.column_pos = this._rTable.columns[0].getPosition();
+                this._rTable.column_height = $(this._rTable.columns[0]).height() / 2;
+            }
         }
     });
 </script>
