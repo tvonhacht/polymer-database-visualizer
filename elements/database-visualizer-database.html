@@ -485,6 +485,62 @@ Example:
       });
     },
 
+    addMousewheelZoom() {
+      function zoomInAndOut(e) {
+
+        // cross-browser wheel delta
+        var e = window.event || e; // old IE support
+        var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+
+        e.preventDefault();
+
+        if (delta !== 0) {
+          // find current location on screen
+          var screenX = event.pageX - $(this).offset().left;
+          var screenY = event.pageY - $(this).offset().top;
+
+          // find current location on the image at the current scale
+          this._xImage = this._xImage + ((screenX - this._xLast) / this.getScale());
+          this._yImage = this._yImage + ((screenY - this._yLast) / this.getScale());
+
+          // determine the new scale
+          let rate = 30;
+          let scale = this.getScale() *  (1 + delta / rate);
+          if (scale < 0.05) {
+            scale = 0.05;
+          } else if (scale > 3) {
+            scale = 3;
+          }
+
+          // determine the location on the screen at the new scale
+          this.setMoveX((screenX - this._xImage) / scale + this.getMoveDiffX());
+          this.setMoveY((screenY - this._yImage) / scale + this.getMoveDiffY());
+
+          // save the current screen location
+          this._xLast = screenX;
+          this._yLast = screenY;
+
+          // redraw
+          this.setScale(scale);
+          $(this).find('.database-visualizer-canvas')
+                  .css('transform', 'scale(' + scale + ')' + 'translate(' + this.getMoveX() + 'px, ' + this.getMoveY() + 'px' + ')')
+                  .css('transform-origin', this._xImage + 'px ' + this._yImage + 'px');
+
+          this.refreshMinimapZoom();
+        }
+        return false;
+      }
+
+      if (this.addEventListener) {
+        // IE9, Chrome, Safari, Opera
+        this.addEventListener("mousewheel", zoomInAndOut, false);
+        // Firefox
+        this.addEventListener("DOMMouseScroll", zoomInAndOut, false);
+      }
+      // IE 6/7/8
+      else this.attachEvent("onmousewheel", zoomInAndOut);
+    },
+
     refresh() {
       $.each(this.getSchemas(), function() {
         this.refresh();
@@ -575,40 +631,7 @@ Example:
       $(this).find('.minimap .visible-area').on('mouseup', mouseUpOrLeave);
       $(document).on('mouseup', mouseUpOrLeave);
 
-      $(this).bind('mousewheel', function(event, delta) {
-        // find current location on screen
-        var screenX = event.pageX - $(this).offset().left;
-        var screenY = event.pageY - $(this).offset().top;
-
-        // find current location on the image at the current scale
-        this._xImage = this._xImage + ((screenX - this._xLast) / this.getScale());
-        this._yImage = this._yImage + ((screenY - this._yLast) / this.getScale());
-
-        // determine the new scale
-        let scale = this.getScale() *  (1 + delta / 100);
-        if (scale < 0.05) {
-          scale = 0.05;
-        } else if (scale > 3) {
-          scale = 3;
-        }
-
-        // determine the location on the screen at the new scale
-        this.setMoveX((screenX - this._xImage) / scale + this.getMoveDiffX());
-        this.setMoveY((screenY - this._yImage) / scale + this.getMoveDiffY());
-
-        // save the current screen location
-        this._xLast = screenX;
-        this._yLast = screenY;
-
-        // redraw
-        this.setScale(scale);
-        $(this).find('.database-visualizer-canvas')
-                .css('transform', 'scale(' + scale + ')' + 'translate(' + this.getMoveX() + 'px, ' + this.getMoveY() + 'px' + ')')
-                .css('transform-origin', this._xImage + 'px ' + this._yImage + 'px');
-
-        this.refreshMinimapZoom();
-        return false;
-      });
+      this.addMousewheelZoom();
 
       /** mousedown **/
       $(this).bind('mousedown', function(event) {
@@ -671,7 +694,6 @@ Example:
 </script>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.js"></script>
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 
