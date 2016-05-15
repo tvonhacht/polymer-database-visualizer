@@ -29,11 +29,15 @@ Example:
       height: 100%;
       background-color: #ECECEC;
     }
+    paper-spinner-lite {
+      --paper-spinner-color: #ff4081;
+    }
   </style>
 
   <template>
     <h1>&lt;database-visualizer&gt;</h1>
     <div class="loading hidden">
+      <paper-spinner-lite active></paper-spinner-lite>
       <div class="spinner">
         <div class="rect1"></div>
         <div class="rect2"></div>
