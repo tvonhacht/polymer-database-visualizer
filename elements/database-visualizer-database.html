@@ -188,8 +188,6 @@ Example:
 
       if (this.database.schemas.length === this.getSchemas().length) {
 
-        //TODO make this smooth :)
-
         var mostLeft = null;
         var mostRight = null;
         var mostTop = null;
@@ -221,111 +219,18 @@ Example:
         var height = mostBottom - mostTop;
         var widthRatio = $(this).width() / width - 0.05;
         var heightRatio = $(this).height() / height - 0.05;
-       // this.setMoveX(mostLeftOffset * -1);
-       // this.setMoveY(mostTopOffset * -1);
-
-
-
-
-        /*
-         $(this).width(): 1680
-         $(this).height(): 568
-         $(this).width() / this.getScale(): 6544.720235591081
-         $(this).height() / this.getScale(): 2212.7387463188893
-
-
-         having
-         transform: scale(0.256695) translate(866px, 1250px);
-         needing
-         transform: scale(0.256695) translate(2115.35px, 1359.59px);
-         */
-
-
-        // find current location on screen
-        var scale = widthRatio < heightRatio ? widthRatio : heightRatio;
-
-        console.log("mostLeftOffset: " + mostLeftOffset);
-        console.log("mostTopOffset: " + mostTopOffset);
-
-        var pageX = 0;
-        var pageY = 1250 * scale;
-        pageX = ($(this).width() - width * scale) * (1+scale) / 2;
-        pageY = ($(this).height() - height * scale) * (1+scale) / 2;
-        pageX = 420;
-        pageY = 57;
-        pageX = 420; //+150
-        pageY = 60; //0.270194 => 210 -> +150 // 0.202126 => 170 -> 110
-        // TODO magic number
-        // TODO maybe set MoveDiff instead of _Image?!
-        var magicNumber = -1.4;
-        pageX = ($(this).width() - (width * scale)) / 2 * (1 + scale) + magicNumber * scale * mostLeftOffset; //0.270194 -> -0.375 // 0.202126 -> 0.275
-        pageY = ($(this).height() - (height * scale)) / 2 * (1 + scale) + magicNumber * scale * mostTopOffset;
-        console.log("pageX: " + pageX);
-        console.log("pageY: " + pageY);
-        var screenX = pageX - $(this).offset().left;
-        var screenY = pageY - $(this).offset().top;
-        console.log("screenX: " + screenX);
-        console.log("screenY: " + screenY);
-
-        // find current location on the image at the current scale
-        this._xImage = this._xImage + ((screenX - this._xLast) / this.getScale());
-        this._yImage = this._yImage + ((screenY - this._yLast) / this.getScale());
-        console.log("this._xImage: " + this._xImage);
-        console.log("this._yImage: " + this._yImage);
 
         this.setScale(widthRatio < heightRatio ? widthRatio : heightRatio);
-        console.log("width: " + width);
-        console.log("height: " + height);
-        console.log("width * this.getScale(): " + (width * this.getScale()));
-        console.log("height * this.getScale(): " + (height * this.getScale()));
 
-        console.log("$(this).width(): " + $(this).width());
-        console.log("$(this).height(): " + $(this).height());
-        console.log("width * this.getScale(): " + (width * this.getScale()));
-        console.log("height * this.getScale(): " + (height * this.getScale()));
-        console.log("($(this).width() - (width * this.getScale())): " + ($(this).width() - (width * this.getScale())));
-        console.log("($(this).height() - (height * this.getScale())): " + ($(this).height() - (height * this.getScale())));
-        console.log("$(this).width() * this.getScale(): " + ($(this).width() * this.getScale()));
-        console.log("$(this).height() * this.getScale(): " + ($(this).height() * this.getScale()));
-
-        console.log("this.getScale(): " + (this.getScale()));
-        // determine the new scale
-        /*let scale = this.getScale() *  (1 + delta / 100);
-        if (scale < 0.05) {
-          scale = 0.05;
-        } else if (scale > 3) {
-          scale = 3;
-        }*/
-
-        // determine the location on the screen at the new scale
-        /* translate(1320px, 180px); */
-        this.setMoveX((screenX - this._xImage) / scale + this.getMoveDiffX());
-        this.setMoveY((screenY - this._yImage) / scale + this.getMoveDiffY());
-
-        console.log("(screenX - this._xImage): " + (screenX - this._xImage));
-        console.log("(screenY - this._yImage): " + (screenY - this._yImage));
-        console.log("this.getMoveDiffX(): " + this.getMoveDiffX());
-        console.log("this.getMoveDiffY(): " + this.getMoveDiffY());
-
-        // save the current screen location
-        this._xLast = screenX;
-        this._yLast = screenY;
-
-        console.log("this.getMoveX(): " + this.getMoveX());
-        console.log("this.getMoveY(): " + this.getMoveY());
+        this.setMoveY(($(this).height() - height * this.getScale()) / 2 / this.getScale() - mostLeftOffset);
+        this.setMoveX(($(this).width() - width * this.getScale()) / 2 / this.getScale() - mostTopOffset);
+        this.setMoveDiffY(this.getMoveY());
+        this.setMoveDiffX(this.getMoveX());
 
         // redraw
-        this.setScale(scale);
         $(this).find('.database-visualizer-canvas')
-                .css('transform', 'scale(' + scale + ')' + 'translate(' + this.getMoveX() + 'px, ' + this.getMoveY() + 'px' + ')')
+                .css('transform', 'scale(' + this.getScale() + ')' + 'translate(' + this.getMoveX() + 'px, ' + this.getMoveY() + 'px' + ')')
                 .css('transform-origin', this._xImage + 'px ' + this._yImage + 'px');
-
-
-
-
-
-
-
 
         this.refresh();
         this.refreshMinimap();
