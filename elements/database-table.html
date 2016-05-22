@@ -346,6 +346,7 @@
 
                 refresh() {
                     $.each(this._constraints, function() {
+                        this.refreshConnector();
                         this.refresh();
                     })
                 },

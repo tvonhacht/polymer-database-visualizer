@@ -193,7 +193,7 @@
                     this.dragEl.style.pointerEvents = '';
                     this.dragEl.classList.remove('dragging');
                     this.dragEl = null;
-
+                    this.fireUpdateConstraint();
                     break;
                 }
             }
@@ -211,6 +211,12 @@
             $(this.dragEl).attr({ x: posX, y: posY});
         },
 
+        refreshConnector() {
+            if (this._points.length === 0) {
+                this._table.connector = "";
+                this._rTable.connector = "";
+            }
+        },
         refresh() {
             if (this._rTable.table === null) {
                 this._rTable.table = $('database-table#'+this.constraint.rschema+"_"+this.constraint.rtable)[0];
@@ -367,6 +373,7 @@
                         constraintLine.refresh();
                         console.log(constraintLine._points);
                         $(this).off('mousedown');
+                        constraintLine.fireUpdateConstraint();
 
                         $(this).on('dblclick', function() {
                             var index = constraintLine._points.indexOf(this);
@@ -375,6 +382,7 @@
                                 $(this).remove();
                             }
                             constraintLine.refresh();
+                            constraintLine.fireUpdateConstraint();
                         })
                     });
             $(this).children('svg').append(image);
@@ -391,10 +399,14 @@
                         y: point.y - (17 / 2)
                     })
                     .on('dblclick', function() {
-                        var index = constraintLine._points.indexOf(this);
+                        console.log("dblclick");
+                        var index = constraintLine._points.indexOf(image);
                         if (index > -1) {
                             constraintLine._points.splice(index, 1);
+                            $(this).remove();
                         }
+                        constraintLine.refresh();
+                        constraintLine.fireUpdateConstraint();
                     });
             $(this).children('svg').append(image);
 
@@ -420,6 +432,8 @@
 
             this._table.columns[0].constraintSelected(this._table.connector, this, "table");
             this._rTable.columns[0].constraintSelected(this._rTable.connector, this, "rTable");
+
+            this.refresh();
         },
         switchConnector(table) {
             if (table === "table") {
@@ -428,6 +442,7 @@
                 this._rTable.connector = this._rTable.connector === "left" ? "right" : "left";
             }
             this.refresh();
+            this.fireUpdateConstraint();
         },
         deselect() {
             this._selected = false;
@@ -497,6 +512,17 @@
                 this._rTable.column_pos = this._rTable.columns[0].getPosition();
                 this._rTable.column_height = $(this._rTable.columns[0]).height() / 2;
             }
+        },
+
+        fireUpdateConstraint() {
+            let positions = [];
+            $.each(this._points, function() {
+               positions.push({
+                   x: parseFloat($(this).attr('x')) + 17/2,
+                   y: parseFloat($(this).attr('y')) + 17/2
+               });
+            });
+            this._table.table.getSchema()._visualizer.fireUpdateConstraint(this.constraint.id, this._table.connector === 'right', this._rTable.connector === 'right', positions);
         }
     });
 </script>

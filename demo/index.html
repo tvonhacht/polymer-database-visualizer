@@ -71,6 +71,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           console.log("dragged table: " + e.detail);
           console.log(e.detail);
       });
+      document.querySelector('database-visualizer-database').addEventListener('updateConstraint', function (e) {
+          console.log("dragged constraint: " + e.detail);
+          console.log(e.detail);
+      });
        $('#click').on('click' , function() {
            $('database-visualizer').attr({database: '{"schemas":[{"id":null,"name":"Schema1","left":590,"top":170,"width":660,"height":310,"tables":[{"id":null,"name":"Table1","left":10,"top":100,"columns":[{"name":"Column1","keyType":"PK","nullable":false,"type":"Number","defaultValue":"_seq.NEXTVAL"},{"name":"Column2","keyType":"","nullable":true,"type":"Varchar","defaultValue":"blub"}],"constraints":[{"name":"FK_Schema1_Table1_Schema1_Table2","schema":"Schema1","table":"Table1","columns":["Column1","Column2"],"rcolumns":["Column3","Column4"],"rtable":"Table2","rschema":"Schema1"},{"name":"FK_Schema1_Table1_Schema2_Table4","schema":"Schema1","table":"Table1","columns":["Column1"],"rcolumns":["Column3"],"rtable":"Table4","rschema":"Schema2"}]},{"id":null,"name":"Table2","left":370,"top":100,"columns":[{"name":"Column3","keyType":"PK","nullable":false,"type":"Number","defaultValue":"_seq.NEXTVAL"},{"name":"Column4","keyType":"","nullable":true,"type":"Number","defaultValue":"2"}],"constraints":[]}]},{"id":null,"name":"Schema2","left":60,"top":70,"width":440,"height":396,"tables":[{"id":null,"name":"Table3","left":10,"top":80,"columns":[{"name":"Column1","keyType":"PK","nullable":false,"type":"Number","defaultValue":"_seq.NEXTVAL"},{"name":"Column2","keyType":"","nullable":true,"type":"Varchar","defaultValue":""}],"constraints":[]},{"id":null,"name":"Table4","left":150,"top":240,"columns":[{"name":"Column3","keyType":"PK","nullable":false,"type":"Number","defaultValue":"_seq.NEXTVAL"},{"name":"Column4","keyType":"","nullable":true,"type":"Number","defaultValue":"1"}],"constraints":[]}]}]}'});
        });

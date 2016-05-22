@@ -493,6 +493,15 @@ Example:
       });
     },
 
+    fireUpdateConstraint(dvConstraintId, isConnectorLeft, isConnectorLeftRef, positions) {
+      this.fire('updateConstraint', {
+        dvConstraintId,
+        isConnectorLeft,
+        isConnectorLeftRef,
+        positions
+      });
+    },
+
     // Element Lifecycle
 
     ready: function() {
