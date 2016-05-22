@@ -7,10 +7,13 @@
 <dom-module id="database-constraint-line">
     <style>
         /* CSS rules for your element */
+        :host {
+            cursor: pointer;
+        }
     </style>
     <template>
         <svg>
-            <image on-tap="_tapImage" class="backup" width="17" height="17" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAACXBIWXMAAAsTAAALEwEAmpwYAAABLUlEQVQ4y61US4rCQBBNeojiRrLSnbMOWWU3V1FPouARcgc9hyLOCSSbYZw5gRCIkM9KbevJaycS4zCOBY+iq6pf1y+xrNtiE6oEY/tVzMUXgSNoCJrUDu3qHpldutwSuIKOoEvt0m7I7DoCvNj2fb8XRdEojuN5lmVraJxhh59xFSLFF9phGL7lef6hRb63R73aHM8aAjv8JHJ47yqLlud5r0VRbHa51sPZQVuT/QU4ww4/4ljaJRubrC5SxouD6TWBQV/sEIkbs0eOIVGssSO1L5D6LQID+BHHZjdMSYpj7KZpun7/uk8CP5rNqTXLJP/OpNyTMWruP9CTP08nCILKdCp7gkCzJ8vPnz2BvW5PKhuLjJBykiQLaWIEjTP3o3Zjn/LtPO0rfvh/cgKu7z6wtPPltQAAAABJRU5ErkJggg==" preserveAspectRatio="none"></image>
+            <image class="backup" width="17" height="17" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAACXBIWXMAAAsTAAALEwEAmpwYAAABLUlEQVQ4y61US4rCQBBNeojiRrLSnbMOWWU3V1FPouARcgc9hyLOCSSbYZw5gRCIkM9KbevJaycS4zCOBY+iq6pf1y+xrNtiE6oEY/tVzMUXgSNoCJrUDu3qHpldutwSuIKOoEvt0m7I7DoCvNj2fb8XRdEojuN5lmVraJxhh59xFSLFF9phGL7lef6hRb63R73aHM8aAjv8JHJ47yqLlud5r0VRbHa51sPZQVuT/QU4ww4/4ljaJRubrC5SxouD6TWBQV/sEIkbs0eOIVGssSO1L5D6LQID+BHHZjdMSYpj7KZpun7/uk8CP5rNqTXLJP/OpNyTMWruP9CTP08nCILKdCp7gkCzJ8vPnz2BvW5PKhuLjJBykiQLaWIEjTP3o3Zjn/LtPO0rfvh/cgKu7z6wtPPltQAAAABJRU5ErkJggg==" preserveAspectRatio="none"></image>
             <path class="transparent-outline" d="M 1333 578 L 1553.01 568.43 Q 1563 568 1570.35 561.22 L 1685.65 454.78 Q 1693 448 1701.94 452.47 L 1804.06 503.53 Q 1813 508 1807.09 516.06 L 1706.77 652.86"></path>
             <path class="line" d="M 1333 578 L 1553.01 568.43 Q 1563 568 1570.35 561.22 L 1685.65 454.78 Q 1693 448 1701.94 452.47 L 1804.06 503.53 Q 1813 508 1807.09 516.06 L 1706.77 652.86"></path>
         </svg>
@@ -35,7 +38,7 @@
                         rschema: "schema1",
                         rtable: "table2",
                         rcolumns: ["column1"],
-                        points: []
+                        positions: []
                     };
                 }
             },
@@ -88,7 +91,16 @@
         },
 
         attached: function() {
+            console.log("positions: ");
+            console.log(this.constraint.positions);
+
+            var databaseConstraintLine = this;
+
+            $(this).children('svg').children('image.point').remove();
             this._points = [];
+            $.each(this.constraint.positions, function() {
+                databaseConstraintLine.drawPoint(this.position);
+            });
 
             /** save SVG variables **/
             this._paths = $(this).children('svg').children('path');
@@ -98,7 +110,6 @@
             this._table.table = $('database-table#'+this.constraint.schema+"_"+this.constraint.table)[0];
             this._table.table.registerConstraint(this);
 
-            var databaseConstraintLine = this;
             /** highlight on mouseenter **/
             $(this).mouseenter(function() {
                 databaseConstraintLine.highlight(true);
@@ -345,25 +356,26 @@
                     .removeClass('backup')
                     .addClass('point middle')
                     .attr(point)
-                    .on('click', function() {
-                        if ($(this).hasClass('middle')) {
-                            console.log("index: " + index);
-                            console.log(constraintLine._points);
-                            $(this).removeClass('middle');
-                            constraintLine._points.splice(index, 0, this);
-                            constraintLine.refresh();
-                            console.log(constraintLine._points);
-                        }
+                    .on('drag', function() {
+                        console.log("DRAGGING HIER");
                     })
-                    .on('dblclick', function() {
-                        if (!$(this).hasClass('middle')) {
+                    .on('mousedown', function() {
+                        console.log("index: " + index);
+                        console.log(constraintLine._points);
+                        $(this).removeClass('middle');
+                        constraintLine._points.splice(index, 0, this);
+                        constraintLine.refresh();
+                        console.log(constraintLine._points);
+                        $(this).off('mousedown');
+
+                        $(this).on('dblclick', function() {
                             var index = constraintLine._points.indexOf(this);
                             if (index > -1) {
                                 constraintLine._points.splice(index, 1);
                                 $(this).remove();
                             }
                             constraintLine.refresh();
-                        }
+                        })
                     });
             $(this).children('svg').append(image);
         },
@@ -385,6 +397,8 @@
                         }
                     });
             $(this).children('svg').append(image);
+
+            this._points.push(image);
         },
 
         observerSelected(value) {
