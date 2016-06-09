@@ -7,8 +7,6 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
-<link rel="stylesheet" href="../stylesheet.css">
-<!--<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">-->
 
 <!--
 An element providing a solution to no problem in particular.
@@ -47,6 +45,10 @@ Example:
         :host .table {
             background: rgba(0,0,100,0.2);
             position: absolute;
+        }
+
+        :host.hidden {
+            visibility: hidden;
         }
     </style>
 
@@ -229,6 +231,7 @@ Example:
             this.getSchemas().forEach(function(schema) {
                 let schemaDiv = document.createElement('div');
                 schemaDiv.classList.add('schema');
+                schemaDiv.classList.add('database-minimap');
                 let left = (schema.getLeft() - mostLeft) / ratio;
                 let top = (schema.getTop() - mostTop) / ratio + paddingTop;
                 this.translate3d(left + 'px', top + 'px', '0px', schemaDiv);
@@ -238,6 +241,7 @@ Example:
                 schema.getTables().forEach(function(table) {
                     let tableDiv = document.createElement('div');
                     tableDiv.classList.add('table');
+                    tableDiv.classList.add('database-minimap');
                     let left = table.translate.x / ratio;
                     let top = table.translate.y / ratio;
                     this.translate3d(left + 'px', top + 'px', '0px', tableDiv);

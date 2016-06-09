@@ -7,8 +7,6 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
-<link rel="import" href="../../paper-menu/paper-menu.html">
-<link rel="import" href="../../paper-menu/paper-submenu.html">
 <link rel="import" href="../../paper-item/paper-item.html">
 <link rel="import" href="../../iron-list/iron-list.html">
 <link rel="import" href="../../paper-dropdown-menu/paper-dropdown-menu.html">
@@ -19,8 +17,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../paper-fab/paper-fab.html">
 <link rel="import" href="../../paper-spinner/paper-spinner-lite.html">
-<link rel="stylesheet" href="../stylesheet.css">
-<!--<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">-->
 
 <!--
 An element providing a solution to no problem in particular.
@@ -35,18 +31,14 @@ Example:
 
     <style>
         :host {
-
+            display: block;
         }
 
         paper-tabs {
-            --paper-tabs-selection-bar-color: #ff4081;
+            --paper-tabs-selection-bar-color: var(--database-menu-selection-bar-color, --accent-color);
 
-            background-color: #4a5664;
-            color: #fff;
-        }
-
-        paper-tabs paper-ripple {
-            color: #ff4081;
+            background: var(--database-menu-bar-background, --primary-color);
+            color: var(--database-menu-bar-color, white);
         }
 
         div.paper-header {
@@ -54,18 +46,25 @@ Example:
         }
 
         paper-input {
-            --paper-input-container-focus-color: #ff4081;
-        }
-
-        paper-spinner-lite {
-            --paper-spinner-color: #ff4081;
+            --paper-input-container-focus-color: var(--database-menu-search-focus-color, --accent-color);
         }
 
         paper-tab {
-            --paper-tab-ink: #ff4081;
+            --paper-tab-ink: var(--database-menu-bar-ripple-color, --accent-color);
         }
 
+        paper-input {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
 
+        paper-spinner-lite {
+            --paper-spinner-color: var(--database-menu-spinner-color, --accent-color);
+            margin-top: 20px;
+            position: absolute !important;
+            left: 50%;
+            margin-left: -14px;
+        }
     </style>
 
     <template>

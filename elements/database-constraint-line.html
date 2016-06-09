@@ -24,7 +24,7 @@
         }
 
         :host.selected-constraint > svg path.line {
-            stroke: #9C27B0;
+            stroke: var(--database-constraint-line-selected-stroke, --light-accent-color);
         }
 
         :host > svg path {
@@ -46,8 +46,17 @@
         }
 
         :host.highlight > svg path.line {
-            stroke: #9C27B0;
+            stroke: var(--database-constraint-line-highlighted-stroke, --light-accent-color);
             stroke-width: 4;
+        }
+
+        svg {
+            overflow: visible;
+            left: 0;
+            top: 0;
+            width: 1px;
+            height: 1px;
+            position: absolute;
         }
     </style>
     <template>

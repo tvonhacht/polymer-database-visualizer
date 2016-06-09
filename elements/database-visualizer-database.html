@@ -29,10 +29,70 @@ Example:
             box-sizing: content-box;
             height: 100%;
             background-color: #ECECEC;
+
+            cursor: -webkit-grab;
+
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         paper-spinner-lite {
-            --paper-spinner-color: #ff4081;
+            --paper-spinner-color: var(--database-visualizer-database-spinner-color, --accent-color);
+        }
+
+        :host #canvas {
+            position: absolute;
+            cursor: -webkit-grab;
+            font-size: 14px;
+            line-height: 20px;
+            overflow-x: visible;
+            overflow-y: visible;
+            width: 50px;
+            height: 50px;
+        }
+
+
+        h1 {
+            color: #DCDCDC;
+            padding: 15px;
+            margin: 0;
+            position: absolute;
+            bottom: 0px;
+            right: 0px;
+
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none;   /* Chrome/Safari/Opera */
+            -khtml-user-select: none;    /* Konqueror */
+            -moz-user-select: none;      /* Firefox */
+            -ms-user-select: none;       /* Internet Explorer/Edge */
+            user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+        }
+
+        #loading {
+            background: rgba(255,255,255,0.5);
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 92;
+        }
+
+        #loading paper-spinner-lite {
+            position: absolute !important;
+            left: 50%;
+            top: 50%;
+            margin-left: -14px;
+            margin-top: -14px;
+        }
+
+        #loading.hidden {
+            visibility: hidden;
         }
     </style>
 

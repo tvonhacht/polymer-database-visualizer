@@ -13,7 +13,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/database-visualizer-database.html">
 <link rel="import" href="elements/database-visualizer-menu.html">
 <link rel="import" href="../paper-fab/paper-fab.html">
-<link rel="stylesheet" href="stylesheet.css">
 
 <!--
 An element providing a solution to no problem in particular.
@@ -28,7 +27,61 @@ Example:
 
     <style>
         :host {
+            /*--primary-color: var(--paper-indigo-500);*/
+            /*--light-primary-color: var(--paper-indigo-100);*/
+            /*--dark-primary-color: var(--paper-indigo-700);*/
+            /*--accent-color: var(--paper-pink-a200);*/
+            /*--light-accent-color: var(--paper-pink-a100);*/
+            /*--dark-accent-color: var(--paper-pink-a400);*/
 
+            /*--database-visualizer-database-spinner-color: green;*/
+
+            /*--database-menu-bar-background: green;*/
+            /*--database-menu-bar-color: green;*/
+            /*--database-menu-selection-bar-color: green;*/
+            /*--database-menu-search-focus-color: green;*/
+            /*--database-menu-spinner-color: green;*/
+            /*--database-menu-bar-ripple-color: green;*/
+
+            /*--database-visualizer-menu-button-background: green;*/
+
+            /*--database-table-background: green;*/
+            /*--database-table-color: green;*/
+            /*--database-table-selected-background: green;*/
+            /*--database-table-selected-color: green;*/
+
+            /*--database-schema-background: green;*/
+            /*--database-schema-color: green;*/
+            /*--database-schema-selected-background: green;*/
+            /*--database-schema-selected-color: green;*/
+            /*--database-schema-resize-button-background: green;*/
+
+            /*--database-column-higlight-background: green;*/
+            /*--database-column-higlight-color: green;*/
+
+            /*--database-constraint-hover-background: green;*/
+
+            /*--database-constraint-line-selected-stroke: green;*/
+            /*--database-constraint-line-highlighted-stroke: green;*/
+
+            /*--database-constraint-line-button-move-background: green;*/
+            /*--database-constraint-line-button-add-background: green;*/
+        }
+
+        paper-drawer-panel #scrim {
+            z-index: 91;
+        }
+
+        paper-drawer-panel #drawer {
+            z-index: 92;
+        }
+
+        #menu {
+            --paper-fab-background: var(--database-visualizer-menu-button-background, --accent-color);
+            position: absolute;
+            z-index: 1;
+            top: 10px;
+            left: 10px;
         }
     </style>
 
@@ -37,12 +90,10 @@ Example:
             <database-visualizer-menu schemas={{schemas}} applications="{{applications}}" setups="{{setups}}"
                                       drawer></database-visualizer-menu>
             <div main>
-                <paper-fab class="menu" icon="icons:menu" on-tap="_openMenu" title="menu"></paper-fab>
+                <paper-fab id="menu" class="menu" icon="icons:menu" on-tap="_openMenu" title="menu"></paper-fab>
                 <database-visualizer-database database="{{database}}"></database-visualizer-database>
             </div>
         </paper-drawer-panel>
-        <!-- <database-visualizer-menu></database-visualizer-menu> -->
-
     </template>
 
 </dom-module>
@@ -50,7 +101,6 @@ Example:
 <script>
 
     Polymer({
-
         is: 'database-visualizer',
 
         properties: {
