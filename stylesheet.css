@@ -8,10 +8,12 @@ iron-pages {
     background: #004358;
 }
 .background-color-secondary {
-    background-color: #1F8A70;
+    background-color: #3F51B5;
+    color: white;
 }
 .background-color-tertiar {
-    background-color: #BEDB39;
+    background-color: #2196F3;
+    color: white;
 }
 .background-color-alternative-primary {
     background-color: #FF2700;
@@ -238,44 +240,6 @@ database-constraint:hover {
     background: #7ec699;
 }
 
-database-constraint-line svg path {
-    fill: none;
-}
-
-database-constraint-line svg path.line {
-    stroke: #000000;
-    stroke-width: 2px;
-}
-database-constraint-line svg path.transparent-outline {
-    stroke: transparent;
-    stroke-width: 20px;
-}
-database-constraint-line svg image.middle {
-    opacity: 0.5;
-}
-
-database-constraint-line.highlight svg path.line {
-    stroke: #BE10FD;
-    stroke-width: 4;
-}
-
-database-constraint-line.selected-constraint svg path.line {
-    /*stroke: #2b47fd;*/
-    /*stroke-width: 4;*/
-}
-
-database-constraint-line svg image {
-    /*stroke: #2b47fd;*/
-    /*stroke-width: 4;*/
-    visibility: hidden;
-}
-
-database-constraint-line.selected-constraint svg image.point {
-    /*stroke: #2b47fd;*/
-    /*stroke-width: 4;*/
-    visibility: visible;
-}
-
 database-table {
     width: auto !important;
     height: auto !important;
@@ -287,7 +251,7 @@ database-table .database-visualizer-div-body {
 }
 
 .database-visualizer-div-header {
-    padding: 0 24px;
+    padding: 10px 24px;
     line-height: 56px;
     font-size: 12px;
     font-weight: 500;
@@ -304,9 +268,10 @@ database-table .database-visualizer-div-body {
 
 .database-visualizer-div-header h2 {
     margin: 0;
-    font-size: 36px;
+    font-size: 72px;
     line-height: 2em;
     color: white;
+    text-align: center;
 }
 
 .database-visualizer-div-header h3 {
@@ -322,38 +287,15 @@ database-table .database-table {
 }
 */
 
-database-column {
-    display: table-row;
-    width: auto;
-}
 
-database-column.highlight,
-database-column.highlight:nth-child(even) {
-    background-color: #BE10FD;
-    color: white;
-}
-
-database-column .database-column.table-column {
-    display: table-cell;
-    padding: 5px;
-    min-width: 20px;
-}
-
-database-column:nth-child(even) {
-    background: #ECECEC;
-}
-
-database-column paper-fab.connector iron-icon {
-    transform: rotate(90deg);
-}
 
 .database-visualizer-canvas {
+    position: absolute;
     cursor: -webkit-grab;
     font-size: 14px;
     line-height: 20px;
     overflow-x: visible;
     overflow-y: visible;
-    position: relative;
     width: 50px;
     height: 50px;
 }
@@ -362,7 +304,7 @@ database-column paper-fab.connector iron-icon {
     cursor: -webkit-grabbing !important;
 }
 
-.minimap {
+#minimap {
     position: absolute;
     border-radius: 3px;
     background: white;
@@ -376,16 +318,15 @@ database-column paper-fab.connector iron-icon {
     cursor: initial;
 }
 
-.minimap .visible-area {
+#minimap .visible-area {
     position: absolute;
     background: rgba(255,100,100,0.4);
     cursor: -webkit-grab;
     z-index: 92;
 }
 
-.minimap .schema,
-.minimap .table {
+#minimap .schema,
+#minimap .table {
     background: rgba(0,0,100,0.2);
     position: absolute;
 }
-

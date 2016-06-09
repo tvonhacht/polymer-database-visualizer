@@ -8,6 +8,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <link rel="import" href="database-schema.html">
+<link rel="import" href="database-minimap.html">
 
 <!--
 An element providing a solution to no problem in particular.
@@ -20,612 +21,394 @@ Example:
 -->
 <dom-module id="database-visualizer-database">
 
-  <style>
-    :host {
-      overflow: hidden;
-      font-family: 'Roboto','Noto',sans-serif;
-      display: block;
-      box-sizing: content-box;
-      height: 100%;
-      background-color: #ECECEC;
-    }
-    paper-spinner-lite {
-      --paper-spinner-color: #ff4081;
-    }
-  </style>
+    <style>
+        :host {
+            overflow: hidden;
+            font-family: 'Roboto', 'Noto', sans-serif;
+            display: block;
+            box-sizing: content-box;
+            height: 100%;
+            background-color: #ECECEC;
+        }
 
-  <template>
-    <h1>&lt;database-visualizer&gt;</h1>
-    <div class="loading hidden">
-      <paper-spinner-lite active></paper-spinner-lite>
-      <div class="spinner">
-        <div class="rect1"></div>
-        <div class="rect2"></div>
-        <div class="rect3"></div>
-        <div class="rect4"></div>
-        <div class="rect5"></div>
-      </div>
-    </div>
-    <div class="minimap hidden"><div class="visible-area"></div></div>
-    <div class="database-visualizer-canvas" style="left: 0px; top: 0px;">
-      <template is="dom-repeat" items="{{database.schemas}}">
-        <database-schema id="{{item.name}}" schema="{{item}}"></database-schema>
-      </template>
-      <div class="database-constraints-storage"></div>
-    </div>
-  </template>
+        paper-spinner-lite {
+            --paper-spinner-color: #ff4081;
+        }
+    </style>
+
+    <template>
+        <h1>&lt;database-visualizer&gt;</h1>
+        <div id="loading" class="loading hidden">
+            <paper-spinner-lite active></paper-spinner-lite>
+        </div>
+        <database-minimap id="minimap"></database-minimap>
+        <div id="canvas" class="database-visualizer-canvas" style="left: 0px; top: 0px;">
+            <template is="dom-repeat" items="{{database.schemas}}">
+                <database-schema id="{{item.name}}" schema="{{item}}"></database-schema>
+            </template>
+            <div id="storage" class="database-constraints-storage"></div>
+        </div>
+    </template>
 
 </dom-module>
 
 <script>
-  // TODO add testing with nightwatch.js (www.nightwatchjs.org)
-  // TODO screenshot gatlin
+    // TODO add testing with nightwatch.js (www.nightwatchjs.org)
+    // TODO screenshot gatlin
 
-  // TODO tryout dc/os
+    // TODO tryout dc/os
 
-  Polymer({
+    Polymer({
 
-    is: 'database-visualizer-database',
-
-    properties: {
-      database: {
-        type: Object,
-        notify: true,
-        value: function() {
-          return {
-            schemas:  [{name: "schema1",
-                        tables: [{name: "table1"}]}],
-            foreignKeys: [{column: "column1"}]
-          };
+        is: 'database-visualizer-database',
+        listeners: {
+            'tap': '_handleTap',
+            'track': '_handleTrack',
+            'mousewheel': '_handleMousewheel'
         },
-        observer: 'databaseChanged'
-      },
-
-      _schemas: {
-        type: Array,
-        notify: true,
-        value: function() {
-          return [];
-        }
-      },
-
-      _scale: {
-        type: Number,
-        value: function () {
-          return 1;
-        }
-      },
-
-      _moveX: {
-        type: Number,
-        value: function () {
-          return 0;
-        }
-      },
-
-      _moveY: {
-        type: Number,
-        value: function () {
-          return 0;
-        }
-      },
-      _minimapMoveX: Number,
-      _minimapMoveY: Number,
-      _moveDiffX: {
-        type: Number,
-        value: function () {
-          return 0;
-        }
-      },
-      _moveDiffY: {
-        type: Number,
-        value: function () {
-          return 0;
-        }
-      },
-
-      _draggingChild: Boolean,
-      _dragging: Boolean,
-
-      _dragX: Number,
-      _dragY: Number,
-
-      _minimapWidth: Number,
-      _minimapHeight: Number,
-
-      _xImage: { // last x location on the image
-        type: Number,
-        value: 0
-      },
-      _yImage: { // last y location on the image
-        type: Number,
-        value: 0
-      },
-      _xLast: { // last x location on the screen
-        type: Number,
-        value: 0
-      },
-      _yLast: { // last y location on the screen
-        type: Number,
-        value: 0
-      },
-    },
-    databaseChanged(database) {
-      this._schemas = [];
-
-      this._scale = 1;
-
-
-      this._moveX = 0;
-      this._moveY = 0;
-      this._minimapMoveX = 0;
-      this._minimapMoveY = 0;
-      this._moveDiffX = 0;
-      this._moveDiffY = 0;
-      this._yImage = 0;
-      this._xImage = 0;
-      this._xLast = 0;
-      this._yLast = 0;
-
-      $(this).find('.database-visualizer-canvas')
-              .css('transform', 'scale(' + this.getScale() + ')' + 'translate(' + this.getMoveX() + 'px, ' + this.getMoveY() + 'px' + ')')
-              .css('transform-origin', this._xImage + 'px ' + this._yImage + 'px');
-
-      $('.database-constraints-storage').empty();
-      /*if (database === null || database === "" || database.schemas === null || database.schemas === "" || database.schemas.length <= 0) {
-        $('.minimap').addClass('hidden');
-      } else {
-        this.load();
-        $('.minimap').removeClass('hidden');
-      }*/
-    },
-
-    getSchemas() {
-      return this._schemas;
-    },
-    registerSchema(schema) {
-      this.getSchemas().push(schema);
-
-      if (this.database.schemas.length === this.getSchemas().length) {
-
-        var mostLeft = null;
-        var mostRight = null;
-        var mostTop = null;
-        var mostBottom = null;
-        var mostLeftOffset = null;
-        var mostTopOffset = null;
-        $.each(this.getSchemas(), function() {
-          var offset = $(this).offset();
-          if (mostLeft === null || mostLeft > this.getLeft() ) {
-            mostLeft = this.getLeft();
-          }
-          if (mostTop === null || mostTop > this.getTop() ) {
-            mostTop = this.getTop();
-          }
-          if (mostRight === null || mostRight < this.getLeft() + this.getWidth() ) {
-            mostRight = this.getLeft() + this.getWidth();
-          }
-          if (mostBottom === null || mostBottom < this.getTop() + this.getHeight() ) {
-            mostBottom = this.getTop() + this.getHeight();
-          }
-          if (mostLeftOffset === null || mostLeftOffset > offset.left) {
-            mostLeftOffset = offset.left;
-          }
-          if (mostTopOffset === null || mostTopOffset > offset.top) {
-            mostTopOffset = offset.top;
-          }
-        });
-        var width = mostRight - mostLeft;
-        var height = mostBottom - mostTop;
-        var widthRatio = $(this).width() / width - 0.05;
-        var heightRatio = $(this).height() / height - 0.05;
-
-        this.setScale(widthRatio < heightRatio ? widthRatio : heightRatio);
-
-        this.setMoveY(($(this).height() - height * this.getScale()) / 2 / this.getScale() - mostLeftOffset);
-        this.setMoveX(($(this).width() - width * this.getScale()) / 2 / this.getScale() - mostTopOffset);
-        this.setMoveDiffY(this.getMoveY());
-        this.setMoveDiffX(this.getMoveX());
-
-        // redraw
-        $(this).find('.database-visualizer-canvas')
-                .css('transform', 'scale(' + this.getScale() + ')' + 'translate(' + this.getMoveX() + 'px, ' + this.getMoveY() + 'px' + ')')
-                .css('transform-origin', this._xImage + 'px ' + this._yImage + 'px');
-
-        this.refresh();
-        this.refreshMinimap();
-        this.refreshMinimapZoom();
-        $('.loading').addClass('hidden');
-        $('.minimap').removeClass('hidden');
-
-      }
-    },
-
-    setMoveX(moveX) {
-      this._moveX = moveX;
-    },
-    getMoveX() {
-      return this._moveX;
-    },
-    setMoveY(moveY) {
-      this._moveY = moveY;
-    },
-    getMoveY() {
-      return this._moveY;
-    },
-
-    setMoveDiffX(moveDiffX) {
-      this._moveDiffX = moveDiffX;
-    },
-    getMoveDiffX() {
-      return this._moveDiffX;
-    },
-    setMoveDiffY(moveDiffY) {
-      this._moveDiffY = moveDiffY;
-    },
-    getMoveDiffY() {
-      return this._moveDiffY;
-    },
-
-    setMinimapMoveX(minimapMoveX) {
-      this._minimapMoveX = minimapMoveX;
-    },
-    getMinimapMoveX() {
-      return this._minimapMoveX;
-    },
-    setMinimapMoveY(minimapMoveY) {
-      this._minimapMoveY = minimapMoveY;
-    },
-    getMinimapMoveY() {
-      return this._minimapMoveY;
-    },
-
-    getScale() {
-      return this._scale;
-    },
-
-    setScale(scale) {
-      return this._scale = scale;
-    },
-
-    setDragging(bool) {
-      this._dragging = bool;
-    },
-    getDragging() {
-      return this._dragging;
-    },
-
-    setDraggingChild(bool) {
-      this._draggingChild = bool;
-    },
-    getDraggingChild() {
-      return this._draggingChild;
-    },
-
-    setDragY(bool) {
-      this._dragY = bool;
-    },
-    getDragY() {
-      return this._dragY;
-    },
-
-    setDragX(bool) {
-      this._dragX = bool;
-    },
-    getDragX() {
-      return this._dragX;
-    },
-    
-    setMinimapWidth(minimapWidth) {
-      this._minimapWidth = minimapWidth;
-    },
-    getMinimapWidth() {
-      return this._minimapWidth;
-    },
-    setMinimapHeight(minimapHeight) {
-      this._minimapHeight = minimapHeight;
-    },
-    getMinimapHeight() {
-      return this._minimapHeight;
-    },
-
-    refreshMinimapZoom() {
-      var mostLeft = null;
-      var mostTop = null;
-
-      $.each(this.getSchemas(), function() {
-
-        if(mostLeft === null || mostLeft > $(this).offset().left ) {
-          mostLeft = $(this).offset().left;
-        }
-        if(mostTop === null || mostTop > $(this).offset().top ) {
-          mostTop = $(this).offset().top;
-        }
-      });
-
-      // TODO fix for width > height
-      var ratio = $(this).height() / $(this).width();
-      var topHalf = (this.getMinimapWidth() - this.getMinimapHeight()) / 2;
-
-      $(this).find('.minimap .visible-area').width(150 * $(this).width() / this.getMinimapWidth() / this.getScale());
-      $(this).find('.minimap .visible-area').height(150 * $(this).width() / this.getMinimapWidth() / this.getScale() * ratio);
-      $(this).find('.minimap .visible-area').css({
-        left: 150 * (50 - mostLeft / this.getScale()) / this.getMinimapWidth(),
-        top: 150 * (topHalf - mostTop / this.getScale()) / this.getMinimapWidth()
-      });
-    },
-
-    refreshMinimap() {
-      $(this).find('.minimap .schema').remove();
-
-      var mostLeft = null;
-      var mostRight = null;
-      var mostTop = null;
-      var mostBottom = null;
-      $.each(this.getSchemas(), function() {
-        if(mostLeft === null || mostLeft > this.getLeft() ) {
-          mostLeft = this.getLeft();
-        }
-        if(mostTop === null || mostTop > this.getTop() ) {
-          mostTop = this.getTop();
-        }
-        if(mostRight === null || mostRight < this.getLeft() + this.getWidth() ) {
-          mostRight = this.getLeft() + this.getWidth();
-        }
-        if(mostBottom === null || mostBottom < this.getTop() + this.getHeight() ) {
-          mostBottom = this.getTop() + this.getHeight();
-        }
-      });
-
-      mostRight = mostRight + 50;
-      mostLeft = mostLeft - 50;
-      this.setMinimapWidth(Math.abs(mostRight - mostLeft));
-      this.setMinimapHeight(Math.abs(mostBottom - mostTop));
-
-      var ratio = this.getMinimapWidth() / 150;
-
-      var paddingTop = (150 - this.getMinimapHeight() / ratio) / 2;
-
-      var databaseVisualizer = this;
-      $.each(this.getSchemas(), function() {
-        var $schema = $('<div></div>');
-        $schema.addClass('schema');
-        $schema.css({
-          left: (this.getLeft() - mostLeft) / ratio,
-          top: (this.getTop() - mostTop) / ratio + paddingTop,
-          width: this.getWidth() / ratio,
-          height: this.getHeight() / ratio
-        });
-
-        $.each(this.getTables(), function() {
-          var $table = $('<div></div>');
-          $table.addClass('table');
-          $table.css({
-            left: this.getLeft() / ratio,
-            top: this.getTop() / ratio,
-            width: $(this).width() / ratio,
-            height: $(this).height() / ratio
-          });
-          $schema.append($table);
-        });
-
-        $(databaseVisualizer).find('.minimap').append($schema);
-      });
-    },
-
-    addMousewheelZoom() {
-      function zoomInAndOut(e) {
-
-        // cross-browser wheel delta
-        var e = window.event || e; // old IE support
-        var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-
-        e.preventDefault();
-
-        if (delta !== 0) {
-          // find current location on screen
-          var screenX = event.pageX - $(this).offset().left;
-          var screenY = event.pageY - $(this).offset().top;
-
-          // find current location on the image at the current scale
-          this._xImage = this._xImage + ((screenX - this._xLast) / this.getScale());
-          this._yImage = this._yImage + ((screenY - this._yLast) / this.getScale());
-
-          // determine the new scale
-          let rate = 30;
-          let scale = this.getScale() *  (1 + delta / rate);
-          if (scale < 0.05) {
-            scale = 0.05;
-          } else if (scale > 3) {
-            scale = 3;
-          }
-
-          // determine the location on the screen at the new scale
-          this.setMoveX((screenX - this._xImage) / scale + this.getMoveDiffX());
-          this.setMoveY((screenY - this._yImage) / scale + this.getMoveDiffY());
-
-          // save the current screen location
-          this._xLast = screenX;
-          this._yLast = screenY;
-
-          // redraw
-          this.setScale(scale);
-          $(this).find('.database-visualizer-canvas')
-                  .css('transform', 'scale(' + scale + ')' + 'translate(' + this.getMoveX() + 'px, ' + this.getMoveY() + 'px' + ')')
-                  .css('transform-origin', this._xImage + 'px ' + this._yImage + 'px');
-
-          this.refreshMinimapZoom();
-        }
-        return false;
-      }
-
-      if (this.addEventListener) {
-        // IE9, Chrome, Safari, Opera
-        this.addEventListener("mousewheel", zoomInAndOut, false);
-        // Firefox
-        this.addEventListener("DOMMouseScroll", zoomInAndOut, false);
-      }
-      // IE 6/7/8
-      else this.attachEvent("onmousewheel", zoomInAndOut);
-    },
-
-    refresh() {
-      $.each(this.getSchemas(), function() {
-        this.refresh();
-      });
-    },
-
-    fireUpdateTable(dvTableId, left, top) {
-      this.fire('updateTable', {
-        dvTableId,
-        left,
-        top
-      });
-    },
-
-    fireUpdateSchema(dvSchemaId, left, top, width, height) {
-      this.fire('updateSchema', {
-        dvSchemaId,
-        left,
-        top,
-        width,
-        height
-      });
-    },
-
-    fireUpdateConstraint(dvConstraintId, isConnectorLeft, isConnectorLeftRef, positions) {
-      this.fire('updateConstraint', {
-        dvConstraintId,
-        isConnectorLeft,
-        isConnectorLeftRef,
-        positions
-      });
-    },
-
-    // Element Lifecycle
-
-    ready: function() {
-      // `ready` is called after all elements have been configured, but
-      // propagates bottom-up. This element's children are ready, but parents
-      // are not.
-      //
-      // This is the point where you should make modifications to the DOM (when
-      // necessary), or kick off any processes the element wants to perform.
-    },
-
-    attached: function() {
-      // `attached` fires once the element and its parents have been inserted
-      // into a document.
-      //
-      // This is a good place to perform any work related to your element's
-      // visual state or active behavior (measuring sizes, beginning animations,
-      // loading resources, etc).
-
-      var databaseVisualizer = this;
-
-      var visibleTop;
-      var visibleLeft;
-      var mousedown = false;
-
-      $(this).find('.minimap .visible-area').on('mousedown', function() {
-        $(this).addClass('cursor-webkit-grabbing');
-
-        mousedown = true;
-        databaseVisualizer.setDragX(event.pageX - $(this).parent().offset().left);
-        databaseVisualizer.setDragY(event.pageY - $(this).parent().offset().top);
-
-        visibleTop = $(this).position().top;
-        visibleLeft = $(this).position().left;
-      });
-      $(this).find('.minimap .visible-area').on('mousemove', function() {
-        if (mousedown) {
-          // find current location on screen
-          var screenX = event.pageX - $(this).parent().offset().left;
-          var screenY = event.pageY - $(this).parent().offset().top;
-          
-          databaseVisualizer.setMinimapMoveX(databaseVisualizer.getMoveX() - (screenX - databaseVisualizer.getDragX()) * databaseVisualizer.getMinimapWidth() / 150);
-          databaseVisualizer.setMinimapMoveY(databaseVisualizer.getMoveY() - (screenY - databaseVisualizer.getDragY()) * databaseVisualizer.getMinimapWidth() / 150);
-
-          $(this).css({
-            top: visibleTop + (screenY - databaseVisualizer.getDragY()),
-            left: visibleLeft + (screenX - databaseVisualizer.getDragX())
-          });
-
-          $(databaseVisualizer).find('.database-visualizer-canvas')
-                  .css('transform', 'scale(' + databaseVisualizer.getScale() + ')' + 'translate(' + databaseVisualizer.getMinimapMoveX() + 'px, ' + databaseVisualizer.getMinimapMoveY() + 'px' + ')');
-        }
-      });
-      var mouseUpOrLeave = function() {
-        if (mousedown) {
-          mousedown = false;
-          $(this).removeClass('cursor-webkit-grabbing');
-          databaseVisualizer.setMoveDiffX(databaseVisualizer.getMoveDiffX() + databaseVisualizer.getMinimapMoveX() - databaseVisualizer.getMoveX());
-          databaseVisualizer.setMoveDiffY(databaseVisualizer.getMoveDiffY() + databaseVisualizer.getMinimapMoveY() - databaseVisualizer.getMoveY());
-          databaseVisualizer.setMoveX(databaseVisualizer.getMinimapMoveX());
-          databaseVisualizer.setMoveY(databaseVisualizer.getMinimapMoveY());
-        }
-      };
-      $(this).find('.minimap .visible-area').on('mouseup', mouseUpOrLeave);
-      $(document).on('mouseup', mouseUpOrLeave);
-
-      this.addMousewheelZoom();
-
-      /** mousedown **/
-      $(this).bind('mousedown', function(event) {
-        databaseVisualizer.setDragging(event.target === databaseVisualizer || event.target === $(databaseVisualizer).find('.database-visualizer-canvas')[0] || event.target === $(databaseVisualizer).children('h1')[0]);
-        if (databaseVisualizer.getDragging()) {
-          $(databaseVisualizer).addClass('cursor-webkit-grabbing');
-          $(databaseVisualizer).find('.database-visualizer-canvas').addClass('cursor-webkit-grabbing');
-
-          databaseVisualizer.setDragX(event.pageX - $(databaseVisualizer).offset().left);
-          databaseVisualizer.setDragY(event.pageY - $(databaseVisualizer).offset().top);
-        }
-      });
-      /** mousemove **/
-      $(this).bind('mousemove', function(event) {
-        if (!databaseVisualizer.getDraggingChild() && databaseVisualizer.getDragging()) {
-
-          // find current location on screen
-          var xScreen = event.pageX - $(databaseVisualizer).offset().left;
-          var yScreen = event.pageY - $(databaseVisualizer).offset().top;
-
-          databaseVisualizer.setMinimapMoveX(databaseVisualizer.getMoveX() + (xScreen - databaseVisualizer.getDragX()) / databaseVisualizer.getScale());
-          databaseVisualizer.setMinimapMoveY(databaseVisualizer.getMoveY() + (yScreen - databaseVisualizer.getDragY()) / databaseVisualizer.getScale());
-
-          $(databaseVisualizer).find('.database-visualizer-canvas')
-                  .css('transform', 'scale(' + databaseVisualizer.getScale() + ')' + 'translate(' + databaseVisualizer.getMinimapMoveX() + 'px, ' + databaseVisualizer.getMinimapMoveY() + 'px' + ')');
-
-          this.refreshMinimapZoom();
+        properties: {
+            translate: {
+                type: Object,
+                value: {
+                    x: 0,
+                    y: 0
+                },
+                observer: '_observerTranslate'
+            },
+            scale: {
+                type: Number,
+                value: 1,
+                observer: '_observerScale'
+            },
+            transformOrigin: {
+                type: Object,
+                value: {
+                    x: 0,
+                    y: 0
+                },
+                observer: '_observerTransformOrigin'
+            },
+            database: {
+                type: Object,
+                notify: true,
+                value: function () {
+                    return {
+                        schemas: [{
+                            name: "schema1",
+                            tables: [{name: "table1"}]
+                        }],
+                        foreignKeys: [{column: "column1"}]
+                    };
+                },
+                observer: '_observerDatabase'
+            },
+
+            schemas: {
+                type: Array,
+                notify: true,
+                value: function () {
+                    return [];
+                }
+            }
+        },
+        scaleTranslate3d: function () {
+            let scale = this.getScale();
+            let x = this.translate.x + 'px';
+            let y = this.translate.y + 'px';
+            let z = '0px';
+            let node = this.$.canvas;
+            this.transform('scale(' + scale + ')' + 'translate3d(' + x + ',' + y + ',' + z + ')', node);
+        },
+
+        _observerTranslate() {
+            this.scaleTranslate3d();
+        },
+        _observerScale() {
+            this.scaleTranslate3d();
+        },
+        _observerTransformOrigin(transformOrigin) {
+            let node = this.$.canvas;
+            node.style.transformOrigin = transformOrigin.x + 'px ' + transformOrigin.y + 'px';
+        },
+
+        _onTap: function () {
+            Array.prototype.slice.call(document.querySelectorAll('database-constraint-line')).forEach(function (databaseConstraintLine) {
+                databaseConstraintLine.deselect();
+            });
+        },
+        _handleTap: function (e) {
+            if (e.target === this) {
+                this._onTap();
+            }
+        },
+
+        _handleTrack: function (e) {
+            if (e.target === this) {
+                console.log("database: _handleTrack");
+                this.track(e);
+            }
+        },
+
+        _handleMousewheel: function (e) {
+            // cross-browser wheel delta
+            e = window.event || e; // old IE support
+            let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+
+            e.preventDefault();
+
+            if (delta !== 0) {
+                // find current location on screen
+                let screen = {
+                    x: event.pageX - this.offsetLeft,
+                    y: event.pageY - this.offsetTop
+                };
+
+                // find current location on the image at the current scale
+                this.transformOrigin = {
+                    x: this.transformOrigin.x + ((screen.x - this._last.x) / this.getScale()),
+                    y: this.transformOrigin.y + ((screen.y - this._last.y) / this.getScale())
+                };
+
+                // determine the new scale
+                let rate = 30;
+                let scale = this.getScale() * (1 + delta / rate);
+                if (scale < 0.05) {
+                    scale = 0.05;
+                } else if (scale > 3) {
+                    scale = 3;
+                }
+
+                // determine the location on the screen at the new scale
+                this.translate = {
+                    x: (screen.x - this.transformOrigin.x) / scale + this._move.x,
+                    y: (screen.y - this.transformOrigin.y) / scale + this._move.y
+                };
+
+                this.setScale(scale);
+
+                // save the current screen location
+                this._last = screen;
+
+                this.refreshMinimapZoom();
+            }
+        },
+
+        track: function (e) {
+            switch (e.detail.state) {
+                case 'start':
+                    this.style.pointerEvents = 'none';
+
+                    this._track = {
+                        x: this.translate.x,
+                        y: this.translate.y
+                    };
+                    this.translate = {
+                        x: this._track.x + e.detail.dx / this.getScale(),
+                        y: this._track.y + e.detail.dy / this.getScale()
+                    };
+                    break;
+                case 'track':
+                    this.translate = {
+                        x: this._track.x + e.detail.dx / this.getScale(),
+                        y: this._track.y + e.detail.dy / this.getScale()
+                    };
+                    break;
+                case 'end':
+                    this.style.pointerEvents = '';
+
+                    this.translate = {
+                        x: this._track.x + e.detail.dx / this.getScale(),
+                        y: this._track.y + e.detail.dy / this.getScale()
+                    };
+
+                    this._move = {
+                        x: this._move.x + this.translate.x - this._track.x,
+                        y: this._move.y + this.translate.y - this._track.y
+                    };
+                    break;
+            }
+
+            this.refreshMinimapZoom();
+        },
+
+        _observerDatabase() {
+            this.schemas = [];
+
+            this.scale = 1;
+
+            this._move = {
+                x: 0,
+                y: 0
+            };
+
+            this.transformOrigin = {
+                x: 0,
+                y: 0
+            };
+
+            this._last = {
+                x: 0,
+                y: 0
+            };
+
+
+            this.$.minimap.classList.add('hidden');
+            Array.prototype.slice.call(document.querySelectorAll('database-constraint-line')).forEach(function (databaseConstraintLine) {
+                databaseConstraintLine.remove();
+            });
+        },
+
+        getSchemas() {
+            return this.schemas;
+        },
+        registerSchema(schema) {
+            this.getSchemas().push(schema);
+
+            if (this.database.schemas.length === this.getSchemas().length) {
+                let mostLeft = null;
+                let mostRight = null;
+                let mostTop = null;
+                let mostBottom = null;
+                let mostLeftOffset = null;
+                let mostTopOffset = null;
+                this.getSchemas().forEach(function (schema) {
+                    if (mostLeft === null || mostLeft > schema.getLeft()) {
+                        mostLeft = schema.getLeft();
+                    }
+                    if (mostTop === null || mostTop > schema.getTop()) {
+                        mostTop = schema.getTop();
+                    }
+                    if (mostRight === null || mostRight < schema.getLeft() + schema.getWidth()) {
+                        mostRight = schema.getLeft() + schema.getWidth();
+                    }
+                    if (mostBottom === null || mostBottom < schema.getTop() + schema.getHeight()) {
+                        mostBottom = schema.getTop() + schema.getHeight();
+                    }
+                    if (mostLeftOffset === null || mostLeftOffset > schema.translate.x) {
+                        mostLeftOffset = schema.translate.x;
+                    }
+                    if (mostTopOffset === null || mostTopOffset > schema.translate.y) {
+                        mostTopOffset = schema.translate.y;
+                    }
+                });
+                let width = mostRight - mostLeft;
+                let height = mostBottom - mostTop;
+                let widthRatio = this.offsetWidth / width - 0.05;
+                let heightRatio = this.offsetHeight / height - 0.05;
+
+                this.setScale(widthRatio < heightRatio ? widthRatio : heightRatio);
+
+                this.translate = {
+                    x: (this.offsetWidth / this.getScale() - width) / 2 - mostLeftOffset,
+                    y: (this.offsetHeight / this.getScale() - height) / 2 - mostTopOffset
+                };
+
+                this._move = this.translate;
+
+                this.transformOrigin = {
+                    x: 0,
+                    y: 0
+                };
+
+                this.refresh();
+                this.refreshMinimap();
+                this.refreshMinimapZoom();
+                this.$.loading.classList.add('hidden');
+                this.$.minimap.classList.remove('hidden');
+            }
+        },
+
+        getScale() {
+            return this.scale;
+        },
+
+        setScale(scale) {
+            return this.scale = scale;
+        },
+
+        setMinimapWidth(minimapWidth) {
+            this.$.minimap.setMinimapWidth(minimapWidth);
+        },
+        getMinimapWidth() {
+            this.$.minimap.getMinimapWidth();
+        },
+        setMinimapHeight(minimapHeight) {
+            this.$.minimap.setMinimapHeight(minimapHeight);
+        },
+        getMinimapHeight() {
+            this.$.minimap.getMinimapHeight();
+        },
+
+        refreshMinimapZoom() {
+            this.$.minimap.refreshMinimapZoom();
+        },
+
+        refreshMinimap() {
+            this.$.minimap.refreshMinimap();
+        },
+
+        refresh() {
+            this.getSchemas().forEach(function (schema) {
+                schema.refresh();
+            });
+        },
+
+        fireUpdateTable(dvTableId, left, top) {
+            this.fire('updateTable', {
+                dvTableId,
+                left,
+                top
+            });
+        },
+
+        fireUpdateSchema(dvSchemaId, left, top, width, height) {
+            this.fire('updateSchema', {
+                dvSchemaId,
+                left,
+                top,
+                width,
+                height
+            });
+        },
+
+        fireUpdateConstraint(dvConstraintId, isConnectorLeft, isConnectorLeftRef, positions) {
+            this.fire('updateConstraint', {
+                dvConstraintId,
+                isConnectorLeft,
+                isConnectorLeftRef,
+                positions
+            });
+        },
+
+        // Element Lifecycle
+
+        ready: function () {
+            // `ready` is called after all elements have been configured, but
+            // propagates bottom-up. This element's children are ready, but parents
+            // are not.
+            //
+            // This is the point where you should make modifications to the DOM (when
+            // necessary), or kick off any processes the element wants to perform.
+        },
+
+        attached: function () {
+            // `attached` fires once the element and its parents have been inserted
+            // into a document.
+            //
+            // This is a good place to perform any work related to your element's
+            // visual state or active behavior (measuring sizes, beginning animations,
+            // loading resources, etc).
+
+        },
+
+
+        detached: function () {
+            // The analog to `attached`, `detached` fires when the element has been
+            // removed from a document.
+            //
+            // Use this to clean up anything you did in `attached`.
         }
 
-        return true;
-      });
-
-      /** mouseup || mouseleave **/
-      var databaseVisualizerMouseUpOrLeave = function() {
-        if (databaseVisualizer.getDragging()) {
-          $(databaseVisualizer).removeClass('cursor-webkit-grabbing');
-          $(databaseVisualizer).find('.database-visualizer-canvas').removeClass('cursor-webkit-grabbing');
-          databaseVisualizer.setMoveDiffX(databaseVisualizer.getMoveDiffX() + databaseVisualizer.getMinimapMoveX() - databaseVisualizer.getMoveX());
-          databaseVisualizer.setMoveDiffY(databaseVisualizer.getMoveDiffY() + databaseVisualizer.getMinimapMoveY() - databaseVisualizer.getMoveY());
-          databaseVisualizer.setMoveX(databaseVisualizer.getMinimapMoveX());
-          databaseVisualizer.setMoveY(databaseVisualizer.getMinimapMoveY());
-          databaseVisualizer.setDragging(false);
-        }
-      };
-      $(this).bind('mouseup', databaseVisualizerMouseUpOrLeave);
-      $(document).bind('mouseleave', databaseVisualizerMouseUpOrLeave);
-
-    },
-
-
-    detached: function() {
-      // The analog to `attached`, `detached` fires when the element has been
-      // removed from a document.
-      //
-      // Use this to clean up anything you did in `attached`.
-    }
-
-  });
+    });
 
 </script>

@@ -2,6 +2,10 @@
 <html>
 <head>
     <!-- Element Imports -->
+
+    <link rel="import" href="../../paper-fab/paper-fab.html">
+    <link rel="import" href="../../iron-icons/iron-icons.html">
+    <link rel="import" href="database-constraint-line-button.html">
 </head>
 
 <dom-module id="database-constraint-line">
@@ -10,12 +14,46 @@
         :host {
             cursor: pointer;
         }
+
+        :host database-constraint-line-button {
+            visibility: hidden;
+        }
+
+        :host.selected-constraint database-constraint-line-button {
+            visibility: visible;
+        }
+
+        :host.selected-constraint > svg path.line {
+            stroke: #9C27B0;
+        }
+
+        :host > svg path {
+            fill: none;
+        }
+
+        :host > svg path.line {
+            stroke: #000000;
+            stroke-width: 2px;
+        }
+        :host > svg path.transparent-outline {
+            stroke: transparent;
+            stroke-width: 20px;
+        }
+
+        :host.highlight > svg,
+        :host.selected-constraint > svg {
+            z-index: 1;
+        }
+
+        :host.highlight > svg path.line {
+            stroke: #9C27B0;
+            stroke-width: 4;
+        }
     </style>
     <template>
-        <svg>
-            <image class="backup" width="17" height="17" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAACXBIWXMAAAsTAAALEwEAmpwYAAABLUlEQVQ4y61US4rCQBBNeojiRrLSnbMOWWU3V1FPouARcgc9hyLOCSSbYZw5gRCIkM9KbevJaycS4zCOBY+iq6pf1y+xrNtiE6oEY/tVzMUXgSNoCJrUDu3qHpldutwSuIKOoEvt0m7I7DoCvNj2fb8XRdEojuN5lmVraJxhh59xFSLFF9phGL7lef6hRb63R73aHM8aAjv8JHJ47yqLlud5r0VRbHa51sPZQVuT/QU4ww4/4ljaJRubrC5SxouD6TWBQV/sEIkbs0eOIVGssSO1L5D6LQID+BHHZjdMSYpj7KZpun7/uk8CP5rNqTXLJP/OpNyTMWruP9CTP08nCILKdCp7gkCzJ8vPnz2BvW5PKhuLjJBykiQLaWIEjTP3o3Zjn/LtPO0rfvh/cgKu7z6wtPPltQAAAABJRU5ErkJggg==" preserveAspectRatio="none"></image>
-            <path class="transparent-outline" d="M 1333 578 L 1553.01 568.43 Q 1563 568 1570.35 561.22 L 1685.65 454.78 Q 1693 448 1701.94 452.47 L 1804.06 503.53 Q 1813 508 1807.09 516.06 L 1706.77 652.86"></path>
-            <path class="line" d="M 1333 578 L 1553.01 568.43 Q 1563 568 1570.35 561.22 L 1685.65 454.78 Q 1693 448 1701.94 452.47 L 1804.06 503.53 Q 1813 508 1807.09 516.06 L 1706.77 652.86"></path>
+        <svg class="path-svg">
+            <path class="transparent-outline" d=""></path>
+            <path class="line" d=""></path>
         </svg>
     </template>
 </dom-module>
@@ -23,13 +61,15 @@
     Polymer({
         is: "database-constraint-line",
         listeners: {
-            'track': '_handleTrack'
+            'tap': '_handleTap',
+            'mouseover': '_handleMouseover',
+            'mouseout': '_handleMouseout'
         },
         properties: {
             constraint: {
                 type: Object,
                 notify: true,
-                value: function() {
+                value: function () {
                     return {
                         name: "name",
                         schema: "schema1",
@@ -40,175 +80,131 @@
                         rcolumns: ["column1"],
                         positions: []
                     };
-                }
+                },
+                observer: '_observerConstraint'
             },
-            _paths: {
-                type: Array,
-                notify: true,
-                value: function() {
-                    return [];
-                }
-            },
-            _rTable: {
-                type: Object,
-                notify: true,
-                value: function() {
-                    return {
-                        table: null,
-                        columns: [],
-                        column_pos: null,
-                        column_height: null,
-                        connector: ""
-                    };
-                }
-            },
-            _table: {
-                type: Object,
-                notify: true,
-                value: function() {
-                    return {
-                        table: {},
-                        columns: [],
-                        column_pos: null,
-                        column_height: null,
-                        connector: ""
-                    };
-                }
-            },
-            _selected: {
+            highlighted: {
                 type: Boolean,
                 value: false,
-                observer: "observerSelected"
+                observer: '_observerHighlighted'
             },
-            /*_points: {
-                type: Array,
-                value: []
-            }*/
+            selected: {
+                type: Boolean,
+                value: false,
+                observer: "_observerSelected"
+            }
         },
 
-        ready: function() {
-
+        _observerConstraint(constraint) {
+            this.classList.add(constraint.name);
         },
+        _observerSelected(selected) {
+            if (selected) {
+                this.classList.add('selected-constraint');
 
-        attached: function() {
-            console.log("positions: ");
-            console.log(this.constraint.positions);
-
-            var databaseConstraintLine = this;
-
-            $(this).children('svg').children('image.point').remove();
-            this._points = [];
-            $.each(this.constraint.positions, function() {
-                databaseConstraintLine.drawPoint(this.position);
-            });
-
-            /** save SVG variables **/
-            this._paths = $(this).children('svg').children('path');
-
-            /** save tables **/
-            //TODO make specific to this polymer object
-            this._table.table = $('database-table#'+this.constraint.schema+"_"+this.constraint.table)[0];
-            this._table.table.registerConstraint(this);
-
-            /** highlight on mouseenter **/
-            $(this).mouseenter(function() {
-                databaseConstraintLine.highlight(true);
-                databaseConstraintLine.highlightColumn(true, this.table);
-            });
-            /** dehighlight on mouseleave **/
-            $(this).mouseleave(function() {
-                databaseConstraintLine.highlight(false);
-                databaseConstraintLine.highlightColumn(false, this.table);
-            });
-
-            $(this).click(function() {
-                this.select();
-            });
-        },
-
-        _handleTrack: function(e) {
-            console.log(e.detail.state);
-
-            //console.log(e.target.className);
-            if (e.target.tagName === "image") {
-
-                switch (e.detail.state) {
-                    case 'start':
-                        // Capture initial state
-                        this.dragEl = e.target;
-                        this.dragEl.style.pointerEvents = 'none';
-                        this.dragEl.classList.add('dragging');
-                        this.startX = parseFloat($(this.dragEl).attr('x'));
-                        this.startY = parseFloat($(this.dragEl).attr('y'));
-                        //this.dragModel = this.repeater.modelForElement(this.dragEl);
-                        break;
-                    case 'track':
-                        // Re-position dragged item
-                        this.updateDragPosition(e.detail.dx, e.detail.dy);
-                        this.refresh();
-                        // Translate non-dragged items up/down
-                        /*
-                    var overEl = e.detail.hover();
-                    var overModel = overEl && this.repeater.modelForElement(overEl);
-                    if (overModel) {
-                        this.overModel = overModel;
-                        this.dirOffset = e.detail.ddy < 0 ? -1 : 0;
-                        var lastOverIndex = this.overIndex || 0;
-                        var overIndex = overModel.index + this.dirOffset;
-                        var start = Math.max(overIndex < lastOverIndex ? overIndex : lastOverIndex, 0);
-                        var end = overModel.index < lastOverIndex ? lastOverIndex : overModel.index;
-                        var children = Polymer.dom(this).children;
-                        for (var i=start; i<=end; i++) {
-                            var el = children[i];
-                            if (el != this.repeater && i !== this.dragModel.index) {
-                                var dir = 0;
-                                if (i > this.dragModel.index && i <= overIndex) {
-                                    dir = -1;
-                                } else if (i > overIndex && i < this.dragModel.index) {
-                                    dir = 1;
-                                }
-                                el.classList.add('moving');
-                                this.translate3d(0, dir * this.dragEl.offsetHeight + 'px', 0, el);
-                            }
-                        }
-                        this.overIndex = overModel.index;
+                Array.prototype.slice.call(document.querySelectorAll('database-constraint-line')).forEach(function(databaseConstraintLine) {
+                    if (this !== databaseConstraintLine) {
+                        databaseConstraintLine.deselect();
                     }
-                    */
-                    break;
-                case 'end':
-                    // Move item in array to new position
-                    /*
-                    var fromIdx = this.repeater.items.indexOf(this.dragModel.item);
-                    if (fromIdx >= 0 && this.overModel) {
-                        var toIdx = this.repeater.items.indexOf(this.overModel.item) +
-                                (this.overModel.index > this.dragModel.index ? this.dirOffset : 0);
-                        var item = this.repeater.splice('items', fromIdx, 1)[0];
-                        this.repeater.splice('items', toIdx, 0, item);
-                    }
-                    // Reset style of dragged & moved elements
-                    Polymer.dom(this).children.forEach(function(el) {
-                        this.transform('', el);
-                        el.classList.remove('moving');
-                    }, this);*/
-                    this.dragEl.style.pointerEvents = '';
-                    this.dragEl.classList.remove('dragging');
-                    this.dragEl = null;
-                    this.fireUpdateConstraint();
-                    break;
+                }, this);
+
+                if (typeof this._table !== 'undefined' && typeof this._table.columns !== 'undefined') {
+                    this._table.columns[0].constraintSelected(this._table.connector, this, "table");
+                }
+                if (typeof this._rTable !== 'undefined' && typeof this._rTable.columns !== 'undefined') {
+                    this._rTable.columns[0].constraintSelected(this._rTable.connector, this, "rTable");
+                }
+            } else {
+                this.classList.remove('selected-constraint');
+
+                if (typeof this._table !== 'undefined' && typeof this._table.columns !== 'undefined') {
+                    this._table.columns[0].constraintDeselected();
+                }
+                if (typeof this._rTable !== 'undefined' && typeof this._rTable.columns !== 'undefined') {
+                    this._rTable.columns[0].constraintDeselected();
+                }
+            }
+        },
+        _observerHighlighted(highlighted) {
+            if (highlighted) {
+                this.classList.add('highlight');
+
+                if (typeof this._table !== 'undefined' && typeof this._table.columns !== 'undefined') {
+                    this._table.columns.forEach(function (column) {
+                        column.classList.add('highlight');
+                    });
+                }
+                if (typeof this._rTable !== 'undefined' && typeof this._rTable.columns !== 'undefined') {
+                    this._rTable.columns.forEach(function (column) {
+                        column.classList.add('highlight');
+                    });
+                }
+            } else {
+                this.classList.remove('highlight');
+
+                if (typeof this._table !== 'undefined' && typeof this._table.columns !== 'undefined') {
+                    this._table.columns.forEach(function (column) {
+                        column.classList.remove('highlight');
+                    });
+                }
+                if (typeof this._rTable !== 'undefined' && typeof this._rTable.columns !== 'undefined') {
+                    this._rTable.columns.forEach(function (column) {
+                        column.classList.remove('highlight');
+                    });
                 }
             }
         },
 
-        getScale() {
-            return this._table.table.getScale();
+        _handleTap: function () {
+            this.select();
         },
 
-        updateDragPosition: function(dx, dy) {
-            this.trackDeltaLeft = dx || this.trackDeltaLeft || 0;
-            this.trackDeltaTop = dy || this.trackDeltaTop || 0;
-            var posX = this.startX + this.trackDeltaLeft / this.getScale();
-            var posY = this.startY + this.trackDeltaTop / this.getScale();
-            $(this.dragEl).attr({ x: posX, y: posY});
+        _handleMouseover: function () {
+            this.highlight();
+        },
+        _handleMouseout: function () {
+            this.dehighlight();
+        },
+
+        ready: function () {
+
+        },
+
+        attached: function () {
+            this._points = [];
+            if (typeof this.constraint.positions !== 'undefined') {
+                this.constraint.positions.forEach(function (position) {
+                    this._drawPoint(position.position);
+                }, this);
+            }
+
+            /** init tables **/
+            this._table = {
+                table: null,
+                columns: [],
+                column_pos: null,
+                column_height: null,
+                connector: ""
+            };
+            this._rTable = {
+                table: null,
+                columns: [],
+                column_pos: null,
+                column_height: null,
+                connector: ""
+            };
+
+            /** save table **/
+            this._table.table = document.querySelector('database-table#' + this.constraint.schema + "_" + this.constraint.table);
+            this._table.table.registerConstraint(this);
+
+            this.async(function() {
+                this.refresh();
+            });
+        },
+
+        getScale() {
+            return this._table.table.getScale();
         },
 
         refreshConnector() {
@@ -218,22 +214,17 @@
             }
         },
         refresh() {
+            /** save rTable **/
             if (this._rTable.table === null) {
-                this._rTable.table = $('database-table#'+this.constraint.rschema+"_"+this.constraint.rtable)[0];
+                this._rTable.table = document.querySelector('database-table#' + this.constraint.rschema + "_" + this.constraint.rtable);
                 this._rTable.table.registerConstraint(this);
             }
 
-            var tablePos = this._table.table.getPosition();
-            var rTablePos = this._rTable.table.getPosition();
+            let tablePos = this._table.table.getPosition();
+            let rTablePos = this._rTable.table.getPosition();
 
-            // TODO calculate each time individual?!
-            var diffX = this._table.column_height * 8/3;
-            var diffY = this._table.column_height * 4/5;
-            var diffBroomX = this._table.column_height * 5/3;
 
-            $(this).children('svg').children('image.point.middle').remove();
-
-            if (this._table.connector === "" &&  this._rTable.connector === "") {
+            if (this._table.connector === "" && this._rTable.connector === "") {
                 /** table <-> rTable **/
                 if (tablePos.left < rTablePos.left) {
                     this._table.connector = "left";
@@ -246,8 +237,30 @@
                 }
             }
 
-            var pathRPos;
-            var d;
+            this.refreshPath();
+        },
+
+        refreshPath() {
+            Polymer.dom(this.root).children.forEach(function (el) {
+                if (el.localName === 'database-constraint-line-button' && el.new) {
+                    el.remove();
+                }
+            }, this);
+
+            let tablePos = this._table.table.getPosition();
+//            tablePos.left += 20;
+//            tablePos.width += -40;
+            let rTablePos = this._rTable.table.getPosition();
+//            rTablePos.left += 20;
+//            rTablePos.width += -40;
+
+            // TODO calculate each time individual?!
+            let diffX = this._table.column_height * 8 / 3;
+            let diffY = this._table.column_height * 4 / 5;
+            let diffBroomX = this._table.column_height * 5 / 3;
+
+            let pathRPos;
+            let d;
             if (this._rTable.connector === "left") {
                 pathRPos = this._getRTablePathRPosLeft(rTablePos, diffX);
                 d = this._getRTableDLeft(pathRPos, rTablePos, diffY, diffBroomX);
@@ -257,23 +270,20 @@
                 d = this._getRTableDRight(pathRPos, rTablePos, diffY, diffBroomX);
             }
 
-            var line = this;
-            var lastPoint = pathRPos;
-            $.each(this._points, function(index) {
-                console.log("index: " + index);
-                //{ x: point.x + 17/2, y: point.y + 17/2}
-                var p = {
-                    x: parseFloat($(this).attr('x')) + 17/2,
-                    y: parseFloat($(this).attr('y')) + 17/2
+            let lastPoint = pathRPos;
+            this._points.forEach(function(point) {
+                let p = {
+                    x: point.translate.x,
+                    y: point.translate.y
                 };
                 d = d + " L " + p.x + " " + p.y;
-                //line.drawPoint(p);
-                line.drawMiddlePoint(lastPoint, p, index);
+
+                this._drawMiddlePoint(lastPoint, p, this._points.indexOf(point));
 
                 lastPoint = p;
-            });
+            }, this);
 
-            var pathPos;
+            let pathPos;
             if (this._table.connector === "left") {
                 pathPos = this._getTablePathPosLeft(tablePos, diffX);
                 d = d + this._getTableDLeft(pathPos, tablePos);
@@ -283,10 +293,23 @@
                 d = d + this._getTableDRight(pathPos, tablePos);
             }
 
-            this.drawMiddlePoint(lastPoint, pathPos, this._points.length);
+            this._drawMiddlePoint(lastPoint, pathPos, this._points.length);
 
-            $.each(this._paths, function() {
-                $(this).attr({d: d});
+            this.$$('path.transparent-outline').setAttribute('d', d);
+            this.$$('path.line').setAttribute('d', d);
+        },
+
+        trackStartSchema() {
+            this._points.forEach(function(point) {
+                point.trackStartSchema();
+            });
+        },
+        refreshPoints(diffPoint) {
+            this._points.forEach(function(point) {
+                point.translate = {
+                    x: point.translate.x + diffPoint.x,
+                    y: point.translate.y + diffPoint.y
+                }
             });
         },
 
@@ -315,7 +338,7 @@
             };
         },
         _getRTableDRight(pathRPos, rTablePos, diffY, diffBroomX) {
-            var d = "M " + (rTablePos.left) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height + diffY);
+            let d = "M " + (rTablePos.left) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height + diffY);
             d = d + " L " + (rTablePos.left - 1) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height + diffY);
             d = d + " L " + (rTablePos.left - diffBroomX) + " " + (rTablePos.top + this._rTable.column_pos.top + this._table.column_height);
             d = d + " L " + (rTablePos.left - 1) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height - diffY);
@@ -327,7 +350,7 @@
             return d;
         },
         _getRTableDLeft(pathRPos, rTablePos, diffY, diffBroomX) {
-            var d = "M " + (rTablePos.left + rTablePos.width) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height + diffY);
+            let d = "M " + (rTablePos.left + rTablePos.width) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height + diffY);
             d = d + " L " + (rTablePos.left + rTablePos.width + 1) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height + diffY);
             d = d + " L " + (rTablePos.left + rTablePos.width + diffBroomX) + " " + (rTablePos.top + this._rTable.column_pos.top + this._table.column_height);
             d = d + " L " + (rTablePos.left + rTablePos.width + 1) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height - diffY);
@@ -339,101 +362,71 @@
             return d;
         },
         _getTableDLeft(pathPos, tablePos) {
-            var d = " L " + pathPos.x+ " " + pathPos.y;
+            let d = " L " + pathPos.x + " " + pathPos.y;
             d = d + " L " + (tablePos.left + tablePos.width) + " " + (tablePos.top + this._table.column_pos.top + this._table.column_height);
             return d;
         },
         _getTableDRight(pathPos, tablePos) {
-            var d = " L " + pathPos.x + " " + pathPos.y;
+            let d = " L " + pathPos.x + " " + pathPos.y;
             d = d + " L " + (tablePos.left) + " " + (tablePos.top + this._table.column_pos.top + this._table.column_height);
             return d;
         },
 
-        drawMiddlePoint(point1, point2, index) {
-            console.log("index: " + index);
-            let constraintLine = this;
+        _drawMiddlePoint(point1, point2, index) {
             let point = {
-                x: (point1.x + (point2.x - point1.x)/2 - (17 / 2)),
-                y: (point1.y + (point2.y - point1.y)/2 - (17 / 2))
+                x: (point1.x + (point2.x - point1.x) / 2),
+                y: (point1.y + (point2.y - point1.y) / 2)
             };
 
-            var image = $(this).children('svg').children('image.backup')
-                    .clone()
-                    .removeClass('backup')
-                    .addClass('point middle')
-                    .attr(point)
-                    .on('drag', function() {
-                        console.log("DRAGGING HIER");
-                    })
-                    .on('mousedown', function() {
-                        console.log("index: " + index);
-                        console.log(constraintLine._points);
-                        $(this).removeClass('middle');
-                        constraintLine._points.splice(index, 0, this);
-                        constraintLine.refresh();
-                        console.log(constraintLine._points);
-                        $(this).off('mousedown');
-                        constraintLine.fireUpdateConstraint();
-
-                        $(this).on('dblclick', function() {
-                            var index = constraintLine._points.indexOf(this);
-                            if (index > -1) {
-                                constraintLine._points.splice(index, 1);
-                                $(this).remove();
-                            }
-                            constraintLine.refresh();
-                            constraintLine.fireUpdateConstraint();
-                        })
-                    });
-            $(this).children('svg').append(image);
+            let databaseConstraintLineButton = document.createElement('database-constraint-line-button');
+            databaseConstraintLineButton.translate = {
+                x: point.x,
+                y: point.y
+            };
+            databaseConstraintLineButton.new = true;
+            databaseConstraintLineButton.index = index;
+            Polymer.dom(this.root).appendChild(databaseConstraintLineButton);
         },
-        drawPoint(point) {
-            var constraintLine = this;
+        _drawPoint(point) {
+            let databaseConstraintLineButton = document.createElement('database-constraint-line-button');
+            databaseConstraintLineButton.translate = {
+                x: point.x,
+                y: point.y
+            };
+            databaseConstraintLineButton.new = false;
+            Polymer.dom(this.root).appendChild(databaseConstraintLineButton);
 
-            var image = $(this).children('svg').children('image.backup')
-                    .clone()
-                    .removeClass('backup')
-                    .addClass('point')
-                    .attr({
-                        x: point.x - (17 / 2),
-                        y: point.y - (17 / 2)
-                    })
-                    .on('dblclick', function() {
-                        console.log("dblclick");
-                        var index = constraintLine._points.indexOf(image);
-                        if (index > -1) {
-                            constraintLine._points.splice(index, 1);
-                            $(this).remove();
-                        }
-                        constraintLine.refresh();
-                        constraintLine.fireUpdateConstraint();
-                    });
-            $(this).children('svg').append(image);
-
-            this._points.push(image);
+            this._points.push(databaseConstraintLineButton);
         },
 
-        observerSelected(value) {
-            if (value) {
-                $(this).addClass("selected-constraint");
-            } else {
-                $(this).removeClass("selected-constraint");
+        removePoint(point) {
+            let index = this._points.indexOf(point);
+
+            if (index > -1) {
+                this._points.splice(index, 1);
+                point.remove();
             }
+
+            this.refreshPath();
         },
-        select() {
-            let constraintLine = this;
-            $.each($('database-constraint-line'), function() {
-                if (this !== constraintLine) {
-                    this.deselect();
-                }
-            });
-
-            this._selected = true;
-
-            this._table.columns[0].constraintSelected(this._table.connector, this, "table");
-            this._rTable.columns[0].constraintSelected(this._rTable.connector, this, "rTable");
-
+        addPoint(point) {
+            this._points.splice(point.index, 0, point);
             this.refresh();
+        },
+
+        select() {
+            this.selected = true;
+        },
+        deselect() {
+            this.selected = false;
+        },
+        highlight() {
+            this.highlighted = true;
+        },
+        dehighlight() {
+            if (!this._tracking && !this._table.table.selected && !this._rTable.table.selected) {
+                this.highlighted = false;
+            }
         },
         switchConnector(table) {
             if (table === "table") {
@@ -442,85 +435,50 @@
                 this._rTable.connector = this._rTable.connector === "left" ? "right" : "left";
             }
             this.refresh();
-            this.fireUpdateConstraint();
-        },
-        deselect() {
-            this._selected = false;
-
-            this._rTable.columns[0].constraintDeselected();
-            this._table.columns[0].constraintDeselected();
-        },
-
-        highlight(bool) {
-            if (bool) {
-                $(this).addClass('highlight');
-            } else {
-                if (!this._table.table.selected && !this._rTable.table.selected) {
-                    $(this).removeClass('highlight');
-                }
-            }
-        },
-        highlightColumn(bool) {
-            if (bool) {
-                $.each(this._table.columns, function() {
-                    $(this).addClass('highlight');
-                });
-                $.each(this._rTable.columns, function() {
-                    $(this).addClass('highlight');
-                });
-            } else {
-                $.each(this._table.columns, function() {
-                    $(this).removeClass('highlight');
-                });
-                $.each(this._rTable.columns, function() {
-                    $(this).removeClass('highlight');
-                });
-            }
+            // todo
+//            this.fireUpdateConstraint();
         },
         registerColumn(columns) {
-            var constraintLine = this;
-            $.each(columns, function() {
-                /*
-                name: "name",
-                schema: "schema1",
-                table: "table1",
-                columns: ["column1"],
-                rschema: "schema1",
-                rtable: "table2",
-                rcolumns: ["column1"]
-                */
-                var column = this;
-                $.each(constraintLine.constraint.columns, function() {
-                    var id = constraintLine.constraint.schema + "_" + constraintLine.constraint.table + "_" + this;
-                    if (id === $(column).attr('id')) {
-                        constraintLine._table.columns.push(column);
+            columns.forEach(function(column) {
+                this.constraint.columns.forEach(function(constraintColumn) {
+                    let id = this.constraint.schema + "_" + this.constraint.table + "_" + constraintColumn;
+                    if (id === column.id) {
+                        this._table.columns.push(column);
                     }
-                });
+                }, this);
 
-                $.each(constraintLine.constraint.rcolumns, function() {
-                    var id = constraintLine.constraint.rschema + "_" + constraintLine.constraint.rtable + "_" + this;
-                    if (id === $(column).attr('id')) {
-                        constraintLine._rTable.columns.push(column);
+                this.constraint.rcolumns.forEach(function(rConstraintColumn) {
+                    let id = this.constraint.rschema + "_" + this.constraint.rtable + "_" + rConstraintColumn;
+                    if (id === column.id) {
+                        this._rTable.columns.push(column);
                     }
-                });
-            });
+                }, this);
+            }, this);
 
             /** save columns positions in the table **/
             this._table.column_pos = this._table.columns[0].getPosition();
-            this._table.column_height = $(this._table.columns[0]).height() / 2;
+            this._table.column_height = this._table.columns[0].offsetHeight / 2;
             if (this._rTable.columns.length > 0) {
                 this._rTable.column_pos = this._rTable.columns[0].getPosition();
-                this._rTable.column_height = $(this._rTable.columns[0]).height() / 2;
+                this._rTable.column_height = this._rTable.columns[0].offsetHeight / 2;
             }
+        },
+
+        trackStart() {
+            this._tracking = true;
+            this.highlight();
+        },
+        trackEnd() {
+            this._tracking = false;
         },
 
         fireUpdateConstraint() {
             let positions = [];
-            $.each(this._points, function() {
-               positions.push({
-                   x: parseFloat($(this).attr('x')) + 17/2,
-                   y: parseFloat($(this).attr('y')) + 17/2
-               });
+            this._points.forEach(function(point) {
+                positions.push({
+                    x: point.translate.x,
+                    y: point.translate.y
+                });
             });
             this._table.table.getSchema()._visualizer.fireUpdateConstraint(this.constraint.id, this._table.connector === 'right', this._rTable.connector === 'right', positions);
         }

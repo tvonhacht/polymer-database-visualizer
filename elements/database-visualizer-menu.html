@@ -33,222 +33,145 @@ Example:
 -->
 <dom-module id="database-visualizer-menu">
 
-  <style>
-    :host {
+    <style>
+        :host {
 
-    }
+        }
 
-    paper-tabs {
-      --paper-tabs-selection-bar-color: #ff4081;
+        paper-tabs {
+            --paper-tabs-selection-bar-color: #ff4081;
 
-      background-color: #4a5664;
-      color: #fff;
-    }
+            background-color: #4a5664;
+            color: #fff;
+        }
 
-    paper-tabs paper-ripple {
-      color: #ff4081;
-    }
+        paper-tabs paper-ripple {
+            color: #ff4081;
+        }
 
-    div.paper-header {
-      @apply(--layout-horizontal);
-    }
+        div.paper-header {
+            @apply(--layout-horizontal);
+        }
 
-    paper-input {
-      --paper-input-container-focus-color: #ff4081;
-    }
+        paper-input {
+            --paper-input-container-focus-color: #ff4081;
+        }
 
-    paper-spinner-lite {
-      --paper-spinner-color: #ff4081;
-    }
+        paper-spinner-lite {
+            --paper-spinner-color: #ff4081;
+        }
 
-    paper-tab {
-      --paper-tab-ink: #ff4081;
-    }
+        paper-tab {
+            --paper-tab-ink: #ff4081;
+        }
 
 
-  </style>
+    </style>
 
-  <template>
-    <paper-tabs selected="{{selected}}">
-      <paper-tab>Schemas</paper-tab>
-      <!--
-      <paper-tab>Applications</paper-tab>
-      <paper-tab>Setups</paper-tab>
-      -->
-    </paper-tabs>
+    <template>
+        <paper-tabs selected="{{selected}}">
+            <paper-tab>Schemas</paper-tab>
+        </paper-tabs>
 
-    <iron-pages selected="{{selected}}">
-      <paper-header-panel>
-        <paper-input class="paper-header" label="search" on-input="_filterSchemas" value="{{searchTermSchemas}}">
-          <iron-icon icon="icons:search" suffix></iron-icon>
-        </paper-input>
-        <div class="content">
-          <paper-spinner-lite active></paper-spinner-lite>
-          <template is="dom-repeat" items="{{filteredSchemas}}">
-            <paper-item on-tap="_schemaSelected" schemaid$="{{item.id}}">{{item.name}}</paper-item>
-          </template>
-        </div>
-      </paper-header-panel>
-      <!--
-      <paper-header-panel>
-        <paper-input class="paper-header" label="search" on-input="_filterApplications" value="{{searchTermApplications}}">
-          <iron-icon icon="icons:search" suffix></iron-icon>
-        </paper-input>
-        <div class="content">
-          <template is="dom-repeat" items="{{filteredApplications}}">
-            <paper-item on-tap="_applicationSelected" appid$="{{item.id}}">{{item.name}}</paper-item>
-          </template>
-        </div>
-      </paper-header-panel>
-      <paper-header-panel>
-        <div class="paper-header" >
-          <paper-input label="search" on-input="_filterSetups" value="{{searchTermSetups}}">
-            <iron-icon icon="icons:search" suffix></iron-icon>
-          </paper-input>
-          <paper-fab class="add-setup" mini icon="icons:add" on-tap="_addSetup" title="add setup" suffix></paper-fab>
-        </div>
-        <div class="content">
-          <template is="dom-repeat" items="{{filteredSetups}}">
-            <paper-item on-tap="_setupSelected" setupid$="{{item.id}}">{{item.name}}</paper-item>
-          </template>
-        </div>
-      </paper-header-panel>
-      -->
-    </iron-pages>
-  </template>
+        <iron-pages selected="{{selected}}">
+            <paper-header-panel id="schema">
+                <paper-input class="paper-header" label="search"
+                             value="{{searchTermSchemas::input}}">
+                    <iron-icon icon="icons:search" suffix></iron-icon>
+                </paper-input>
+                <div class="content">
+                    <paper-spinner-lite id="spinner" active></paper-spinner-lite>
+                    <template is="dom-repeat" items="{{schemas}}" filter="{{_filter(searchTermSchemas)}}">
+                        <paper-item on-tap="_schemaSelected" schemaid$="{{item.id}}">{{item.name}}</paper-item>
+                    </template>
+                </div>
+            </paper-header-panel>
+        </iron-pages>
+    </template>
 
 </dom-module>
 
 <script>
-  // TODO add testing with nightwatch.js (www.nightwatchjs.org)
-  // TODO screenshot gatlin
+    Polymer({
 
-  // TODO tryout dc/os
+        is: 'database-visualizer-menu',
 
-  Polymer({
+        properties: {
+            selected: {
+                type: Number,
+                value: 0
+            },
+            schemas: {
+                type: Array,
+                value: function () {
+                    return [];
+                },
+                observer: '_observerSchemas'
+            },
+            searchTermSchemas: {
+                type: String,
+                value: ""
+            },
+            filteredSchemas: {
+                type: Array,
+                notify: true
+            }
+        },
 
-    is: 'database-visualizer-menu',
+        _observerSchemas(schemas) {
+            this.$.spinner.active = schemas === null || schemas === "";
+        },
 
-    properties: {
-      selected: {
-        type: Number,
-        value: 0
-      },
-      schemas: {
-        type: Array,
-        notify: true,
-        observer: '_filterSchemas'
-      },
-      searchTermSchemas: {
-        type: String,
-        value: ""
-      },
-      filteredSchemas: {
-        type: Array,
-        notify: true
-      },
-      applications: {
-        type: Array,
-        notify: true,
-        observer: '_filterApplications'
-      },
-      searchTermApplications: {
-        type: String,
-        value: ""
-      },
-      filteredApplications: {
-        type: Array,
-        notify: true
-      },
-      setups: {
-        type: Array,
-        notify: true,
-        observer: '_filterSetups'
-      },
-      searchTermSetups: {
-        type: String,
-        value: ""
-      },
-      filteredSetups: {
-        type: Array,
-        notify: true
-      }
-    },
+        _filter(searchString) {
+            if (!searchString) {
+                // set filter to null to disable filtering
+                return null;
+            } else {
+                // return a filter function for the current search string
+                return function (element) {
+                    return element.name.toLowerCase().indexOf(searchString.toLowerCase()) != -1;
+                };
+            }
+        },
+        _schemaSelected(e) {
+            document.querySelector('database-visualizer').database = '';
+            document.querySelector('database-minimap').classList.add('hidden');
+            document.querySelector('database-visualizer-database #loading').classList.remove('hidden');
 
-    _filterSchemas() {
-      if ($('database-visualizer-menu paper-spinner-lite')[0]) {
-        $('database-visualizer-menu paper-spinner-lite')[0].active = this.schemas === null || this.schemas === "";
-      }
+            document.querySelector('paper-drawer-panel').closeDrawer();
 
-      var searchTerm = this.searchTermSchemas;
-      if (this.schemas !== null && this.schemas !== "") {
-        this.filteredSchemas = this.schemas.filter(function(value) {
-          return value.name.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1;
-        });
-      }
-    },
-    _filterApplications() {
-      var searchTerm = this.searchTermApplications;
-      if (this.applications !== null && this.applications !== "") {
-        this.filteredApplications = this.applications.filter(function(value) {
-          return value.name.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1;
-        });
-      }
-    },
-    _schemaSelected(e) {
-      $('database-visualizer').attr({database: ''});
-      $('.minimap').addClass('hidden');
-      $('.loading').removeClass('hidden');
-      $('paper-drawer-panel')[0].closeDrawer();
+            let schemaid = e.currentTarget.getAttribute('schemaid');
+            this.fire('schemaSelected', {schemaid});
+        },
 
-      var schemaid = e.currentTarget.getAttribute('schemaid');
-      this.fire('schemaSelected', {schemaid});
-    },
-    _applicationSelected(e) {
-      var appid = e.currentTarget.getAttribute('appid');
-      this.fire('applicationSelected', {appid});
-    },
-    _filterSetups() {
-      var searchTerm = this.searchTermSetups;
-      if (this.setups !== null && this.setups !== "") {
-        this.filteredSetups = this.setups.filter(function (value) {
-          return value.name.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1;
-        });
-      }
-    },
-    _setupSelected(e) {
-      var setupid = e.currentTarget.getAttribute('setupid');
-      this.fire('setupSelected', {setupid});
-    },
+        // Element Lifecycle
+        ready: function () {
+            // `ready` is called after all elements have been configured, but
+            // propagates bottom-up. This element's children are ready, but parents
+            // are not.
+            //
+            // This is the point where you should make modifications to the DOM (when
+            // necessary), or kick off any processes the element wants to perform.
+        },
 
-    // Element Lifecycle
-    ready: function() {
-      // `ready` is called after all elements have been configured, but
-      // propagates bottom-up. This element's children are ready, but parents
-      // are not.
-      //
-      // This is the point where you should make modifications to the DOM (when
-      // necessary), or kick off any processes the element wants to perform.
-    },
-
-    attached: function() {
-      // `attached` fires once the element and its parents have been inserted
-      // into a document.
-      //
-      // This is a good place to perform any work related to your element's
-      // visual state or active behavior (measuring sizes, beginning animations,
-      // loading resources, etc).
-    },
+        attached: function () {
+            // `attached` fires once the element and its parents have been inserted
+            // into a document.
+            //
+            // This is a good place to perform any work related to your element's
+            // visual state or active behavior (measuring sizes, beginning animations,
+            // loading resources, etc).
+        },
 
 
-    detached: function() {
-      // The analog to `attached`, `detached` fires when the element has been
-      // removed from a document.
-      //
-      // Use this to clean up anything you did in `attached`.
-    }
+        detached: function () {
+            // The analog to `attached`, `detached` fires when the element has been
+            // removed from a document.
+            //
+            // Use this to clean up anything you did in `attached`.
+        }
 
-  });
+    });
 
 </script>
 

@@ -1,367 +1,467 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link href="database-table.html" rel="import">
     <!-- Element Imports -->
+    <link rel="import" href="database-table.html">
+    <link rel="import" href="../../paper-fab/paper-fab.html">
+    <link rel="import" href="../../iron-icons/iron-icons.html">
 </head>
 
 <dom-module id="database-schema">
     <style>
         :host {
-            margin: 0 0 20px;
-            position: relative;
-            left: 20px;
-            top: 20px;
+            position: absolute;
+            display: block;
+        }
+
+        :host.selected #header {
+            background: black;
+        }
+
+        :host paper-fab {
+            visibility: hidden;
+            position: absolute;
+        }
+
+        :host paper-fab {
+            --paper-fab-iron-icon: {
+                transform: rotate(45deg);
+            }
+        }
+
+        :host.selected paper-fab {
+            visibility: visible;
+        }
+
+        :host paper-fab[icon="arrow-back"] {
+            left: -20px;
+            top: -20px;
+        }
+
+        :host paper-fab[icon="arrow-upward"] {
+            right: -20px;
+            top: -20px;
+        }
+
+        :host paper-fab[icon="arrow-forward"] {
+            right: -20px;
+            bottom: -20px;
+        }
+
+        :host paper-fab[icon="arrow-downward"] {
+            left: -20px;
+            bottom: -20px;
         }
 
     </style>
     <template>
-        <div class="database-visualizer-div-header background-color-primary">
+        <div id="header" class="database-visualizer-div-header background-color-primary">
             <h2>{{schema.name}}</h2>
         </div>
+        <paper-fab id="resize-nw" icon="arrow-back" title="resize" suffix></paper-fab>
+        <paper-fab id="resize-ne" icon="arrow-upward" title="resize" suffix></paper-fab>
+        <paper-fab id="resize-se" icon="arrow-forward" title="resize" suffix></paper-fab>
+        <paper-fab id="resize-sw" icon="arrow-downward" title="resize" suffix></paper-fab>
         <template is="dom-repeat" items="{{schema.tables}}">
-            <database-table id="{{schema.name}}_{{item.name}}" schemaname="{{schema.name}}" table="{{item}}"></database-table>
+            <database-table id="{{schema.name}}_{{item.name}}" schemaname="{{schema.name}}"
+                            table="{{item}}"></database-table>
         </template>
     </template>
 </dom-module>
 <script>
     Polymer({
-                is: "database-schema",
-                properties: {
-                    schema: {
-                        type: Object,
-                        notify: true,
-                        value: function() {
-                            return {
-                                name: "schema1",
-                                tables:  [{name: "table1"}],
-                                left: 400
-                            };
-                        }
-                    },
-                    _visualizer: {
-                        type: Object,
-                        notify: true,
-                        value: function() {
-                            return {};
-                        }
-                    },
-                    _tables: {
-                        type: Array,
-                        notify: true,
-                        value: function() {
-                            return [];
-                        }
-                    },
-                    _left: Number,
-                    _top: Number,
-                    _width: Number,
-                    _height: Number,
-                    _headerHeight: Number,
-                    _calcWidth: Number,
-                    _calcLeft: Number,
-                    _calcTop: Number,
-                    _calcHeight: Number
+        is: "database-schema",
+        listeners: {
+            'header.tap': '_handleHeaderTap',
+            'header.track': '_handleHeaderTrack',
+            'resize-nw.track': '_handleResizeNwTrack',
+            'resize-ne.track': '_handleResizeNeTrack',
+            'resize-se.track': '_handleResizeSeTrack',
+            'resize-sw.track': '_handleResizeSwTrack',
+            'tap': '_handleTap',
+            'track': '_handleTrack'
+        },
+        properties: {
+            selected: {
+                type: Boolean,
+                notify: true,
+                value: false,
+                observer: '_observerSelected'
+            },
+            translate: {
+                type: Object,
+                value: {
+                    x: 0,
+                    y: 0
                 },
-
-                registerTable(table) {
-                    this._tables.push(table);
-
-                    if (this.schema.tables.length === this._tables.length) {
-                        this._visualizer.registerSchema(this);
-                    }
-
-                },
-
-                getScale() {
-                    return this._visualizer.getScale();
-                },
-
-                getTables() {
-                    return this._tables;
-                },
-
-                refresh() {
-                    $.each(this._tables, function() {
-                        this.refresh();
-                    });
-                },
-
-                setTop(top) {
-                    this._top = Math.round(top);
-                    $(this).css({top: this._top});
-                },
-                getTop() {
-                    return this._top;
-                },
-
-                setHeight(height) {
-                    this._height = Math.round(height);
-                    $(this).css({height: this._height});
-                },
-                getHeight() {
-                    return this._height;
-                },
-
-                setLeft(left) {
-                    this._left = Math.round(left);
-                    $(this).css({left: this._left});
-                },
-                getLeft() {
-                    return this._left;
-                },
-
-                setWidth(width) {
-                    this._width = Math.round(width);
-                    $(this).css({width: this._width});
-                },
-                getWidth() {
-                    return this._width;
-                },
-
-                setHeaderHeight(headerHeight) {
-                    this._headerHeight = headerHeight;
-                },
-                getHeaderHeight() {
-                    return this._headerHeight;
-                },
-
-                setMinWidth(minWidth) {
-                    if (this._width < minWidth) {
-                        this._width = minWidth;
-                        $(this).css({width: this._width});
-                    }
-                },
-                setMinHeight(minHeight) {
-                    if (this._height < minHeight) {
-                        this._height = minHeight;
-                        $(this).css({height: this._height});
-                    }
-                },
-
-                setDraggingChild(b) {
-                    this._visualizer.setDraggingChild(b);
-                },
-                calcWidth(changeWidth) {
-                    this._calcWidth = this._width + changeWidth;
-                    $(this).css({width: this._calcWidth});
-                },
-                setCalcWidth() {
-                    if (!isNaN(this._calcWidth) && this._width < this._calcWidth) {
-                        this._width = this._calcWidth;
-                    }
-                },
-                calcLeft(changeLeft) {
-                    this._calcLeft = this._left - changeLeft;
-                    $(this).css({left: this._calcLeft});
-                },
-                setCalcLeft() {
-                    if (!isNaN(this._calcLeft)) {
-                        this._left = this._calcLeft;
-                    }
-                },
-                calcHeight(changeHeight) {
-                    this._calcHeight = this._height + changeHeight;
-                    $(this).css({height: this._calcHeight});
-                },
-                setCalcHeight() {
-                    if (!isNaN(this._calcHeight) && this._height < this._calcHeight) {
-                        this._height = this._calcHeight;
-                    }
-                },
-                calcTop(changeTop) {
-                    this._calcTop = this._top - changeTop;
-                    $(this).css({top: this._calcTop});
-                },
-                setCalcTop() {
-                    if (!isNaN(this._calcTop)) {
-                        this._top = this._calcTop;
-                    }
-                },
-
-                refreshMinimap() {
-                    this._visualizer.refreshMinimap();
-                },
-
-                fireUpdateSchema() {
-                    this._visualizer.fireUpdateSchema(this.schema.id, this._left, this._top, this._width, this._height);
-                },
-
-                fireUpdateSchemaWithTables() {
-                    this.fireUpdateSchema();
-                    $.each(this.getTables(), function() {
-                        this.fireUpdateTable();
-                    });
-                },
-
-                ready: function() {
-
-                },
-
-                attached: function() {
-                    this._visualizer = $(this).parent().parent('database-visualizer-database')[0];
-
-                    this._left = this.schema.left;
-                    this._top = this.schema.top;
-                    this._width = this.schema.width;
-                    this._height = this.schema.height;
-
-                    this.setHeaderHeight($(this).children('.database-visualizer-div-header').height());
-
-                    $(this).css({
-                        left: this._left,
-                        top: this._top,
-                        width: this._width,
-                        height: this._height
-                    });
-
-                    $(this).draggable({
-                        //TODO drag only on header
-                        //handle: "> .database-visualizer-div-header",
-                        start: function(event, ui) {
-                            ui.position.left = 0;
-                            ui.position.top = 0;
-                            this.setDraggingChild(true);
-                        },
-                        drag: function(event, ui) {
-                            ui.position.left = getNewLeft(ui, this.getScale());
-                            ui.position.top = getNewTop(ui, this.getScale());
-
-                            this.refresh();
-                        },
-                        stop: function(event, ui) {
-                            // TODO make short and beautiful
-                            var changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
-                            var newLeft = ui.originalPosition.left + changeLeft / this.getScale(); // adjust new left by our zoomScale
-
-                            var changeTop = ui.position.top - ui.originalPosition.top; // find change in top
-                            var newTop = ui.originalPosition.top + changeTop / this.getScale(); // adjust new top by our zoomScale
-
-                            this.setLeft(newLeft * this.getScale());
-                            this.setTop(newTop * this.getScale());
-
-                            this.refresh();
-                            this._visualizer.refreshMinimap();
-                            this.setDraggingChild(false);
-
-                            this.fireUpdateSchema();
-                        }
-                    });
-
-                    $(this).mouseenter(function() {
-                        $(this).addClass("draggable");
-                    });
-                    $(this).mouseleave(function() {
-                        $(this).removeClass("draggable");
-                    });
-
-                    $(this).resizable({
-                         //grid: [ 10, 10 ],
-                         handles: "ne, nw, se, sw",
-                         /*handles: { 'ne': '.ui-resizable-handle.ui-resizable-ne', 'nw': '.ui-resizable-handle.ui-resizable-nw', 'se': '.ui-resizable-handle.ui-resizable-se', 'sw': '.ui-resizable-handle.ui-resizable-sw'},*/
-
-                         minWidth: -($(this).width()) * 10, // these need to be large and negative
-                         minHeight: -($(this).height()) * 10, // so we can shrink our resizable while scaled
-                         start: function(event, ui) {
-                             /*
-                             this.calcLeft = this._left;
-                             this.calcTop = this._top;
-                             this.resizeWidth = this._width;
-                             this.resizeHeight = this._height;
-                             */
-                         },
-                         resize: function(event, ui) {
-
-                             /** get axis **/
-                             var axis = $(event.target).data('uiResizable').axis;
-
-                             /** calculate new dimensions (width, height, left, top) **/
-                             var newWidth = getNewWidth(ui, this.getScale());
-
-                             var newHeight = getNewHeight(ui, this.getScale());
-
-                             var changeLeft = getChangeLeft(ui, this.getScale());
-                             var newLeft = getNewLeft(ui, this.getScale());
-
-                             var changeTop = getChangeTop(ui, this.getScale());
-                             var newTop = getNewTop(ui, this.getScale());
-
-                             var left = newWidth;
-                             var top = newHeight;
-                             var right = 0;
-                             var bottom = 0;
-                             $.each(this._tables, function() {
-                                 left = left > (this.getLeft() + (changeLeft * -1)) ? (this.getLeft() + (changeLeft * -1)) : left;
-                                 top = top > (this.getTop() + (changeTop * -1)) ? (this.getTop() + (changeTop * -1)) : top;
-                                 right = right < (this.getLeft() + $(this).width()) ? (this.getLeft() + $(this).width()) : right;
-                                 bottom = bottom < (this.getTop() + $(this).height()) ? (this.getTop() + $(this).height()) : bottom;
-                             });
-                             top = top - this.getHeaderHeight();
-
-                             if (axis.indexOf("w") >= 0) {
-                                 if (left <= getPadding()) {
-                                     newWidth = newWidth - (left - getPadding());
-                                     newLeft = newLeft + (left - getPadding());
-                                 }
-                             }
-                             if (axis.indexOf("n") >= 0) {
-                                 if (top <= 10) {
-                                     newHeight = newHeight - (top - 10);
-                                     newTop = newTop + (top - 10);
-                                 }
-                             }
-                             if (axis.indexOf("e") >= 0) {
-                                 if (right > (newWidth - 10)) {
-                                     newWidth = right + 10;
-                                 }
-                             }
-                             if (axis.indexOf("s") >= 0) {
-                                 if (bottom > (newHeight - 10 - 30)) {
-                                     newHeight = bottom + 10 + 30;
-                                 }
-                             }
-
-                             this.setWidth(newWidth);
-                             ui.size.width = newWidth;
-                             this.setLeft(newLeft);
-                             ui.position.left = newLeft;
-                             this.setHeight(newHeight);
-                             ui.size.height = newHeight;
-                             this.setTop(newTop);
-                             ui.position.top = newTop;
-
-                             changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
-                             changeTop = ui.position.top - ui.originalPosition.top; // find change in top
-
-                             $.each(this._tables, function() {
-                                 this.calcLeft(changeLeft * -1);
-                                 this.calcTop(changeTop * -1);
-                             });
-                         },
-                         stop: function() {
-                             $.each(this._tables, function() {
-                                 this.setCalcLeft();
-                                 this.setCalcTop();
-                             });
-
-                             this.refreshMinimap();
-
-                             this.fireUpdateSchemaWithTables();
-                         }
-
-                    });
-                },
-                getPosition() {
-                    let position = $(this).css([ "left", "top", "width", "height" ]);
+                observer: '_observerTranslate'
+            },
+            width: {
+                type: Number,
+                value: null,
+                observer: '_observerWidth'
+            },
+            height: {
+                type: Number,
+                value: null,
+                observer: '_observerHeight'
+            },
+            schema: {
+                type: Object,
+                notify: true,
+                value: function () {
                     return {
-                        left: parseInt(position.left, 10),
-                        top: parseInt(position.top, 10),
-                        width: parseInt(position.width, 10),
-                        height: parseInt(position.height, 10)
+                        name: "schema1",
+                        tables: [{name: "table1"}],
+                        left: 400
                     };
                 }
-            });
-</script>
+            },
+            visualizer: {
+                type: Object,
+                notify: true,
+                value: function () {
+                    return {};
+                }
+            },
+            tables: {
+                type: Array,
+                notify: true,
+                value: function () {
+                    return [];
+                }
+            }
+        },
 
-<script src="../util/calc.js"></script>
+        _onHeaderTap: function () {
+            if (this.isSelected()) {
+                this.deselect();
+            } else {
+                this.select();
+            }
+        },
+        _handleHeaderTap: function (e) {
+            this._onHeaderTap();
+        },
+
+        _handleHeaderTrack: function (e) {
+            switch (e.detail.state) {
+                case 'start':
+//                    this._beforeTrackSelected = this.isSelected();
+//                    this.select();
+                    this.style.pointerEvents = 'none';
+                    this._track = {
+                        x: this.translate.x,
+                        y: this.translate.y
+                    };
+                    this._trackStart();
+                    break;
+                case 'track':
+                    this.translate = {
+                        x: this._track.x + e.detail.dx / this.getScale(),
+                        y: this._track.y + e.detail.dy / this.getScale()
+                    };
+
+                    this._tracking({
+                        x: e.detail.dx / this.getScale(),
+                        y: e.detail.dy / this.getScale()
+                    });
+                    this.refresh();
+                    this.refreshMinimap();
+                    this.refreshMinimapZoom();
+                    break;
+                case 'end':
+                    this.style.pointerEvents = '';
+                    this.translate = {
+                        x: this._track.x + e.detail.dx / this.getScale(),
+                        y: this._track.y + e.detail.dy / this.getScale()
+                    };
+
+                    this._tracking({
+                        x: e.detail.dx / this.getScale(),
+                        y: e.detail.dy / this.getScale()
+                    });
+                    this.refresh();
+                    this.refreshMinimap();
+                    this.refreshMinimapZoom();
+                    //todo
+                    //this.fireUpdateConstraint();
+                    break;
+            }
+        },
+
+        _onTap: function () {
+            Array.prototype.slice.call(document.querySelectorAll('database-constraint-line')).forEach(function(databaseConstraintLine) {
+                databaseConstraintLine.deselect();
+            });
+        },
+        _handleTap: function () {
+            this._onTap();
+        },
+        _handleTrack: function(e) {
+            if (e.target === this) {
+                this.visualizer.track(e);
+            }
+        },
+
+        _handleResizeNwTrack: function (e) {
+            this._handleResizeTrack("nw", e);
+        },
+        _handleResizeNeTrack: function (e) {
+            this._handleResizeTrack("ne", e);
+        },
+        _handleResizeSeTrack: function (e) {
+            this._handleResizeTrack("se", e);
+        },
+        _handleResizeSwTrack: function (e) {
+            this._handleResizeTrack("sw", e);
+        },
+        _handleResizeTrack: function (direction, e) {
+
+            switch (e.detail.state) {
+                case 'start':
+                    this.style.pointerEvents = 'none';
+                    this._track = {
+                        x: this.translate.x,
+                        y: this.translate.y
+                    };
+                    this._resize = {
+                        width: this.width,
+                        height: this.height
+                    };
+
+                    this.tables.forEach(function (table) {
+                        table._track = {
+                            x: table.translate.x,
+                            y: table.translate.y
+                        };
+                    });
+                    break;
+                case 'track':
+                    break;
+                case 'end':
+                    this.style.pointerEvents = '';
+                    //todo
+                    //this.fireUpdateConstraint();
+                    break;
+            }
+
+            this._resizing(direction, e);
+            this.refresh();
+            this.refreshMinimap();
+            this.refreshMinimapZoom();
+        },
+        _resizing(direction, e) {
+
+            let left = e.detail.dx / this.getScale();
+            let top = e.detail.dy / this.getScale();
+            let right = 0;
+            let bottom = 0;
+
+            this.tables.forEach(function (table) {
+                left = left > table._track.x ? table._track.x : left;
+                top = top > table._track.y ? table._track.y : top;
+                right = right < table._track.x + table.offsetWidth ? table._track.x + table.offsetWidth : right;
+                bottom = bottom < table._track.y + table.offsetHeight + this.getHeaderHeight() ? table._track.y + table.offsetHeight + this.getHeaderHeight() : bottom;
+            }, this);
+
+            let width = this._resize.width;
+            let height = this._resize.height;
+            let x = this._track.x;
+            let y = this._track.y;
+            if (direction.indexOf("n") >= 0) {
+                height -= top;
+                y += top;
+            }
+            if (direction.indexOf("e") >= 0) {
+                width += e.detail.dx / this.getScale();
+            }
+            if (direction.indexOf("s") >= 0) {
+                height += e.detail.dy / this.getScale();
+            }
+            if (direction.indexOf("w") >= 0) {
+                width -= left;
+                x += left;
+            }
+
+            this.translate = {
+                x,
+                y
+            };
+
+            this.tables.forEach(function (table) {
+                let x = table._track.x;
+                let y = table._track.y;
+                if (direction.indexOf("n") >= 0) {
+                    y -= top;
+                }
+                if (direction.indexOf("w") >= 0) {
+                    x -= left;
+                }
+                table.translate = {
+                    x,
+                    y
+                };
+            });
+
+            if (left > 0) {
+                this.width = width;
+            } else {
+                this.width = width < right ? right : width;
+            }
+
+            if (top > 0) {
+                this.height = height;
+            } else {
+                this.height = height < bottom ? bottom : height;
+            }
+        },
+
+        _observerSelected: function (selected) {
+            if (selected) {
+                this.classList.add('selected');
+            } else {
+                this.classList.remove('selected');
+            }
+        },
+        _observerTranslate(translate) {
+            this.translate3d(translate.x + 'px', translate.y + 'px', '0px');
+        },
+        _observerWidth(width) {
+            this.style.width = width + 'px';
+        },
+        _observerHeight(height) {
+            this.style.height = height + 'px';
+        },
+
+        registerTable(table) {
+            this.tables.push(table);
+
+            if (this.schema.tables.length === this.tables.length) {
+                this.visualizer.registerSchema(this);
+            }
+        },
+
+        isSelected() {
+            return this.selected;
+        },
+        select() {
+            this.selected = true;
+        },
+        deselect() {
+            this.selected = false;
+        },
+
+        getScale() {
+            return this.visualizer.getScale();
+        },
+
+        getTables() {
+            return this.tables;
+        },
+
+        refresh() {
+            this.getTables().forEach(function(table) {
+                table.refresh();
+            });
+        },
+
+        _trackStart() {
+            this.getTables().forEach(function(table) {
+                table._constraints.forEach(function(constraint) {
+                    constraint._points.forEach(function(point) {
+                        point.trackStartSchema();
+                    });
+                });
+            });
+        },
+        _tracking(trackPoint) {
+            this.getTables().forEach(function(table) {
+                table._constraints.forEach(function(constraint) {
+                    constraint._points.forEach(function(point) {
+                        point.trackSchema(trackPoint);
+                    });
+                });
+            });
+        },
+
+        getTop() {
+            return this.translate.y;
+        },
+        getHeight() {
+            return this.height;
+        },
+        getLeft() {
+            return this.translate.x;
+        },
+        getWidth() {
+            return this.width;
+        },
+
+        getHeaderHeight() {
+            return this.$.header.offsetHeight;
+        },
+
+        setMinWidth(minWidth) {
+            if (this.width < minWidth) {
+                this.width = minWidth;
+            }
+        },
+        setMinHeight(minHeight) {
+            if (this.height < minHeight) {
+                this.height = minHeight;
+            }
+        },
+
+        refreshMinimap() {
+            this.visualizer.refreshMinimap();
+        },
+
+        refreshMinimapZoom() {
+            this.visualizer.refreshMinimapZoom();
+        },
+
+        fireUpdateSchema() {
+            this.visualizer.fireUpdateSchema(this.schema.id, this._left, this._top, this._width, this._height);
+        },
+
+        fireUpdateSchemaWithTables() {
+            this.fireUpdateSchema();
+            this.getTables().forEach(function(table) {
+                table.fireUpdateTable();
+            });
+        },
+
+        ready: function () {
+
+        },
+
+        attached: function () {
+            this.visualizer = document.querySelector('database-visualizer-database');
+
+            this._left = this.schema.left;
+            this._top = this.schema.top;
+            this._width = this.schema.width;
+            this._height = this.schema.height;
+
+            this.async(function () {
+                this.width = this._width;
+                this.height = this._height + this.$.header.offsetHeight;
+
+                this.translate = {
+                    x: this._left,
+                    y: this._top
+                };
+            });
+        },
+        getPosition() {
+            return {
+                left: this.getLeft(),
+                top: this.getTop() + this.getHeaderHeight(),
+                width: this.offsetWidth,
+                height: this.offsetHeight
+            };
+        }
+    });
+</script>
 </html>

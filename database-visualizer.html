@@ -14,7 +14,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/database-visualizer-menu.html">
 <link rel="import" href="../paper-fab/paper-fab.html">
 <link rel="stylesheet" href="stylesheet.css">
-<link rel="stylesheet" href="libs/font-awesome/4.4.0/css/font-awesome.min.css">
 
 <!--
 An element providing a solution to no problem in particular.
@@ -27,88 +26,78 @@ Example:
 -->
 <dom-module id="database-visualizer">
 
-  <style>
-    :host {
+    <style>
+        :host {
 
-    }
-  </style>
+        }
+    </style>
 
-  <template>
-    <paper-drawer-panel responsive-width="3000px">
-      <database-visualizer-menu schemas={{schemas}} applications="{{applications}}" setups="{{setups}}" drawer></database-visualizer-menu>
-      <div main>
-        <paper-fab class="menu" icon="icons:menu" on-tap="_openMenu" title="menu"></paper-fab>
-        <database-visualizer-database database="{{database}}"></database-visualizer-database>
-      </div>
-    </paper-drawer-panel>
-    <!-- <database-visualizer-menu></database-visualizer-menu> -->
+    <template>
+        <paper-drawer-panel id="panel" responsive-width="3000px">
+            <database-visualizer-menu schemas={{schemas}} applications="{{applications}}" setups="{{setups}}"
+                                      drawer></database-visualizer-menu>
+            <div main>
+                <paper-fab class="menu" icon="icons:menu" on-tap="_openMenu" title="menu"></paper-fab>
+                <database-visualizer-database database="{{database}}"></database-visualizer-database>
+            </div>
+        </paper-drawer-panel>
+        <!-- <database-visualizer-menu></database-visualizer-menu> -->
 
-  </template>
+    </template>
 
 </dom-module>
 
 <script>
-  // TODO add testing with nightwatch.js (www.nightwatchjs.org)
-  // TODO screenshot gatlin
 
-  // TODO tryout dc/os
+    Polymer({
 
-  Polymer({
+        is: 'database-visualizer',
 
-    is: 'database-visualizer',
+        properties: {
+            schemas: {
+                type: Array,
+                value: []
+            },
+            database: {
+                type: Object,
+                notify: true,
+                value: function () {
+                    return {};
+                }
+            }
 
-    properties: {
-      schemas: Object,
-      applications: Object,
-      setups: Object,
-      database: {
-        type: Object,
-        notify: true,
-        value: function() {
-          return {
-            schemas:  [{name: "schema1",
-              tables: [{name: "table1"}]}],
-            foreignKeys: [{column: "column1"}]
-          };
+        },
+        _openMenu() {
+            this.$.panel.togglePanel();
+        },
+
+        // Element Lifecycle
+        ready: function () {
+            // `ready` is called after all elements have been configured, but
+            // propagates bottom-up. This element's children are ready, but parents
+            // are not.
+            //
+            // This is the point where you should make modifications to the DOM (when
+            // necessary), or kick off any processes the element wants to perform.
+        },
+
+        attached: function () {
+            // `attached` fires once the element and its parents have been inserted
+            // into a document.
+            //
+            // This is a good place to perform any work related to your element's
+            // visual state or active behavior (measuring sizes, beginning animations,
+            // loading resources, etc).
+        },
+
+
+        detached: function () {
+            // The analog to `attached`, `detached` fires when the element has been
+            // removed from a document.
+            //
+            // Use this to clean up anything you did in `attached`.
         }
-      }
 
-    },
-    _openMenu() {
-      $('paper-drawer-panel')[0].togglePanel();
-    },
-
-    // Element Lifecycle
-    ready: function() {
-      // `ready` is called after all elements have been configured, but
-      // propagates bottom-up. This element's children are ready, but parents
-      // are not.
-      //
-      // This is the point where you should make modifications to the DOM (when
-      // necessary), or kick off any processes the element wants to perform.
-    },
-
-    attached: function() {
-      // `attached` fires once the element and its parents have been inserted
-      // into a document.
-      //
-      // This is a good place to perform any work related to your element's
-      // visual state or active behavior (measuring sizes, beginning animations,
-      // loading resources, etc).
-    },
-
-
-    detached: function() {
-      // The analog to `attached`, `detached` fires when the element has been
-      // removed from a document.
-      //
-      // Use this to clean up anything you did in `attached`.
-    }
-
-  });
+    });
 
 </script>
-
-<script src="libs/jquery/2.2.0/jquery.min.js"></script>
-<link rel="stylesheet" href="libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
-<script src="libs/jqueryui/1.11.4/jquery-ui.min.js"></script>

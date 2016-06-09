@@ -11,26 +11,28 @@
     </style>
     <template>
         {{constraint.name}}
-        <database-constraint-line class$="{{constraint.name}}" constraint="{{constraint}}"></database-constraint-line>
     </template>
 </dom-module>
 <script>
     Polymer({
         is: "database-constraint",
+        listeners: {
+            'tap': '_handleTap',
+            'mouseover': '_handleMouseover',
+            'mouseout': '_handleMouseout'
+        },
         properties: {
-            schemaname: String,
-            tablename: String,
             constraint: {
                 type: Object,
-                        notify: true,
-                        value: function() {
+                notify: true,
+                value: function () {
                     return {
-                        "name":"FK_Table1_Table2",
-                        "schema":"Schema1",
-                        "table":"Table1",
+                        "name": "FK_Table1_Table2",
+                        "schema": "Schema1",
+                        "table": "Table1",
                         "columns": ["Column1", "Column2"],
-                        "rSchema":"Schema1",
-                        "rTable":"Table2",
+                        "rSchema": "Schema1",
+                        "rTable": "Table2",
                         "rColumns": ["Column3", "Column4"],
                         "positions": []
                     };
@@ -38,24 +40,25 @@
             }
         },
 
-        ready: function() {
+        _handleTap: function () {
+            this.databaseConstraintLine.select();
+        },
+
+        _handleMouseover: function () {
+            this.databaseConstraintLine.highlight();
+        },
+        _handleMouseout: function () {
+            this.databaseConstraintLine.dehighlight();
+        },
+
+        ready: function () {
 
         },
 
-        attached: function() {
-            var table = $(this).parent('#'+this.schemaname+"_"+this.tablename)[0];
-
-            var constraintLine = $(this).find('.' + this.constraint.name)[0];
-            $('.database-constraints-storage').append(constraintLine);
-
-            $(this).mouseenter(function() {
-                constraintLine.highlight(true);
-                constraintLine.highlightColumn(true, table);
-            });
-            $(this).mouseleave(function() {
-                constraintLine.highlight(false);
-                constraintLine.highlightColumn(false, table);
-            });
+        attached: function () {
+            this.databaseConstraintLine = document.createElement('database-constraint-line');
+            this.databaseConstraintLine.constraint = this.constraint;
+            document.querySelector('.database-constraints-storage').appendChild(this.databaseConstraintLine);
         }
     });
 </script>

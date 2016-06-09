@@ -10,25 +10,50 @@
 <dom-module id="database-column">
     <style>
         /* CSS rules for your element */
+        :host {
+            display: table-row;
+            width: auto;
+        }
+
+        :host.highlight,
+        :host.highlight:nth-child(even) {
+            background-color: #BE10FD;
+            color: white;
+        }
+
+        :host .database-column.table-column {
+            display: table-cell;
+            padding: 5px;
+            min-width: 20px;
+        }
+
+        :host:nth-child(even) {
+            background: #ECECEC;
+        }
+
         paper-fab {
+            --paper-fab-iron-icon: {
+                transform: rotate(90deg);
+            };
+
             position: absolute;
             margin-top: -6px;
-            z-index: 1;
+            z-index: 2;
         }
+
         paper-fab.connector.left {
-            left: -30px;
+            left: -45px;
         }
+
         paper-fab.connector.right {
-            right: -30px;
-        }
-        paper-fab.connector iron-icon {
-            transform: rotate(90deg);
+            right: -45px;
         }
 
     </style>
     <template>
         <template is="dom-if" if="[[_showConstraintConnectorLeft]]">
-            <paper-fab class="connector left" mini icon="editor:vertical-align-top" on-tap="_switchConnector" title="switch connector" suffix></paper-fab>
+            <paper-fab class="connector left" mini icon="editor:vertical-align-top" on-tap="_switchConnector"
+                       title="switch connector" suffix></paper-fab>
         </template>
         <template is="dom-if" if="[[!_showConstraintConnectorLeft]]">
             <div class="placeholder-button"></div>
@@ -39,7 +64,8 @@
         <div class="table-column">{{column.type}}</div>
         <div class="table-column">{{column.defaultValue}}</div>
         <template is="dom-if" if="[[_showConstraintConnectorRight]]">
-            <paper-fab class="connector right" mini icon="editor:vertical-align-bottom" on-tap="_switchConnector" title="switch connector" suffix></paper-fab>
+            <paper-fab class="connector right" mini icon="editor:vertical-align-bottom" on-tap="_switchConnector"
+                       title="switch connector" suffix></paper-fab>
         </template>
         <template is="dom-if" if="[[!_showConstraintConnectorRight]]">
             <div class="placeholder-button"></div>
@@ -49,23 +75,17 @@
 <script>
     Polymer({
         is: "database-column",
+
         properties: {
             schemaname: String,
             tablename: String,
             column: {
                 type: Object,
                 notify: true,
-                value: function() {
+                value: function () {
                     return {
                         name: "column1"
                     };
-                }
-            },
-            table: {
-                type: Object,
-                notify: true,
-                value: function() {
-                    return {};
                 }
             },
             _showConstraintConnectorLeft: {
@@ -90,18 +110,6 @@
             return b ? "" : "*";
         },
 
-        getScale() {
-            return this.table.getScale();
-        },
-
-        getPosition() {
-            var pos = $(this).position();
-            return {
-                top: pos.top / this.getScale(),
-                left: pos.left / this.getScale()
-            }
-        },
-
         _switchConnector() {
             this._connectedConstraintLine.switchConnector(this._connectedTable);
             this._showConstraintConnectorLeft = !this._showConstraintConnectorLeft;
@@ -119,13 +127,20 @@
             this._showConstraintConnectorRight = false;
         },
 
-        ready: function() {
+        getPosition() {
+            return {
+                top: this.offsetTop,
+                left: this.offsetLeft
+            }
+        },
+
+        ready: function () {
 
         },
 
-        attached: function() {
-            this.table = $(this).parent().parent('#'+this.schemaname+"_"+this.tablename)[0];
-            this.table.registerColumn(this);
+        attached: function () {
+            let table = document.querySelector('#' + this.schemaname + "_" + this.tablename);
+            table.registerColumn(this);
         }
     });
 </script>
