@@ -245,7 +245,7 @@ Example:
                     tableDiv.classList.add('table');
                     tableDiv.classList.add('database-minimap');
                     let left = table.translate.x / ratio;
-                    let top = table.translate.y / ratio;
+                    let top = table.translate.y / ratio + schema.getHeaderHeight() / ratio;
                     this.translate3d(left + 'px', top + 'px', '0px', tableDiv);
                     tableDiv.style.width = table.offsetWidth / ratio;
                     tableDiv.style.height = table.offsetHeight / ratio;
