@@ -2,9 +2,6 @@
 <html>
 <head>
 
-    <!-- Element Imports -->
-    <link rel="import" href="../../paper-fab/paper-fab.html">
-    <link rel="import" href="../../iron-icons/editor-icons.html">
 </head>
 
 <dom-module id="database-column">
@@ -31,45 +28,13 @@
             min-width: 20px;
         }
 
-        paper-fab {
-            --paper-fab-iron-icon: {
-                transform: rotate(90deg);
-            };
-
-            position: absolute;
-            margin-top: -6px;
-            z-index: 2;
-        }
-
-        paper-fab.connector.left {
-            left: -45px;
-        }
-
-        paper-fab.connector.right {
-            right: -45px;
-        }
-
     </style>
     <template>
-        <template is="dom-if" if="[[_showConstraintConnectorLeft]]">
-            <paper-fab class="connector left" mini icon="editor:vertical-align-top" on-tap="_switchConnector"
-                       title="switch connector" suffix></paper-fab>
-        </template>
-        <template is="dom-if" if="[[!_showConstraintConnectorLeft]]">
-            <div class="placeholder-button"></div>
-        </template>
         <div class="table-column">{{column.keyType}}</div>
         <div class="table-column">{{convertToNullableString(column.nullable)}}</div>
         <div class="table-column">{{column.name}}</div>
         <div class="table-column">{{column.type}}</div>
         <div class="table-column">{{column.defaultValue}}</div>
-        <template is="dom-if" if="[[_showConstraintConnectorRight]]">
-            <paper-fab class="connector right" mini icon="editor:vertical-align-bottom" on-tap="_switchConnector"
-                       title="switch connector" suffix></paper-fab>
-        </template>
-        <template is="dom-if" if="[[!_showConstraintConnectorRight]]">
-            <div class="placeholder-button"></div>
-        </template>
     </template>
 </dom-module>
 <script>
@@ -87,44 +52,11 @@
                         name: "column1"
                     };
                 }
-            },
-            _showConstraintConnectorLeft: {
-                type: Boolean,
-                value: false
-            },
-            _showConstraintConnectorRight: {
-                type: Boolean,
-                value: false
-            },
-            _connectedConstraintLine: {
-                type: Object,
-                value: null
-            },
-            _connectedTable: {
-                type: String,
-                value: ""
             }
         },
 
         convertToNullableString(b) {
             return b ? "" : "*";
-        },
-
-        _switchConnector() {
-            this._connectedConstraintLine.switchConnector(this._connectedTable);
-            this._showConstraintConnectorLeft = !this._showConstraintConnectorLeft;
-            this._showConstraintConnectorRight = !this._showConstraintConnectorRight;
-
-        },
-        constraintSelected(connector, constraintLine, table) {
-            this._connectedConstraintLine = constraintLine;
-            this._connectedTable = table;
-            this._showConstraintConnectorLeft = connector === "left";
-            this._showConstraintConnectorRight = connector === "right";
-        },
-        constraintDeselected() {
-            this._showConstraintConnectorLeft = false;
-            this._showConstraintConnectorRight = false;
         },
 
         getPosition() {

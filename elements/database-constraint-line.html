@@ -3,6 +3,7 @@
 <head>
     <!-- Element Imports -->
     <link rel="import" href="database-constraint-line-button.html">
+    <link rel="import" href="database-constraint-line-connect.html">
 </head>
 
 <dom-module id="database-constraint-line">
@@ -12,10 +13,13 @@
             cursor: pointer;
         }
 
-        :host database-constraint-line-button {
+        :host database-constraint-line-button,
+        :host database-constraint-line-connect {
             visibility: hidden;
         }
-        :host.selected-constraint database-constraint-line-button {
+
+        :host.selected-constraint database-constraint-line-button,
+        :host.selected-constraint database-constraint-line-connect {
             visibility: visible;
         }
 
@@ -27,24 +31,30 @@
             height: 1px;
             position: absolute;
         }
+
         :host.highlight > svg,
         :host.selected-constraint > svg {
             z-index: 1;
         }
+
         :host > svg path {
             fill: none;
         }
+
         :host > svg path.line {
             stroke: #000000;
             stroke-width: 2px;
         }
+
         :host.selected-constraint > svg path.line {
             stroke: var(--database-constraint-line-selected-stroke, --light-accent-color);
         }
+
         :host.highlight > svg path.line {
             stroke: var(--database-constraint-line-highlighted-stroke, --light-accent-color);
             stroke-width: 4;
         }
+
         :host > svg path.transparent-outline {
             stroke: transparent;
             stroke-width: 20px;
@@ -52,6 +62,8 @@
 
     </style>
     <template>
+        <database-constraint-line-connect id="connect" on-tap="_onConnectTap"></database-constraint-line-connect>
+        <database-constraint-line-connect id="rconnect" on-tap="_onRConnectTap"></database-constraint-line-connect>
         <svg class="path-svg">
             <path class="transparent-outline" d=""></path>
             <path class="line" d=""></path>
@@ -103,27 +115,27 @@
             if (selected) {
                 this.classList.add('selected-constraint');
 
-                Array.prototype.slice.call(document.querySelectorAll('database-constraint-line')).forEach(function(databaseConstraintLine) {
+                Array.prototype.slice.call(document.querySelectorAll('database-constraint-line')).forEach(function (databaseConstraintLine) {
                     if (this !== databaseConstraintLine) {
                         databaseConstraintLine.deselect();
                     }
                 }, this);
 
-                if (typeof this._table !== 'undefined' && typeof this._table.columns !== 'undefined') {
-                    this._table.columns[0].constraintSelected(this._table.connector, this, "table");
-                }
-                if (typeof this._rTable !== 'undefined' && typeof this._rTable.columns !== 'undefined') {
-                    this._rTable.columns[0].constraintSelected(this._rTable.connector, this, "rTable");
-                }
+//                if (typeof this._table !== 'undefined' && typeof this._table.columns !== 'undefined') {
+//                    this._table.columns[0].constraintSelected(this._table.connector, this, "table");
+//                }
+//                if (typeof this._rTable !== 'undefined' && typeof this._rTable.columns !== 'undefined') {
+//                    this._rTable.columns[0].constraintSelected(this._rTable.connector, this, "rTable");
+//                }
             } else {
                 this.classList.remove('selected-constraint');
 
-                if (typeof this._table !== 'undefined' && typeof this._table.columns !== 'undefined') {
-                    this._table.columns[0].constraintDeselected();
-                }
-                if (typeof this._rTable !== 'undefined' && typeof this._rTable.columns !== 'undefined') {
-                    this._rTable.columns[0].constraintDeselected();
-                }
+//                if (typeof this._table !== 'undefined' && typeof this._table.columns !== 'undefined') {
+//                    this._table.columns[0].constraintDeselected();
+//                }
+//                if (typeof this._rTable !== 'undefined' && typeof this._rTable.columns !== 'undefined') {
+//                    this._rTable.columns[0].constraintDeselected();
+//                }
             }
         },
         _observerHighlighted(highlighted) {
@@ -199,7 +211,7 @@
             this._table.table = document.querySelector('database-table#' + this.constraint.schema + "_" + this.constraint.table);
             this._table.table.registerConstraint(this);
 
-            this.async(function() {
+            this.async(function () {
                 this.refresh();
             });
         },
@@ -251,6 +263,9 @@
             let tablePos = this._table.table.getPosition();
             let rTablePos = this._rTable.table.getPosition();
 
+            this.$.connect.tablePos = tablePos;
+            this.$.rconnect.tablePos = rTablePos;
+
             // TODO calculate each time individual?!
             let diffX = this._table.column_height * 8 / 3;
             let diffY = this._table.column_height * 4 / 5;
@@ -261,14 +276,20 @@
             if (this._rTable.connector === "left") {
                 pathRPos = this._getRTablePathRPosLeft(rTablePos, diffX);
                 d = this._getRTableDLeft(pathRPos, rTablePos, diffY, diffBroomX);
+                this.$.rconnect.left = false;
             }
             if (this._rTable.connector === "right") {
                 pathRPos = this._getRTablePathRPosRight(rTablePos, diffX);
                 d = this._getRTableDRight(pathRPos, rTablePos, diffY, diffBroomX);
+                this.$.rconnect.left = true;
             }
+//            this.$.rconnect.translate = {
+//                x: pathRPos.x,
+//                y: pathRPos.y
+//            };
 
             let lastPoint = pathRPos;
-            this._points.forEach(function(point) {
+            this._points.forEach(function (point) {
                 let p = {
                     x: point.translate.x,
                     y: point.translate.y
@@ -284,10 +305,12 @@
             if (this._table.connector === "left") {
                 pathPos = this._getTablePathPosLeft(tablePos, diffX);
                 d = d + this._getTableDLeft(pathPos, tablePos);
+                this.$.connect.left = false;
             }
             if (this._table.connector === "right") {
                 pathPos = this._getTablePathPosRight(tablePos, diffX);
                 d = d + this._getTableDRight(pathPos, tablePos);
+                this.$.connect.left = true;
             }
 
             this._drawMiddlePoint(lastPoint, pathPos, this._points.length);
@@ -297,12 +320,12 @@
         },
 
         trackStartSchema() {
-            this._points.forEach(function(point) {
+            this._points.forEach(function (point) {
                 point.trackStartSchema();
             });
         },
         refreshPoints(diffPoint) {
-            this._points.forEach(function(point) {
+            this._points.forEach(function (point) {
                 point.translate = {
                     x: point.translate.x + diffPoint.x,
                     y: point.translate.y + diffPoint.y
@@ -425,26 +448,28 @@
                 this.highlighted = false;
             }
         },
-        switchConnector(table) {
-            if (table === "table") {
-                this._table.connector = this._table.connector === "left" ? "right" : "left";
-            } else {
-                this._rTable.connector = this._rTable.connector === "left" ? "right" : "left";
-            }
-            this.refresh();
-            // todo
-//            this.fireUpdateConstraint();
+        _onConnectTap() {
+            console.log("_onConnectTap");
+            this.$.connect.left = !this.$.connect.left;
+            this._table.connector = this.$.connect.left ? "right" : "left";
+            this.refreshPath();
+        },
+        _onRConnectTap() {
+            console.log("_onRConnectTap");
+            this.$.rconnect.left = !this.$.rconnect.left;
+            this._rTable.connector = this.$.rconnect.left ? "right" : "left";
+            this.refreshPath();
         },
         registerColumn(columns) {
-            columns.forEach(function(column) {
-                this.constraint.columns.forEach(function(constraintColumn) {
+            columns.forEach(function (column) {
+                this.constraint.columns.forEach(function (constraintColumn) {
                     let id = this.constraint.schema + "_" + this.constraint.table + "_" + constraintColumn;
                     if (id === column.id) {
                         this._table.columns.push(column);
                     }
                 }, this);
 
-                this.constraint.rcolumns.forEach(function(rConstraintColumn) {
+                this.constraint.rcolumns.forEach(function (rConstraintColumn) {
                     let id = this.constraint.rschema + "_" + this.constraint.rtable + "_" + rConstraintColumn;
                     if (id === column.id) {
                         this._rTable.columns.push(column);
@@ -453,11 +478,15 @@
             }, this);
 
             /** save columns positions in the table **/
-            this._table.column_pos = this._table.columns[0].getPosition();
             this._table.column_height = this._table.columns[0].offsetHeight / 2;
+            this.$.connect.columnHeight = this._table.column_height;
+            this._table.column_pos = this._table.columns[0].getPosition();
+            this.$.connect.columnPos = this._table.column_pos;
             if (this._rTable.columns.length > 0) {
-                this._rTable.column_pos = this._rTable.columns[0].getPosition();
                 this._rTable.column_height = this._rTable.columns[0].offsetHeight / 2;
+                this.$.rconnect.columnHeight = this._rTable.column_height;
+                this._rTable.column_pos = this._rTable.columns[0].getPosition();
+                this.$.rconnect.columnPos = this._rTable.column_pos;
             }
         },
 
@@ -471,7 +500,7 @@
 
         fireUpdateConstraint() {
             let positions = [];
-            this._points.forEach(function(point) {
+            this._points.forEach(function (point) {
                 positions.push({
                     x: point.translate.x,
                     y: point.translate.y
