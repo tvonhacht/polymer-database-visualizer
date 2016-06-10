@@ -31,7 +31,14 @@
 <script>
     Polymer({
         is: "database-constraint-line-connect",
+        listeners: {
+            'tap': '_handleTap'
+        },
         properties: {
+            set: {
+                type: Boolean,
+                value: false
+            },
             left: {
                 type: Boolean,
                 value: true,
@@ -108,8 +115,14 @@
             return 'editor:vertical-align-top';
         },
 
+        _handleTap() {
+            this.set = true;
+            this.left = !this.left;
+            this._refreshPath();
+        },
+
         //todo
-        _refresh() {
+        _refreshPath() {
             Polymer.dom(this).getOwnerRoot().host.refreshPath();
         }
     });

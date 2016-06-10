@@ -62,8 +62,8 @@
 
     </style>
     <template>
-        <database-constraint-line-connect id="connect" on-tap="_onConnectTap"></database-constraint-line-connect>
-        <database-constraint-line-connect id="rconnect" on-tap="_onRConnectTap"></database-constraint-line-connect>
+        <database-constraint-line-connect id="connect"></database-constraint-line-connect>
+        <database-constraint-line-connect id="rconnect"></database-constraint-line-connect>
         <svg class="path-svg">
             <path class="transparent-outline" d=""></path>
             <path class="line" d=""></path>
@@ -120,22 +120,8 @@
                         databaseConstraintLine.deselect();
                     }
                 }, this);
-
-//                if (typeof this._table !== 'undefined' && typeof this._table.columns !== 'undefined') {
-//                    this._table.columns[0].constraintSelected(this._table.connector, this, "table");
-//                }
-//                if (typeof this._rTable !== 'undefined' && typeof this._rTable.columns !== 'undefined') {
-//                    this._rTable.columns[0].constraintSelected(this._rTable.connector, this, "rTable");
-//                }
             } else {
                 this.classList.remove('selected-constraint');
-
-//                if (typeof this._table !== 'undefined' && typeof this._table.columns !== 'undefined') {
-//                    this._table.columns[0].constraintDeselected();
-//                }
-//                if (typeof this._rTable !== 'undefined' && typeof this._rTable.columns !== 'undefined') {
-//                    this._rTable.columns[0].constraintDeselected();
-//                }
             }
         },
         _observerHighlighted(highlighted) {
@@ -196,15 +182,13 @@
                 table: null,
                 columns: [],
                 column_pos: null,
-                column_height: null,
-                connector: ""
+                column_height: null
             };
             this._rTable = {
                 table: null,
                 columns: [],
                 column_pos: null,
-                column_height: null,
-                connector: ""
+                column_height: null
             };
 
             /** save table **/
@@ -222,8 +206,8 @@
 
         refreshConnector() {
             if (this._points.length === 0) {
-                this._table.connector = "";
-                this._rTable.connector = "";
+                this.$.connect.set = false;
+                this.$.rconnect.set = false;
             }
         },
         refresh() {
@@ -237,17 +221,20 @@
             let rTablePos = this._rTable.table.getPosition();
 
 
-            if (this._table.connector === "" && this._rTable.connector === "") {
+            if (!this.$.connect.set && !this.$.rconnect.set) {
                 /** table <-> rTable **/
                 if (tablePos.left < rTablePos.left) {
-                    this._table.connector = "left";
-                    this._rTable.connector = "right";
+                    this.$.connect.left = false;
+                    this.$.rconnect.left = true;
                 }
                 /** rTable <-> table **/
                 else {
-                    this._rTable.connector = "left";
-                    this._table.connector = "right";
+                    this.$.connect.left = true;
+                    this.$.rconnect.left = false;
                 }
+
+                this.$.connect.set = true;
+                this.$.rconnect.set = true;
             }
 
             this.refreshPath();
@@ -273,15 +260,12 @@
 
             let pathRPos;
             let d;
-            if (this._rTable.connector === "left") {
-                pathRPos = this._getRTablePathRPosLeft(rTablePos, diffX);
-                d = this._getRTableDLeft(pathRPos, rTablePos, diffY, diffBroomX);
-                this.$.rconnect.left = false;
-            }
-            if (this._rTable.connector === "right") {
+            if (this.$.rconnect.left) {
                 pathRPos = this._getRTablePathRPosRight(rTablePos, diffX);
                 d = this._getRTableDRight(pathRPos, rTablePos, diffY, diffBroomX);
-                this.$.rconnect.left = true;
+            } else {
+                pathRPos = this._getRTablePathRPosLeft(rTablePos, diffX);
+                d = this._getRTableDLeft(pathRPos, rTablePos, diffY, diffBroomX);
             }
 //            this.$.rconnect.translate = {
 //                x: pathRPos.x,
@@ -302,15 +286,12 @@
             }, this);
 
             let pathPos;
-            if (this._table.connector === "left") {
-                pathPos = this._getTablePathPosLeft(tablePos, diffX);
-                d = d + this._getTableDLeft(pathPos, tablePos);
-                this.$.connect.left = false;
-            }
-            if (this._table.connector === "right") {
+            if (this.$.connect.left) {
                 pathPos = this._getTablePathPosRight(tablePos, diffX);
                 d = d + this._getTableDRight(pathPos, tablePos);
-                this.$.connect.left = true;
+            } else {
+                pathPos = this._getTablePathPosLeft(tablePos, diffX);
+                d = d + this._getTableDLeft(pathPos, tablePos);
             }
 
             this._drawMiddlePoint(lastPoint, pathPos, this._points.length);
@@ -448,18 +429,6 @@
                 this.highlighted = false;
             }
         },
-        _onConnectTap() {
-            console.log("_onConnectTap");
-            this.$.connect.left = !this.$.connect.left;
-            this._table.connector = this.$.connect.left ? "right" : "left";
-            this.refreshPath();
-        },
-        _onRConnectTap() {
-            console.log("_onRConnectTap");
-            this.$.rconnect.left = !this.$.rconnect.left;
-            this._rTable.connector = this.$.rconnect.left ? "right" : "left";
-            this.refreshPath();
-        },
         registerColumn(columns) {
             columns.forEach(function (column) {
                 this.constraint.columns.forEach(function (constraintColumn) {
@@ -506,7 +475,7 @@
                     y: point.translate.y
                 });
             });
-            this._table.table.getSchema()._visualizer.fireUpdateConstraint(this.constraint.id, this._table.connector === 'right', this._rTable.connector === 'right', positions);
+            this._table.table.getSchema()._visualizer.fireUpdateConstraint(this.constraint.id, this.$.connect.left, this.$.rconnect.left, positions);
         }
     });
 </script>
