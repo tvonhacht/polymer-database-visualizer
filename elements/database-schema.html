@@ -206,8 +206,10 @@
                 databaseConstraintLine.deselect();
             });
         },
-        _handleTap: function () {
-            this._onTap();
+        _handleTap: function (e) {
+            if (e.target === this) {
+                this._onTap();
+            }
         },
         _handleTrack: function(e) {
             if (e.target === this) {
