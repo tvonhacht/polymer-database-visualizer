@@ -15,6 +15,10 @@
             width: auto;
         }
 
+        :host:nth-child(even) {
+            background: var(--database-column-even-background, #ECECEC);
+        }
+
         :host.highlight,
         :host.highlight:nth-child(even) {
             background: var(--database-column-higlight-background, --accent-color);
@@ -25,10 +29,6 @@
             display: table-cell;
             padding: 5px;
             min-width: 20px;
-        }
-
-        :host:nth-child(even) {
-            background: #ECECEC;
         }
 
         paper-fab {

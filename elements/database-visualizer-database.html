@@ -30,8 +30,6 @@ Example:
             height: 100%;
             background-color: #ECECEC;
 
-            cursor: -webkit-grab;
-
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             -khtml-user-select: none;
@@ -39,22 +37,6 @@ Example:
             -ms-user-select: none;
             user-select: none;
         }
-
-        paper-spinner-lite {
-            --paper-spinner-color: var(--database-visualizer-database-spinner-color, --accent-color);
-        }
-
-        :host #canvas {
-            position: absolute;
-            cursor: -webkit-grab;
-            font-size: 14px;
-            line-height: 20px;
-            overflow-x: visible;
-            overflow-y: visible;
-            width: 50px;
-            height: 50px;
-        }
-
 
         h1 {
             color: #DCDCDC;
@@ -73,6 +55,17 @@ Example:
                                   not supported by any browser */
         }
 
+        #canvas {
+            position: absolute;
+            cursor: -webkit-grab;
+            font-size: 14px;
+            line-height: 20px;
+            overflow-x: visible;
+            overflow-y: visible;
+            width: 50px;
+            height: 50px;
+        }
+
         #loading {
             background: rgba(255,255,255,0.5);
             height: 100%;
@@ -82,7 +75,9 @@ Example:
             top: 0px;
             z-index: 92;
         }
-
+        #loading.hidden {
+            visibility: hidden;
+        }
         #loading paper-spinner-lite {
             position: absolute !important;
             left: 50%;
@@ -91,9 +86,10 @@ Example:
             margin-top: -14px;
         }
 
-        #loading.hidden {
-            visibility: hidden;
+        paper-spinner-lite {
+            --paper-spinner-color: var(--database-visualizer-database-spinner-color, --accent-color);
         }
+
     </style>
 
     <template>

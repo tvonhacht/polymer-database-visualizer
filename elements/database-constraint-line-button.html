@@ -8,6 +8,7 @@
 
 <dom-module id="database-constraint-line-button">
     <style>
+
         :host {
             position: absolute;
             width: auto;
@@ -20,13 +21,13 @@
             height: 40px;
             padding: 2px;
         }
-
         paper-fab[icon="add"] {
             background: var(--database-constraint-line-button-add-background, --light-accent-color);
         }
         paper-fab[icon="open-with"] {
             background: var(--database-constraint-line-button-move-background, --accent-color);
         }
+
     </style>
     <template>
         <paper-fab icon$="{{_icon(new)}}"></paper-fab>

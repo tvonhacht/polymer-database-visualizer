@@ -20,6 +20,7 @@ Example:
 <dom-module id="database-minimap">
 
     <style>
+
         :host {
             position: absolute;
             border-radius: 3px;
@@ -38,7 +39,7 @@ Example:
             position: absolute;
             background: rgba(255,100,100,0.4);
             cursor: -webkit-grab;
-            z-index: 92;
+            z-index: 10;
         }
 
         :host .schema,
@@ -50,6 +51,7 @@ Example:
         :host.hidden {
             visibility: hidden;
         }
+
     </style>
 
     <template>

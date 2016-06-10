@@ -18,18 +18,24 @@
             cursor: move;
         }
 
+        h2 {
+            margin: 0;
+            font-size: 72px;
+            line-height: 2em;
+            text-align: center;
+        }
+
         #header {
             background: var(--database-schema-background, --paper-deep-purple-500);
             color: var(--database-schema-color, white);
             border-bottom: 1px solid #e5e5e5;
         }
-
         :host.selected #header {
             background: var(--database-schema-selected-background, --paper-deep-purple-900);
             color: var(--database-schema-selected-color, white);
         }
 
-        :host paper-fab {
+        paper-fab {
             --paper-fab-background: var(--database-schema-resize-button-background, --accent-color);
             --paper-fab-iron-icon: {
                 transform: rotate(45deg);
@@ -38,36 +44,24 @@
             visibility: hidden;
             position: absolute;
         }
-
         :host.selected paper-fab {
             visibility: visible;
         }
-
-        :host paper-fab[icon="arrow-back"] {
+        paper-fab[icon="arrow-back"] {
             left: -20px;
             top: -20px;
         }
-
-        :host paper-fab[icon="arrow-upward"] {
+        paper-fab[icon="arrow-upward"] {
             right: -20px;
             top: -20px;
         }
-
-        :host paper-fab[icon="arrow-forward"] {
+        paper-fab[icon="arrow-forward"] {
             right: -20px;
             bottom: -20px;
         }
-
-        :host paper-fab[icon="arrow-downward"] {
+        paper-fab[icon="arrow-downward"] {
             left: -20px;
             bottom: -20px;
-        }
-
-        h2 {
-            margin: 0;
-            font-size: 72px;
-            line-height: 2em;
-            text-align: center;
         }
 
     </style>

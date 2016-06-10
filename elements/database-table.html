@@ -10,13 +10,6 @@
     <style>
         /* CSS rules for your element */
 
-        h3 {
-            margin: 0;
-            font-size: 24px;
-            line-height: 2em;
-            text-align: center;
-        }
-
         :host {
             width: auto !important;
             height: auto !important;
@@ -28,6 +21,13 @@
             cursor: move;
         }
 
+        h3 {
+            margin: 0;
+            font-size: 24px;
+            line-height: 2em;
+            text-align: center;
+        }
+
         #header {
             background: var(--database-table-background, --paper-indigo-500);
             color: var(--database-table-color, white);
@@ -37,7 +37,6 @@
             font-weight: 500;
             border-bottom: 1px solid #e5e5e5;
         }
-
         #header.selected {
             background: var(--database-table-selected-background, --paper-indigo-900);
             color: var(--database-table-selected-color, white);

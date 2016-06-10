@@ -27,13 +27,6 @@ Example:
 
     <style>
         :host {
-            /*--primary-color: var(--paper-indigo-500);*/
-            /*--light-primary-color: var(--paper-indigo-100);*/
-            /*--dark-primary-color: var(--paper-indigo-700);*/
-            /*--accent-color: var(--paper-pink-a200);*/
-            /*--light-accent-color: var(--paper-pink-a100);*/
-            /*--dark-accent-color: var(--paper-pink-a400);*/
-
             /*--database-visualizer-database-spinner-color: green;*/
 
             /*--database-menu-bar-background: green;*/
@@ -58,6 +51,7 @@ Example:
 
             /*--database-column-higlight-background: green;*/
             /*--database-column-higlight-color: green;*/
+            /*--database-column-even-background: green;*/
 
             /*--database-constraint-hover-background: green;*/
 
@@ -68,16 +62,15 @@ Example:
             /*--database-constraint-line-button-add-background: green;*/
         }
 
-        paper-drawer-panel #scrim {
-            z-index: 91;
-        }
-
-        paper-drawer-panel #drawer {
-            z-index: 92;
+        paper-drawer-panel {
+            --paper-drawer-panel-left-drawer-container: {
+                z-index: 20;
+            };
         }
 
         #menu {
             --paper-fab-background: var(--database-visualizer-menu-button-background, --accent-color);
+
             position: absolute;
             z-index: 1;
             top: 10px;
