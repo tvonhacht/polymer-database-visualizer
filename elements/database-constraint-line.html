@@ -235,6 +235,8 @@
 
                 this.$.connect.set = true;
                 this.$.rconnect.set = true;
+
+                this.fireUpdateConstraint();
             }
 
             this.refreshPath();
@@ -471,7 +473,7 @@
                     y: point.translate.y
                 });
             });
-            this._table.table.getSchema()._visualizer.fireUpdateConstraint(this.constraint.id, this.$.connect.left, this.$.rconnect.left, positions);
+            this._table.table.getSchema().visualizer.fireUpdateConstraint(this.constraint.id, this.$.connect.left, this.$.rconnect.left, positions);
         }
     });
 </script>

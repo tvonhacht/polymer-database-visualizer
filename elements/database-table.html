@@ -184,8 +184,8 @@
                     this.refresh();
                     this.refreshMinimap();
                     this.refreshMinimapZoom();
-                    //todo
-                    //this.fireUpdateConstraint();
+
+                    this.fireUpdateTable();
                     break;
             }
         },
@@ -304,7 +304,7 @@
         },
 
         fireUpdateTable() {
-            this.getSchema()._visualizer.fireUpdateTable(this.table.id, this._left, this._top);
+            this.getSchema().visualizer.fireUpdateTable(this.table.id, this.translate.x, this.translate.y);
         },
 
         ready: function () {

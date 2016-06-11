@@ -119,12 +119,16 @@
             this.set = true;
             this.left = !this.left;
             this._refreshPath();
+            this._fireUpdateConstraint();
         },
 
-        //todo
         _refreshPath() {
             Polymer.dom(this).getOwnerRoot().host.refreshPath();
-        }
+        },
+
+        _fireUpdateConstraint() {
+            Polymer.dom(this).getOwnerRoot().host.fireUpdateConstraint();
+        },
     });
 </script>
 </html>

@@ -30,6 +30,7 @@
             border-bottom: 1px solid #e5e5e5;
             cursor: move;
         }
+
         :host.selected #header {
             background: var(--database-schema-selected-background, --paper-deep-purple-900);
             color: var(--database-schema-selected-color, white);
@@ -44,21 +45,26 @@
             visibility: hidden;
             position: absolute;
         }
+
         :host.selected paper-fab {
             visibility: visible;
         }
+
         paper-fab[icon="arrow-back"] {
             left: -20px;
             top: -20px;
         }
+
         paper-fab[icon="arrow-upward"] {
             right: -20px;
             top: -20px;
         }
+
         paper-fab[icon="arrow-forward"] {
             right: -20px;
             bottom: -20px;
         }
+
         paper-fab[icon="arrow-downward"] {
             left: -20px;
             bottom: -20px;
@@ -158,8 +164,6 @@
         _handleHeaderTrack: function (e) {
             switch (e.detail.state) {
                 case 'start':
-//                    this._beforeTrackSelected = this.isSelected();
-//                    this.select();
                     this.style.pointerEvents = 'none';
                     this._track = {
                         x: this.translate.x,
@@ -195,14 +199,14 @@
                     this.refresh();
                     this.refreshMinimap();
                     this.refreshMinimapZoom();
-                    //todo
-                    //this.fireUpdateConstraint();
+
+                    this.fireUpdateSchema();
                     break;
             }
         },
 
         _onTap: function () {
-            Array.prototype.slice.call(document.querySelectorAll('database-constraint-line')).forEach(function(databaseConstraintLine) {
+            Array.prototype.slice.call(document.querySelectorAll('database-constraint-line')).forEach(function (databaseConstraintLine) {
                 databaseConstraintLine.deselect();
             });
         },
@@ -211,7 +215,7 @@
                 this._onTap();
             }
         },
-        _handleTrack: function(e) {
+        _handleTrack: function (e) {
             if (e.target === this) {
                 this.visualizer.track(e);
             }
@@ -254,8 +258,8 @@
                     break;
                 case 'end':
                     this.style.pointerEvents = '';
-                    //todo
-                    //this.fireUpdateConstraint();
+
+                    this.fireUpdateSchemaWithTables();
                     break;
             }
 
@@ -374,24 +378,24 @@
         },
 
         refresh() {
-            this.getTables().forEach(function(table) {
+            this.getTables().forEach(function (table) {
                 table.refresh();
             });
         },
 
         _trackStart() {
-            this.getTables().forEach(function(table) {
-                table._constraints.forEach(function(constraint) {
-                    constraint._points.forEach(function(point) {
+            this.getTables().forEach(function (table) {
+                table._constraints.forEach(function (constraint) {
+                    constraint._points.forEach(function (point) {
                         point.trackStartSchema();
                     });
                 });
             });
         },
         _tracking(trackPoint) {
-            this.getTables().forEach(function(table) {
-                table._constraints.forEach(function(constraint) {
-                    constraint._points.forEach(function(point) {
+            this.getTables().forEach(function (table) {
+                table._constraints.forEach(function (constraint) {
+                    constraint._points.forEach(function (point) {
                         point.trackSchema(trackPoint);
                     });
                 });
@@ -435,12 +439,12 @@
         },
 
         fireUpdateSchema() {
-            this.visualizer.fireUpdateSchema(this.schema.id, this._left, this._top, this._width, this._height);
+            this.visualizer.fireUpdateSchema(this.schema.id, this.translate.x, this.translate.y, this.width, this.height);
         },
 
         fireUpdateSchemaWithTables() {
             this.fireUpdateSchema();
-            this.getTables().forEach(function(table) {
+            this.getTables().forEach(function (table) {
                 table.fireUpdateTable();
             });
         },
@@ -452,20 +456,13 @@
         attached: function () {
             this.visualizer = document.querySelector('database-visualizer-database');
 
-            this._left = this.schema.left;
-            this._top = this.schema.top;
-            this._width = this.schema.width;
-            this._height = this.schema.height;
+            this.width = this.schema.width;
+            this.height = this.schema.height + this.getHeaderHeight();
 
-            this.async(function () {
-                this.width = this._width;
-                this.height = this._height + this.$.header.offsetHeight;
-
-                this.translate = {
-                    x: this._left,
-                    y: this._top
-                };
-            });
+            this.translate = {
+                x: this.schema.left,
+                y: this.schema.top
+            };
         },
         getPosition() {
             return {

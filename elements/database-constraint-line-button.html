@@ -86,6 +86,7 @@
         },
         _onDblTap: function () {
             this._remove();
+            this._fireUpdateConstraint();
         },
 
         _handleTap: function (e) {
@@ -131,8 +132,8 @@
                     };
                     this._trackEnd();
                     this._refresh();
-                    //todo
-                    //this.fireUpdateConstraint();
+
+                    this._fireUpdateConstraint();
                     break;
             }
         },
@@ -161,6 +162,10 @@
         },
         _trackEnd() {
             Polymer.dom(this).getOwnerRoot().host.trackEnd();
+        },
+
+        _fireUpdateConstraint() {
+            Polymer.dom(this).getOwnerRoot().host.fireUpdateConstraint();
         },
 
         trackStartSchema() {
