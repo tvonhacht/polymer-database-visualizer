@@ -18,8 +18,8 @@
             visibility: hidden;
         }
 
-        :host.selected-constraint database-constraint-line-button,
-        :host.selected-constraint database-constraint-line-connect {
+        :host.selected database-constraint-line-button,
+        :host.selected database-constraint-line-connect {
             visibility: visible;
         }
 
@@ -32,7 +32,7 @@
             position: absolute;
         }
 
-        :host.highlight > svg,
+        :host.highlighted > svg,
         :host.selected-constraint > svg {
             z-index: 1;
         }
@@ -46,11 +46,11 @@
             stroke-width: 2px;
         }
 
-        :host.selected-constraint > svg path.line {
+        :host.selected > svg path.line {
             stroke: var(--database-constraint-line-selected-stroke, --light-accent-color);
         }
 
-        :host.highlight > svg path.line {
+        :host.highlighted > svg path.line {
             stroke: var(--database-constraint-line-highlighted-stroke, --light-accent-color);
             stroke-width: 4;
         }
@@ -113,7 +113,7 @@
         },
         _observerSelected(selected) {
             if (selected) {
-                this.classList.add('selected-constraint');
+                this.classList.add('selected');
 
                 Array.prototype.slice.call(document.querySelectorAll('database-constraint-line')).forEach(function (databaseConstraintLine) {
                     if (this !== databaseConstraintLine) {
@@ -121,34 +121,34 @@
                     }
                 }, this);
             } else {
-                this.classList.remove('selected-constraint');
+                this.classList.remove('selected');
             }
         },
         _observerHighlighted(highlighted) {
             if (highlighted) {
-                this.classList.add('highlight');
+                this.classList.add('highlighted');
 
                 if (typeof this._table !== 'undefined' && typeof this._table.columns !== 'undefined') {
                     this._table.columns.forEach(function (column) {
-                        column.classList.add('highlight');
+                        column.classList.add('highlighted');
                     });
                 }
                 if (typeof this._rTable !== 'undefined' && typeof this._rTable.columns !== 'undefined') {
                     this._rTable.columns.forEach(function (column) {
-                        column.classList.add('highlight');
+                        column.classList.add('highlighted');
                     });
                 }
             } else {
-                this.classList.remove('highlight');
+                this.classList.remove('highlighted');
 
                 if (typeof this._table !== 'undefined' && typeof this._table.columns !== 'undefined') {
                     this._table.columns.forEach(function (column) {
-                        column.classList.remove('highlight');
+                        column.classList.remove('highlighted');
                     });
                 }
                 if (typeof this._rTable !== 'undefined' && typeof this._rTable.columns !== 'undefined') {
                     this._rTable.columns.forEach(function (column) {
-                        column.classList.remove('highlight');
+                        column.classList.remove('highlighted');
                     });
                 }
             }
