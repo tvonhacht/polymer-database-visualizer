@@ -168,7 +168,9 @@
                             y: table.translate.y
                         };
                     });
-//                    this._trackStart();
+
+                    this._calcTrack(e);
+                    this.refresh();
                     break;
                 case 'track':
                     this._calcTrack(e);
@@ -180,7 +182,7 @@
                     if (!this._beforeTrackSelected) {
                         this.deselect();
                     }
-//                    this._trackEnd();
+
                     this.refresh();
                     this.refreshMinimap();
                     this.refreshMinimapZoom();

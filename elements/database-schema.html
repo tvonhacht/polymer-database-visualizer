@@ -170,6 +170,19 @@
                         y: this.translate.y
                     };
                     this._trackStart();
+                    this.translate = {
+                        x: this._track.x + e.detail.dx / this.getScale(),
+                        y: this._track.y + e.detail.dy / this.getScale()
+                    };
+
+                    this._tracking({
+                        x: e.detail.dx / this.getScale(),
+                        y: e.detail.dy / this.getScale()
+                    });
+
+                    this.refresh();
+                    this.refreshMinimap();
+                    this.refreshMinimapZoom();
                     break;
                 case 'track':
                     this.translate = {
@@ -181,6 +194,7 @@
                         x: e.detail.dx / this.getScale(),
                         y: e.detail.dy / this.getScale()
                     });
+
                     this.refresh();
                     this.refreshMinimap();
                     this.refreshMinimapZoom();
@@ -196,6 +210,7 @@
                         x: e.detail.dx / this.getScale(),
                         y: e.detail.dy / this.getScale()
                     });
+
                     this.refresh();
                     this.refreshMinimap();
                     this.refreshMinimapZoom();
