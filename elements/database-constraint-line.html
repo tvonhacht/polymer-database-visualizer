@@ -62,8 +62,8 @@
 
     </style>
     <template>
-        <database-constraint-line-connect id="connect"></database-constraint-line-connect>
-        <database-constraint-line-connect id="rconnect"></database-constraint-line-connect>
+        <database-constraint-line-connect id="connect" left="{{constraint.isConnectedLeft}}"></database-constraint-line-connect>
+        <database-constraint-line-connect id="rconnect" left="{{constraint.isConnectedLeftRef}}"></database-constraint-line-connect>
         <svg class="path-svg">
             <path class="transparent-outline" d=""></path>
             <path class="line" d=""></path>
@@ -205,10 +205,10 @@
         },
 
         refreshConnector() {
-            if (this._points.length === 0) {
-                this.$.connect.set = false;
-                this.$.rconnect.set = false;
-            }
+//            if (this._points.length === 0) {
+//                this.$.connect.set = false;
+//                this.$.rconnect.set = false;
+//            }
         },
         refresh() {
             /** save rTable **/
@@ -221,21 +221,31 @@
             let rTablePos = this._rTable.table.getPosition();
 
 
-            if (!this.$.connect.set && !this.$.rconnect.set) {
+            if (!this.$.connect.set) {
                 /** table <-> rTable **/
                 if (tablePos.left < rTablePos.left) {
                     this.$.connect.left = false;
-                    this.$.rconnect.left = true;
                 }
                 /** rTable <-> table **/
                 else {
                     this.$.connect.left = true;
+                }
+            }
+
+            if (!this.$.rconnect.set) {
+                /** table <-> rTable **/
+                if (tablePos.left < rTablePos.left) {
+                    this.$.rconnect.left = true;
+                }
+                /** rTable <-> table **/
+                else {
                     this.$.rconnect.left = false;
                 }
 
-                this.$.connect.set = true;
-                this.$.rconnect.set = true;
+                this.fireUpdateConstraint();
+            }
 
+            if (!this.$.connect.set || !this.$.rconnect.set) {
                 this.fireUpdateConstraint();
             }
 

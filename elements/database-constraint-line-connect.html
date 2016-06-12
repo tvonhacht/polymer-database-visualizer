@@ -41,7 +41,7 @@
             },
             left: {
                 type: Boolean,
-                value: true,
+                value: null,
                 observer: '_observerLeft'
             },
             translate: {
@@ -85,7 +85,12 @@
             this._updatePos();
         },
 
-        _observerLeft() {
+        _observerLeft(left) {
+            console.log("this.left: " + left);
+            if (left === null) {
+                this.set = false;
+                this.left = true;
+            }
             this._updatePos();
         },
 
@@ -116,7 +121,6 @@
         },
 
         _handleTap() {
-            this.set = true;
             this.left = !this.left;
             this._refreshPath();
             this._fireUpdateConstraint();
