@@ -121,6 +121,7 @@
         },
 
         _handleTap() {
+            this.set = true;
             this.left = !this.left;
             this._refreshPath();
             this._fireUpdateConstraint();
