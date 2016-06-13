@@ -37,22 +37,22 @@ Example:
         paper-tabs {
             --paper-tabs-selection-bar-color: var(--database-menu-selection-bar-color, --accent-color);
 
-            background: var(--database-menu-bar-background, --primary-color);
+            background: var(--database-menu-bar-background, --dark-primary-color);
             color: var(--database-menu-bar-color, white);
-        }
-
-        div.paper-header {
-            @apply(--layout-horizontal);
-        }
-
-        paper-input {
-            --paper-input-container-focus-color: var(--database-menu-search-focus-color, --accent-color);
-            padding-left: 10px;
-            padding-right: 10px;
         }
 
         paper-tab {
             --paper-tab-ink: var(--database-menu-bar-ripple-color, --accent-color);
+        }
+
+        paper-input {
+            --paper-input-container-focus-color: var(--database-menu-search-focus-color, --light-primary-color);
+            padding-left: 10px;
+            padding-right: 10px;
+            background: var(--database-menu-bar-background, --primary-color);
+            --paper-input-container-color: var(--database-menu-search-focus-color, --light-primary-color);
+            --paper-input-container-input-color: var(--database-menu-search-focus-color, white);
+            color: white;
         }
 
         paper-spinner-lite {
@@ -72,6 +72,7 @@ Example:
     <template>
         <paper-tabs selected="{{selected}}">
             <paper-tab>Schemas</paper-tab>
+            <paper-tab>Setups</paper-tab>
         </paper-tabs>
 
         <iron-pages selected="{{selected}}">
@@ -82,6 +83,18 @@ Example:
                 </paper-input>
                 <div class="content">
                     <paper-spinner-lite id="spinner" active></paper-spinner-lite>
+                    <template is="dom-repeat" items="{{schemas}}" filter="{{_filter(searchTermSchemas)}}">
+                        <paper-item on-tap="_schemaSelected" schemaid$="{{item.id}}">{{item.name}}</paper-item>
+                    </template>
+                </div>
+            </paper-header-panel>
+            <paper-header-panel id="setup">
+                <paper-input class="paper-header" label="search"
+                             value="{{searchTermSchemas::input}}">
+                    <iron-icon icon="icons:search" suffix></iron-icon>
+                </paper-input>
+                <div class="content">
+                    <paper-spinner-lite id="spinner2" active></paper-spinner-lite>
                     <template is="dom-repeat" items="{{schemas}}" filter="{{_filter(searchTermSchemas)}}">
                         <paper-item on-tap="_schemaSelected" schemaid$="{{item.id}}">{{item.name}}</paper-item>
                     </template>

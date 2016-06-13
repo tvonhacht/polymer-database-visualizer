@@ -3,6 +3,7 @@
 <head>
     <link href="database-column.html" rel="import">
     <link href="database-constraint.html" rel="import">
+    <!--<link rel="import" href="../../paper-progress/paper-progress.html">-->
     <!-- Element Imports -->
 </head>
 
@@ -31,7 +32,7 @@
         }
 
         #header {
-            background: var(--database-table-background, --paper-indigo-500);
+            background: var(--database-table-background, --primary-color);
             color: var(--database-table-color, white);
             padding: 10px 24px;
             line-height: 56px;
@@ -41,7 +42,7 @@
             cursor: move;
         }
         :host.selected #header {
-            background: var(--database-table-selected-background, --paper-indigo-900);
+            background: var(--database-table-selected-background, --light-accent-color);
             color: var(--database-table-selected-color, white);
         }
 
@@ -59,6 +60,7 @@
 
         <div id="header" class$="database-visualizer-div-header">
             <h3>{{table.name}}</h3>
+            <!--<paper-progress class="middle fit" value="60"></paper-progress>-->
         </div>
         <div id="body" class="database-visualizer-div-body">
             <template is="dom-repeat" items="{{table.columns}}">
