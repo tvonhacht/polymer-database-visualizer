@@ -141,7 +141,7 @@ Example:
 
             document.querySelector('paper-drawer-panel').closeDrawer();
 
-            let schemaid = e.currentTarget.getAttribute('schemaid');
+            var schemaid = e.currentTarget.getAttribute('schemaid');
             this.fire('schemaSelected', {schemaid});
         },
 

@@ -71,7 +71,7 @@
         },
 
         attached: function () {
-            let table = document.querySelector('#' + this.schemaname + "_" + this.tablename);
+            var table = document.querySelector('#' + this.schemaname + "_" + this.tablename);
             table.registerColumn(this);
         }
     });

@@ -217,8 +217,8 @@
                 this._rTable.table.registerConstraint(this);
             }
 
-            let tablePos = this._table.table.getPosition();
-            let rTablePos = this._rTable.table.getPosition();
+            var tablePos = this._table.table.getPosition();
+            var rTablePos = this._rTable.table.getPosition();
 
 
             if (!this.$.connect.set) {
@@ -259,19 +259,19 @@
                 }
             }, this);
 
-            let tablePos = this._table.table.getPosition();
-            let rTablePos = this._rTable.table.getPosition();
+            var tablePos = this._table.table.getPosition();
+            var rTablePos = this._rTable.table.getPosition();
 
             this.$.connect.tablePos = tablePos;
             this.$.rconnect.tablePos = rTablePos;
 
             // TODO calculate each time individual?!
-            let diffX = this._table.column_height * 8 / 3;
-            let diffY = this._table.column_height * 4 / 5;
-            let diffBroomX = this._table.column_height * 5 / 3;
+            var diffX = this._table.column_height * 8 / 3;
+            var diffY = this._table.column_height * 4 / 5;
+            var diffBroomX = this._table.column_height * 5 / 3;
 
-            let pathRPos;
-            let d;
+            var pathRPos;
+            var d;
             if (this.$.rconnect.left) {
                 pathRPos = this._getRTablePathRPosRight(rTablePos, diffX);
                 d = this._getRTableDRight(pathRPos, rTablePos, diffY, diffBroomX);
@@ -280,9 +280,9 @@
                 d = this._getRTableDLeft(pathRPos, rTablePos, diffY, diffBroomX);
             }
 
-            let lastPoint = pathRPos;
+            var lastPoint = pathRPos;
             this._points.forEach(function (point) {
-                let p = {
+                var p = {
                     x: point.translate.x,
                     y: point.translate.y
                 };
@@ -293,7 +293,7 @@
                 lastPoint = p;
             }, this);
 
-            let pathPos;
+            var pathPos;
             if (this.$.connect.left) {
                 pathPos = this._getTablePathPosRight(tablePos, diffX);
                 d = d + this._getTableDRight(pathPos, tablePos);
@@ -347,7 +347,7 @@
             };
         },
         _getRTableDRight(pathRPos, rTablePos, diffY, diffBroomX) {
-            let d = "M " + (rTablePos.left) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height + diffY);
+            var d = "M " + (rTablePos.left) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height + diffY);
             d = d + " L " + (rTablePos.left - 1) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height + diffY);
             d = d + " L " + (rTablePos.left - diffBroomX) + " " + (rTablePos.top + this._rTable.column_pos.top + this._table.column_height);
             d = d + " L " + (rTablePos.left - 1) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height - diffY);
@@ -359,7 +359,7 @@
             return d;
         },
         _getRTableDLeft(pathRPos, rTablePos, diffY, diffBroomX) {
-            let d = "M " + (rTablePos.left + rTablePos.width) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height + diffY);
+            var d = "M " + (rTablePos.left + rTablePos.width) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height + diffY);
             d = d + " L " + (rTablePos.left + rTablePos.width + 1) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height + diffY);
             d = d + " L " + (rTablePos.left + rTablePos.width + diffBroomX) + " " + (rTablePos.top + this._rTable.column_pos.top + this._table.column_height);
             d = d + " L " + (rTablePos.left + rTablePos.width + 1) + " " + (rTablePos.top + this._rTable.column_pos.top + this._rTable.column_height - diffY);
@@ -371,23 +371,23 @@
             return d;
         },
         _getTableDLeft(pathPos, tablePos) {
-            let d = " L " + pathPos.x + " " + pathPos.y;
+            var d = " L " + pathPos.x + " " + pathPos.y;
             d = d + " L " + (tablePos.left + tablePos.width) + " " + (tablePos.top + this._table.column_pos.top + this._table.column_height);
             return d;
         },
         _getTableDRight(pathPos, tablePos) {
-            let d = " L " + pathPos.x + " " + pathPos.y;
+            var d = " L " + pathPos.x + " " + pathPos.y;
             d = d + " L " + (tablePos.left) + " " + (tablePos.top + this._table.column_pos.top + this._table.column_height);
             return d;
         },
 
         _drawMiddlePoint(point1, point2, index) {
-            let point = {
+            var point = {
                 x: (point1.x + (point2.x - point1.x) / 2),
                 y: (point1.y + (point2.y - point1.y) / 2)
             };
 
-            let databaseConstraintLineButton = document.createElement('database-constraint-line-button');
+            var databaseConstraintLineButton = document.createElement('database-constraint-line-button');
             databaseConstraintLineButton.translate = {
                 x: point.x,
                 y: point.y
@@ -397,7 +397,7 @@
             Polymer.dom(this.root).appendChild(databaseConstraintLineButton);
         },
         _drawPoint(point) {
-            let databaseConstraintLineButton = document.createElement('database-constraint-line-button');
+            var databaseConstraintLineButton = document.createElement('database-constraint-line-button');
             databaseConstraintLineButton.translate = {
                 x: point.x,
                 y: point.y
@@ -409,7 +409,7 @@
         },
 
         removePoint(point) {
-            let index = this._points.indexOf(point);
+            var index = this._points.indexOf(point);
 
             if (index > -1) {
                 this._points.splice(index, 1);
@@ -440,14 +440,14 @@
         registerColumn(columns) {
             columns.forEach(function (column) {
                 this.constraint.columns.forEach(function (constraintColumn) {
-                    let id = this.constraint.schema + "_" + this.constraint.table + "_" + constraintColumn;
+                    var id = this.constraint.schema + "_" + this.constraint.table + "_" + constraintColumn;
                     if (id === column.id) {
                         this._table.columns.push(column);
                     }
                 }, this);
 
                 this.constraint.rcolumns.forEach(function (rConstraintColumn) {
-                    let id = this.constraint.rschema + "_" + this.constraint.rtable + "_" + rConstraintColumn;
+                    var id = this.constraint.rschema + "_" + this.constraint.rtable + "_" + rConstraintColumn;
                     if (id === column.id) {
                         this._rTable.columns.push(column);
                     }
@@ -476,7 +476,7 @@
         },
 
         fireUpdateConstraint() {
-            let positions = [];
+            var positions = [];
             this._points.forEach(function (point) {
                 positions.push({
                     x: point.translate.x,

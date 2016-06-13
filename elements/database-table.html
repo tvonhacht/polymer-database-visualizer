@@ -193,14 +193,14 @@
         },
 
         _calcTrack: function (e) {
-            let tableX = this._track.x + e.detail.dx / this.getScale();
-            let tablesMoveX = 0;
-            let tableY = this._track.y + e.detail.dy / this.getScale();
-            let tablesMoveY = 0;
-            let schemaX = this.getSchema()._track.x;
-            let schemaY = this.getSchema()._track.y;
-            let width = null;
-            let height = null;
+            var tableX = this._track.x + e.detail.dx / this.getScale();
+            var tablesMoveX = 0;
+            var tableY = this._track.y + e.detail.dy / this.getScale();
+            var tablesMoveY = 0;
+            var schemaX = this.getSchema()._track.x;
+            var schemaY = this.getSchema()._track.y;
+            var width = null;
+            var height = null;
 
             if (tableX < 0) {
                 schemaX += tableX;
@@ -295,7 +295,7 @@
         },
 
         getPosition() {
-            let parent = this.getSchema().getPosition();
+            var parent = this.getSchema().getPosition();
             //TODO remove?!
             return {
                 left: this.translate.x + parseInt(parent.left, 10),

@@ -285,10 +285,10 @@
         },
         _resizing(direction, e) {
 
-            let left = e.detail.dx / this.getScale();
-            let top = e.detail.dy / this.getScale();
-            let right = 0;
-            let bottom = 0;
+            var left = e.detail.dx / this.getScale();
+            var top = e.detail.dy / this.getScale();
+            var right = 0;
+            var bottom = 0;
 
             this.tables.forEach(function (table) {
                 left = left > table._track.x ? table._track.x : left;
@@ -297,10 +297,10 @@
                 bottom = bottom < table._track.y + table.offsetHeight + this.getHeaderHeight() ? table._track.y + table.offsetHeight + this.getHeaderHeight() : bottom;
             }, this);
 
-            let width = this._resize.width;
-            let height = this._resize.height;
-            let x = this._track.x;
-            let y = this._track.y;
+            var width = this._resize.width;
+            var height = this._resize.height;
+            var x = this._track.x;
+            var y = this._track.y;
             if (direction.indexOf("n") >= 0) {
                 height -= top;
                 y += top;
@@ -322,8 +322,8 @@
             };
 
             this.tables.forEach(function (table) {
-                let x = table._track.x;
-                let y = table._track.y;
+                var x = table._track.x;
+                var y = table._track.y;
                 if (direction.indexOf("n") >= 0) {
                     y -= top;
                 }

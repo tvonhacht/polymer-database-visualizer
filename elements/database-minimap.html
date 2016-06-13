@@ -170,11 +170,11 @@ Example:
         },
 
         refreshMinimapZoom() {
-            let mostLeft = null;
-            let mostTop = null;
+            var mostLeft = null;
+            var mostTop = null;
 
             this.getSchemas().forEach(function(schema) {
-                let rect = schema.getBoundingClientRect();
+                var rect = schema.getBoundingClientRect();
 
                 if (mostLeft === null || mostLeft > rect.left) {
                     mostLeft = rect.left;
@@ -185,8 +185,8 @@ Example:
             });
 
             // TODO fix for width > height
-            let ratio = this.visualizer.offsetHeight / this.visualizer.offsetWidth;
-            let topHalf = (this.getMinimapWidth() - this.getMinimapHeight()) / 2;
+            var ratio = this.visualizer.offsetHeight / this.visualizer.offsetWidth;
+            var topHalf = (this.getMinimapWidth() - this.getMinimapHeight()) / 2;
 
             this.width = 150 * this.visualizer.offsetWidth / this.getMinimapWidth() / this.getScale();
             this.height = 150 * this.visualizer.offsetWidth / this.getMinimapWidth() / this.getScale() * ratio;
@@ -202,10 +202,10 @@ Example:
                schema.remove();
             });
 
-            let mostLeft = null;
-            let mostRight = null;
-            let mostTop = null;
-            let mostBottom = null;
+            var mostLeft = null;
+            var mostRight = null;
+            var mostTop = null;
+            var mostBottom = null;
             this.getSchemas().forEach(function(schema) {
                 if (mostLeft === null || mostLeft > schema.getLeft()) {
                     mostLeft = schema.getLeft();
@@ -226,26 +226,26 @@ Example:
             this.setMinimapWidth(Math.abs(mostRight - mostLeft));
             this.setMinimapHeight(Math.abs(mostBottom - mostTop));
 
-            let ratio = this.getMinimapWidth() / 150;
+            var ratio = this.getMinimapWidth() / 150;
 
-            let paddingTop = (150 - this.getMinimapHeight() / ratio) / 2;
+            var paddingTop = (150 - this.getMinimapHeight() / ratio) / 2;
 
             this.getSchemas().forEach(function(schema) {
-                let schemaDiv = document.createElement('div');
+                var schemaDiv = document.createElement('div');
                 schemaDiv.classList.add('schema');
                 schemaDiv.classList.add('database-minimap');
-                let left = (schema.getLeft() - mostLeft) / ratio;
-                let top = (schema.getTop() - mostTop) / ratio + paddingTop;
+                var left = (schema.getLeft() - mostLeft) / ratio;
+                var top = (schema.getTop() - mostTop) / ratio + paddingTop;
                 this.translate3d(left + 'px', top + 'px', '0px', schemaDiv);
                 schemaDiv.style.width = schema.getWidth() / ratio;
                 schemaDiv.style.height = schema.getHeight() / ratio;
 
                 schema.getTables().forEach(function(table) {
-                    let tableDiv = document.createElement('div');
+                    var tableDiv = document.createElement('div');
                     tableDiv.classList.add('table');
                     tableDiv.classList.add('database-minimap');
-                    let left = table.translate.x / ratio;
-                    let top = table.translate.y / ratio + schema.getHeaderHeight() / ratio;
+                    var left = table.translate.x / ratio;
+                    var top = table.translate.y / ratio + schema.getHeaderHeight() / ratio;
                     this.translate3d(left + 'px', top + 'px', '0px', tableDiv);
                     tableDiv.style.width = table.offsetWidth / ratio;
                     tableDiv.style.height = table.offsetHeight / ratio;

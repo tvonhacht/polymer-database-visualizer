@@ -169,11 +169,11 @@ Example:
             }
         },
         scaleTranslate3d: function () {
-            let scale = this.getScale();
-            let x = this.translate.x + 'px';
-            let y = this.translate.y + 'px';
-            let z = '0px';
-            let node = this.$.canvas;
+            var scale = this.getScale();
+            var x = this.translate.x + 'px';
+            var y = this.translate.y + 'px';
+            var z = '0px';
+            var node = this.$.canvas;
             this.transform('scale(' + scale + ')' + 'translate3d(' + x + ',' + y + ',' + z + ')', node);
         },
 
@@ -184,7 +184,7 @@ Example:
             this.scaleTranslate3d();
         },
         _observerTransformOrigin(transformOrigin) {
-            let node = this.$.canvas;
+            var node = this.$.canvas;
             node.style.transformOrigin = transformOrigin.x + 'px ' + transformOrigin.y + 'px';
         },
 
@@ -208,13 +208,13 @@ Example:
         _handleMousewheel: function (e) {
             // cross-browser wheel delta
             e = window.event || e; // old IE support
-            let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+            var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
 
             e.preventDefault();
 
             if (delta !== 0) {
                 // find current location on screen
-                let screen = {
+                var screen = {
                     x: event.pageX - this.offsetLeft,
                     y: event.pageY - this.offsetTop
                 };
@@ -226,8 +226,8 @@ Example:
                 };
 
                 // determine the new scale
-                let rate = 30;
-                let scale = this.getScale() * (1 + delta / rate);
+                var rate = 30;
+                var scale = this.getScale() * (1 + delta / rate);
                 if (scale < 0.05) {
                     scale = 0.05;
                 } else if (scale > 3) {
@@ -321,12 +321,12 @@ Example:
             this.getSchemas().push(schema);
 
             if (this.database.schemas.length === this.getSchemas().length) {
-                let mostLeft = null;
-                let mostRight = null;
-                let mostTop = null;
-                let mostBottom = null;
-                let mostLeftOffset = null;
-                let mostTopOffset = null;
+                var mostLeft = null;
+                var mostRight = null;
+                var mostTop = null;
+                var mostBottom = null;
+                var mostLeftOffset = null;
+                var mostTopOffset = null;
                 this.getSchemas().forEach(function (schema) {
                     if (mostLeft === null || mostLeft > schema.getLeft()) {
                         mostLeft = schema.getLeft();
@@ -347,10 +347,10 @@ Example:
                         mostTopOffset = schema.translate.y;
                     }
                 });
-                let width = mostRight - mostLeft;
-                let height = mostBottom - mostTop;
-                let widthRatio = this.offsetWidth / width - 0.05;
-                let heightRatio = this.offsetHeight / height - 0.05;
+                var width = mostRight - mostLeft;
+                var height = mostBottom - mostTop;
+                var widthRatio = this.offsetWidth / width - 0.05;
+                var heightRatio = this.offsetHeight / height - 0.05;
 
                 this.setScale(widthRatio < heightRatio ? widthRatio : heightRatio);
 
