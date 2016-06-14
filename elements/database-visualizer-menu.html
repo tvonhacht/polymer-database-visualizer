@@ -72,7 +72,6 @@ Example:
     <template>
         <paper-tabs selected="{{selected}}">
             <paper-tab>Schemas</paper-tab>
-            <paper-tab>Setups</paper-tab>
         </paper-tabs>
 
         <iron-pages selected="{{selected}}">
@@ -83,18 +82,6 @@ Example:
                 </paper-input>
                 <div class="content">
                     <paper-spinner-lite id="spinner" active></paper-spinner-lite>
-                    <template is="dom-repeat" items="{{schemas}}" filter="{{_filter(searchTermSchemas)}}">
-                        <paper-item on-tap="_schemaSelected" schemaid$="{{item.id}}">{{item.name}}</paper-item>
-                    </template>
-                </div>
-            </paper-header-panel>
-            <paper-header-panel id="setup">
-                <paper-input class="paper-header" label="search"
-                             value="{{searchTermSchemas::input}}">
-                    <iron-icon icon="icons:search" suffix></iron-icon>
-                </paper-input>
-                <div class="content">
-                    <paper-spinner-lite id="spinner2" active></paper-spinner-lite>
                     <template is="dom-repeat" items="{{schemas}}" filter="{{_filter(searchTermSchemas)}}">
                         <paper-item on-tap="_schemaSelected" schemaid$="{{item.id}}">{{item.name}}</paper-item>
                     </template>
