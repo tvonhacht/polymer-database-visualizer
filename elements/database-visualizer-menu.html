@@ -148,9 +148,9 @@ Example:
             }
         },
         _schemaSelected(e) {
-            document.querySelector('database-visualizer').database = '';
+            document.querySelector('database-visualizer-app').database = '';
             document.querySelector('database-minimap').classList.add('hidden');
-            document.querySelector('database-visualizer-database #loading').classList.remove('hidden');
+            document.querySelector('database-visualizer #loading').classList.remove('hidden');
 
             document.querySelector('paper-drawer-panel').closeDrawer();
 
