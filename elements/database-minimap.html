@@ -237,8 +237,8 @@ Example:
                 var left = (schema.getLeft() - mostLeft) / ratio;
                 var top = (schema.getTop() - mostTop) / ratio + paddingTop;
                 this.translate3d(left + 'px', top + 'px', '0px', schemaDiv);
-                schemaDiv.style.width = schema.getWidth() / ratio;
-                schemaDiv.style.height = schema.getHeight() / ratio;
+                schemaDiv.style.width = (schema.getWidth() / ratio) + "px";
+                schemaDiv.style.height = (schema.getHeight() / ratio) + "px";
 
                 schema.getTables().forEach(function(table) {
                     var tableDiv = document.createElement('div');
@@ -247,8 +247,8 @@ Example:
                     var left = table.translate.x / ratio;
                     var top = table.translate.y / ratio + schema.getHeaderHeight() / ratio;
                     this.translate3d(left + 'px', top + 'px', '0px', tableDiv);
-                    tableDiv.style.width = table.offsetWidth / ratio;
-                    tableDiv.style.height = table.offsetHeight / ratio;
+                    tableDiv.style.width = (table.offsetWidth / ratio) + "px";
+                    tableDiv.style.height = (table.offsetHeight / ratio) + "px";
                     schemaDiv.appendChild(tableDiv);
                 }, this);
 
