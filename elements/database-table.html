@@ -187,7 +187,6 @@
 
                     this.refresh();
                     this.refreshMinimap();
-                    this.refreshMinimapZoom();
 
                     this.fireUpdateTable();
                     break;
@@ -308,7 +307,11 @@
         },
 
         fireUpdateTable() {
-            this.getSchema().visualizer.fireUpdateTable(this.table.id, this.translate.x, this.translate.y);
+            this.fire('update-table', {
+                dvTableId: this.table.id,
+                left: this.translate.x,
+                top: this.translate.y
+            });
         },
 
         ready: function () {
@@ -333,9 +336,6 @@
         },
         refreshMinimap() {
             this.getSchema().refreshMinimap();
-        },
-        refreshMinimapZoom() {
-            this.getSchema().refreshMinimapZoom();
         },
 
         registerColumn(column) {

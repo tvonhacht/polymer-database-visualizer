@@ -104,10 +104,10 @@ Example:
                     this.style.pointerEvents = 'none';
 
                     this.visualizer._track = {
-                        x: this.visualizer.translate.x,
-                        y: this.visualizer.translate.y
+                        x: this.visualizer._translate.x,
+                        y: this.visualizer._translate.y
                     };
-                    this.visualizer.translate = {
+                    this.visualizer._translate = {
                         x: this.visualizer._track.x - e.detail.dx * this.getMinimapWidth() / 150,
                         y: this.visualizer._track.y - e.detail.dy * this.getMinimapWidth() / 150
                     };
@@ -123,7 +123,7 @@ Example:
 
                     break;
                 case 'track':
-                    this.visualizer.translate = {
+                    this.visualizer._translate = {
                         x: this.visualizer._track.x - e.detail.dx * this.getMinimapWidth() / 150,
                         y: this.visualizer._track.y - e.detail.dy * this.getMinimapWidth() / 150
                     };
@@ -137,14 +137,14 @@ Example:
                 case 'end':
                     this.style.pointerEvents = '';
 
-                    this.visualizer.translate = {
+                    this.visualizer._translate = {
                         x: this.visualizer._track.x - e.detail.dx * this.getMinimapWidth() / 150,
                         y: this.visualizer._track.y - e.detail.dy * this.getMinimapWidth() / 150
                     };
 
                     this.visualizer._move = {
-                        x: this.visualizer._move.x + this.visualizer.translate.x - this.visualizer._track.x,
-                        y: this.visualizer._move.y + this.visualizer.translate.y - this.visualizer._track.y
+                        x: this.visualizer._move.x + this.visualizer._translate.x - this.visualizer._track.x,
+                        y: this.visualizer._move.y + this.visualizer._translate.y - this.visualizer._track.y
                     };
 
                     this.translate = {
@@ -169,7 +169,7 @@ Example:
             return this._minimapHeight;
         },
 
-        refreshMinimapZoom() {
+        _refreshMinimapZoom() {
             var mostLeft = null;
             var mostTop = null;
 
@@ -255,13 +255,14 @@ Example:
                 this.appendChild(schemaDiv);
                 this._schemas.push(schemaDiv);
             }, this);
+            this._refreshMinimapZoom();
         },
 
         getSchemas() {
-            return this.visualizer.getSchemas();
+            return this.visualizer._getSchemas();
         },
         getScale() {
-            return this.visualizer.getScale();
+            return this.visualizer._getScale();
         },
 
         // Element Lifecycle

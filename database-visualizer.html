@@ -11,11 +11,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/database-minimap.html">
 
 <!--
-An element providing a solution to no problem in particular.
+An element providing a solution for a visualization of a relational database.
 
 Example:
 
     <database-visualizer></database-visualizer>
+
+### Styling
+
+The following custom properties and mixins are available for styling:
+
+| Custom property | Description | Default |
+| --- | --- | --- |
+| `--database-visualizer-spinner-color` | The color of the spinner color when loading database | `--accent-color` |
+||||
+||||
+||||
+| `table` |||
+| `--database-table-background` | The background color of the table | `--primary-color` |
+| `--database-table-color` | The color of the table | `white` |
+| `--database-table-selected-background` | The background color of the selected table | `--light-accent-color` |
+| `--database-table-selected-color` | The color of the selected table | `white` |
+||||
+||||
+||||
+| `schema` |||
+| `--database-schema-background` | The background color of the schema | `--primary-color` |
+| `--database-schema-color` | The color of the schema | `white` |
+| `--database-schema-selected-background` | The background color of the selected schema | `--light-accent-color` |
+| `--database-schema-selected-color` | The color of the selected schema | `white` |
+| `--database-schema-resize-button-background` | The background color of the resize button of the schema | `--accent-color` |
+||||
+||||
+||||
+| `column` |||
+| `--database-column-higlight-background` | The background color of the highlighted column | `--accent-color` |
+| `--database-column-higlight-color` | The color of the highlighted column | `white` |
+| `--database-column-even-background` | The background color of the even column | `#ECECEC` |
+||||
+||||
+||||
+| `constraint` |||
+| `--database-constraint-hover-background` | The hover background color of the constraint | `--light-accent-color` |
+| `--database-constraint-line-selected-stroke` | The stroke color of the selected constraint | `--light-accent-color` |
+| `--database-constraint-line-highlighted-stroke` | The stroke color of the highlighted constraint | `--accent-color` |
+| `--database-constraint-line-button-move-background` | The background color of the constraint move button | `--accent-color` |
+| `--database-constraint-line-button-add-background` | The background color of the constraint add button | `--light-accent-color` |
+| `--database-constraint-line-connect-background` | The background color of the constraint connect button | `--accent-color` |
 
 @demo
 -->
@@ -37,6 +79,7 @@ Example:
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            
         }
 
         h1 {
@@ -88,7 +131,7 @@ Example:
         }
 
         paper-spinner-lite {
-            --paper-spinner-color: var(--database-visualizer-database-spinner-color, --accent-color);
+            --paper-spinner-color: var(--database-visualizer-spinner-color, --accent-color);
         }
 
     </style>
@@ -110,21 +153,33 @@ Example:
 </dom-module>
 
 <script>
-    // TODO add testing with nightwatch.js (www.nightwatchjs.org)
-    // TODO screenshot gatlin
-
-    // TODO tryout dc/os
-
     Polymer({
 
         is: 'database-visualizer',
+        /**
+         * Fired when `schema` position and/or size is updated.
+         *
+         * @event update-schema
+         */
+
+        /**
+         * Fired when `table` position is updated.
+         *
+         * @event update-table
+         */
+
+        /**
+         * Fired when `constraint` point positions is updated and/or connector was switched.
+         *
+         * @event update-constraint
+         */
         listeners: {
             'tap': '_handleTap',
             'track': '_handleTrack',
             'mousewheel': '_handleMousewheel'
         },
         properties: {
-            translate: {
+            _translate: {
                 type: Object,
                 value: {
                     x: 0,
@@ -132,12 +187,12 @@ Example:
                 },
                 observer: '_observerTranslate'
             },
-            scale: {
+            _scale: {
                 type: Number,
                 value: 1,
                 observer: '_observerScale'
             },
-            transformOrigin: {
+            _transformOrigin: {
                 type: Object,
                 value: {
                     x: 0,
@@ -147,20 +202,13 @@ Example:
             },
             database: {
                 type: Object,
-                notify: true,
                 value: function () {
-                    return {
-                        schemas: [{
-                            name: "schema1",
-                            tables: [{name: "table1"}]
-                        }],
-                        foreignKeys: [{column: "column1"}]
-                    };
+                    return {};
                 },
                 observer: '_observerDatabase'
             },
 
-            schemas: {
+            _schemas: {
                 type: Array,
                 notify: true,
                 value: function () {
@@ -168,20 +216,20 @@ Example:
                 }
             }
         },
-        scaleTranslate3d: function () {
-            var scale = this.getScale();
-            var x = this.translate.x + 'px';
-            var y = this.translate.y + 'px';
+        _scaleTranslate3d: function () {
+            var scale = this._getScale();
+            var x = this._translate.x + 'px';
+            var y = this._translate.y + 'px';
             var z = '0px';
             var node = this.$.canvas;
             this.transform('scale(' + scale + ')' + 'translate3d(' + x + ',' + y + ',' + z + ')', node);
         },
 
         _observerTranslate() {
-            this.scaleTranslate3d();
+            this._scaleTranslate3d();
         },
         _observerScale() {
-            this.scaleTranslate3d();
+            this._scaleTranslate3d();
         },
         _observerTransformOrigin(transformOrigin) {
             var node = this.$.canvas;
@@ -201,7 +249,7 @@ Example:
 
         _handleTrack: function (e) {
             if (e.target === this) {
-                this.track(e);
+                this._onTrack(e);
             }
         },
 
@@ -220,14 +268,14 @@ Example:
                 };
 
                 // find current location on the image at the current scale
-                this.transformOrigin = {
-                    x: this.transformOrigin.x + ((screen.x - this._last.x) / this.getScale()),
-                    y: this.transformOrigin.y + ((screen.y - this._last.y) / this.getScale())
+                this._transformOrigin = {
+                    x: this._transformOrigin.x + ((screen.x - this._last.x) / this._getScale()),
+                    y: this._transformOrigin.y + ((screen.y - this._last.y) / this._getScale())
                 };
 
                 // determine the new scale
                 var rate = 30;
-                var scale = this.getScale() * (1 + delta / rate);
+                var scale = this._getScale() * (1 + delta / rate);
                 if (scale < 0.05) {
                     scale = 0.05;
                 } else if (scale > 3) {
@@ -235,69 +283,69 @@ Example:
                 }
 
                 // determine the location on the screen at the new scale
-                this.translate = {
-                    x: (screen.x - this.transformOrigin.x) / scale + this._move.x,
-                    y: (screen.y - this.transformOrigin.y) / scale + this._move.y
+                this._translate = {
+                    x: (screen.x - this._transformOrigin.x) / scale + this._move.x,
+                    y: (screen.y - this._transformOrigin.y) / scale + this._move.y
                 };
 
-                this.setScale(scale);
+                this._setScale(scale);
 
                 // save the current screen location
                 this._last = screen;
 
-                this.refreshMinimapZoom();
+                this._refreshMinimapZoom();
             }
         },
 
-        track: function (e) {
+        _onTrack: function (e) {
             switch (e.detail.state) {
                 case 'start':
                     this.style.pointerEvents = 'none';
 
                     this._track = {
-                        x: this.translate.x,
-                        y: this.translate.y
+                        x: this._translate.x,
+                        y: this._translate.y
                     };
-                    this.translate = {
-                        x: this._track.x + e.detail.dx / this.getScale(),
-                        y: this._track.y + e.detail.dy / this.getScale()
+                    this._translate = {
+                        x: this._track.x + e.detail.dx / this._getScale(),
+                        y: this._track.y + e.detail.dy / this._getScale()
                     };
                     break;
                 case 'track':
-                    this.translate = {
-                        x: this._track.x + e.detail.dx / this.getScale(),
-                        y: this._track.y + e.detail.dy / this.getScale()
+                    this._translate = {
+                        x: this._track.x + e.detail.dx / this._getScale(),
+                        y: this._track.y + e.detail.dy / this._getScale()
                     };
                     break;
                 case 'end':
                     this.style.pointerEvents = '';
 
-                    this.translate = {
-                        x: this._track.x + e.detail.dx / this.getScale(),
-                        y: this._track.y + e.detail.dy / this.getScale()
+                    this._translate = {
+                        x: this._track.x + e.detail.dx / this._getScale(),
+                        y: this._track.y + e.detail.dy / this._getScale()
                     };
 
                     this._move = {
-                        x: this._move.x + this.translate.x - this._track.x,
-                        y: this._move.y + this.translate.y - this._track.y
+                        x: this._move.x + this._translate.x - this._track.x,
+                        y: this._move.y + this._translate.y - this._track.y
                     };
                     break;
             }
 
-            this.refreshMinimapZoom();
+            this._refreshMinimapZoom();
         },
 
         _observerDatabase() {
-            this.schemas = [];
+            this._schemas = [];
 
-            this.scale = 1;
+            this._scale = 1;
 
             this._move = {
                 x: 0,
                 y: 0
             };
 
-            this.transformOrigin = {
+            this._transformOrigin = {
                 x: 0,
                 y: 0
             };
@@ -314,20 +362,20 @@ Example:
             });
         },
 
-        getSchemas() {
-            return this.schemas;
+        _getSchemas() {
+            return this._schemas;
         },
-        registerSchema(schema) {
-            this.getSchemas().push(schema);
+        _registerSchema(schema) {
+            this._getSchemas().push(schema);
 
-            if (this.database.schemas.length === this.getSchemas().length) {
+            if (this.database.schemas.length === this._getSchemas().length) {
                 var mostLeft = null;
                 var mostRight = null;
                 var mostTop = null;
                 var mostBottom = null;
                 var mostLeftOffset = null;
                 var mostTopOffset = null;
-                this.getSchemas().forEach(function (schema) {
+                this._getSchemas().forEach(function (schema) {
                     if (mostLeft === null || mostLeft > schema.getLeft()) {
                         mostLeft = schema.getLeft();
                     }
@@ -352,87 +400,46 @@ Example:
                 var widthRatio = this.offsetWidth / width - 0.05;
                 var heightRatio = this.offsetHeight / height - 0.05;
 
-                this.setScale(widthRatio < heightRatio ? widthRatio : heightRatio);
+                this._setScale(widthRatio < heightRatio ? widthRatio : heightRatio);
 
-                this.translate = {
-                    x: (this.offsetWidth / this.getScale() - width) / 2 - mostLeftOffset,
-                    y: (this.offsetHeight / this.getScale() - height) / 2 - mostTopOffset
+                this._translate = {
+                    x: (this.offsetWidth / this._getScale() - width) / 2 - mostLeftOffset,
+                    y: (this.offsetHeight / this._getScale() - height) / 2 - mostTopOffset
                 };
 
-                this._move = this.translate;
+                this._move = this._translate;
 
-                this.transformOrigin = {
+                this._transformOrigin = {
                     x: 0,
                     y: 0
                 };
 
-                this.refresh();
-                this.refreshMinimap();
-                this.refreshMinimapZoom();
+                this._refresh();
+                this._refreshMinimap();
                 this.$.loading.classList.add('hidden');
                 this.$.minimap.classList.remove('hidden');
             }
         },
 
-        getScale() {
-            return this.scale;
+        _getScale() {
+            return this._scale;
         },
 
-        setScale(scale) {
-            return this.scale = scale;
+        _setScale(scale) {
+            return this._scale = scale;
         },
 
-        setMinimapWidth(minimapWidth) {
-            this.$.minimap.setMinimapWidth(minimapWidth);
-        },
-        getMinimapWidth() {
-            this.$.minimap.getMinimapWidth();
-        },
-        setMinimapHeight(minimapHeight) {
-            this.$.minimap.setMinimapHeight(minimapHeight);
-        },
-        getMinimapHeight() {
-            this.$.minimap.getMinimapHeight();
+        _refreshMinimapZoom() {
+            this.$.minimap._refreshMinimapZoom();
         },
 
-        refreshMinimapZoom() {
-            this.$.minimap.refreshMinimapZoom();
-        },
-
-        refreshMinimap() {
+        _refreshMinimap() {
             this.$.minimap.refreshMinimap();
         },
 
-        refresh() {
-            this.getSchemas().forEach(function (schema) {
+        _refresh() {
+            this._getSchemas().forEach(function (schema) {
                 schema.refresh();
-            });
-        },
-
-        fireUpdateTable(dvTableId, left, top) {
-            this.fire('updateTable', {
-                dvTableId,
-                left,
-                top
-            });
-        },
-
-        fireUpdateSchema(dvSchemaId, left, top, width, height) {
-            this.fire('updateSchema', {
-                dvSchemaId,
-                left,
-                top,
-                width,
-                height
-            });
-        },
-
-        fireUpdateConstraint(dvConstraintId, isConnectorLeft, isConnectorLeftRef, positions) {
-            this.fire('updateConstraint', {
-                dvConstraintId,
-                isConnectorLeft,
-                isConnectorLeftRef,
-                positions
             });
         },
 

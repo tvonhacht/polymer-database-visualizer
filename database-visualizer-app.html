@@ -15,11 +15,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="elements/database-visualizer-menu.html">
 
 <!--
-An element providing a solution to no problem in particular.
+<!--
+An element providing a solution for a visualization of a relational database with a menu.
 
 Example:
 
-    <database-visualizer></database-visualizer>
+    <database-visualizer-app></database-visualizer-app>
+
+### Styling
+
+The following custom properties and mixins are available for styling:
+
+| Custom property | Description | Default |
+| --- | --- | --- |
+| `menu` |||
+| `--database-menu-bar-background` | The background color of the menu bar | `--dark-primary-color` |
+| `--database-menu-bar-color` | The color of the menu bar | `white` |
+| `--database-menu-selection-bar-color` | The color of the selection bar | `--accent-color` |
+| `--database-menu-search-focus-color` | The focus color of the search input | `--light-primary-color` |
+| `--database-menu-spinner-color` | The color of the spinner color of the menu | `--accent-color` |
+| `--database-menu-bar-ripple-color` | The color of the ripple of the menu bar | `--accent-color` |
+| `--database-menu-button-background` | The background color of the menu button | `--accent-color` |
+| `--database-menu-input-background` | The background color of the menu bar | `--primary-color` |
+| `--database-menu-input-container-input-color` | The input color of the input container | `white` |
+| `--database-menu-input-container-color` | The color of the input container | `--light-primary-color` |
 
 @demo
 -->
@@ -36,7 +55,9 @@ Example:
             /*--database-menu-spinner-color: green;*/
             /*--database-menu-bar-ripple-color: green;*/
 
-            /*--database-visualizer-menu-button-background: green;*/
+            /*--database-menu-input-background: green;*/
+            /*--database-menu-input-container-input-color: green;*/
+            /*--database-menu-input-container-color: green;*/
 
             /*--database-table-background: green;*/
             /*--database-table-color: green;*/
@@ -102,13 +123,17 @@ Example:
         is: 'database-visualizer-app',
 
         properties: {
+            /**
+             * Fired when `schema` is selected.
+             *
+             * @event schema-selected
+             */
             schemas: {
                 type: Array,
                 value: []
             },
             database: {
                 type: Object,
-                notify: true,
                 value: function () {
                     return {};
                 }

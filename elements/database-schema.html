@@ -182,7 +182,6 @@
 
                     this.refresh();
                     this.refreshMinimap();
-                    this.refreshMinimapZoom();
                     break;
                 case 'track':
                     this.translate = {
@@ -197,7 +196,6 @@
 
                     this.refresh();
                     this.refreshMinimap();
-                    this.refreshMinimapZoom();
                     break;
                 case 'end':
                     this.style.pointerEvents = '';
@@ -213,7 +211,6 @@
 
                     this.refresh();
                     this.refreshMinimap();
-                    this.refreshMinimapZoom();
 
                     this.fireUpdateSchema();
                     break;
@@ -249,7 +246,7 @@
             this._handleResizeTrack("sw", e);
         },
         _handleResizeTrack: function (direction, e) {
-
+console.log("state: " + e.detail.state);
             switch (e.detail.state) {
                 case 'start':
                     this.style.pointerEvents = 'none';
@@ -267,21 +264,35 @@
                             x: table.translate.x,
                             y: table.translate.y
                         };
+
+                        table._constraints.forEach(function(constraint) {
+                            constraint._tracking = true;
+                        });
                     });
+
+                    this._resizing(direction, e);
                     break;
                 case 'track':
+                    this._resizing(direction, e);
                     break;
                 case 'end':
                     this.style.pointerEvents = '';
+
+                    this._resizing(direction, e);
+
+                    this.tables.forEach(function (table) {
+                        table._constraints.forEach(function(constraint) {
+                            constraint._tracking = false;
+                        });
+                    });
 
                     this.fireUpdateSchemaWithTables();
                     break;
             }
 
-            this._resizing(direction, e);
+
             this.refresh();
             this.refreshMinimap();
-            this.refreshMinimapZoom();
         },
         _resizing(direction, e) {
 
@@ -370,7 +381,7 @@
             this.tables.push(table);
 
             if (this.schema.tables.length === this.tables.length) {
-                this.visualizer.registerSchema(this);
+                this.visualizer._registerSchema(this);
             }
         },
 
@@ -385,7 +396,7 @@
         },
 
         getScale() {
-            return this.visualizer.getScale();
+            return this.visualizer._getScale();
         },
 
         getTables() {
@@ -446,21 +457,26 @@
         },
 
         refreshMinimap() {
-            this.visualizer.refreshMinimap();
-        },
-
-        refreshMinimapZoom() {
-            this.visualizer.refreshMinimapZoom();
+            this.visualizer._refreshMinimap();
         },
 
         fireUpdateSchema() {
-            this.visualizer.fireUpdateSchema(this.schema.id, this.translate.x, this.translate.y, this.width, this.height);
+            this.fire('update-schema', {
+                dvSchemaId: this.schema.id,
+                left: this.translate.x,
+                top: this.translate.y,
+                width: this.width,
+                height: this.height
+            });
         },
 
         fireUpdateSchemaWithTables() {
             this.fireUpdateSchema();
             this.getTables().forEach(function (table) {
                 table.fireUpdateTable();
+                table._constraints.forEach(function(constraint) {
+                    constraint.fireUpdateConstraint();
+                });
             });
         },
 
