@@ -31,7 +31,11 @@ Example:
 
     <style>
         :host {
-            display: block;
+            @apply(--layout-vertical);
+        }
+
+        iron-pages {
+            @apply(--layout-flex);
         }
 
         paper-tabs {
@@ -75,7 +79,7 @@ Example:
         </paper-tabs>
 
         <iron-pages selected="{{selected}}">
-            <paper-header-panel id="schema">
+            <paper-header-panel id="schema" class="fullbleed">
                 <paper-input class="paper-header" label="search"
                              value="{{searchTermSchemas::input}}">
                     <iron-icon icon="icons:search" suffix></iron-icon>
@@ -120,7 +124,7 @@ Example:
         },
 
         _observerSchemas(schemas) {
-            this.$.spinner.active = schemas === null || schemas === "";
+            this.$.spinner.active = schemas === null || schemas === "" || schemas.length === 0;
         },
 
         _filter(searchString) {

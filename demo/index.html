@@ -25,6 +25,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         setTimeout(function () {
             document.querySelector('database-visualizer-app').schemas = JSON.parse('[{"id":1,"name":"DIGIKETTE"},{"id":2,"name":"DIGISTYLE"}]');
+//            document.querySelector('database-visualizer-app').schemas = JSON.parse('[{"id":1,"name":"DIGIKETTE"},{"id":2,"name":"DIGISTYLE"},{"id":1,"name":"DIGIKETTE"},{"id":2,"name":"DIGISTYLE"},{"id":1,"name":"DIGIKETTE"},{"id":2,"name":"DIGISTYLE"},{"id":1,"name":"DIGIKETTE"},{"id":2,"name":"DIGISTYLE"},{"id":1,"name":"DIGIKETTE"},{"id":2,"name":"DIGISTYLE"},{"id":1,"name":"DIGIKETTE"},{"id":2,"name":"DIGISTYLE"},{"id":1,"name":"DIGIKETTE"},{"id":2,"name":"DIGISTYLE"},{"id":1,"name":"DIGIKETTE"},{"id":2,"name":"DIGISTYLE"},{"id":1,"name":"DIGIKETTE"},{"id":2,"name":"DIGISTYLE"}]');
         }, 2000);
 
         document.querySelector('database-visualizer-app').addEventListener('schemaSelected', function (e) {
