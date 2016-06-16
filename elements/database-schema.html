@@ -181,7 +181,6 @@
                     });
 
                     this.refresh();
-                    this.refreshMinimap();
                     break;
                 case 'track':
                     this.translate = {
@@ -195,7 +194,6 @@
                     });
 
                     this.refresh();
-                    this.refreshMinimap();
                     break;
                 case 'end':
                     this.style.pointerEvents = '';
@@ -478,10 +476,10 @@ console.log("state: " + e.detail.state);
         fireUpdateSchema() {
             this.fire('update-schema', {
                 dvSchemaId: this.schema.id,
-                left: this.translate.x,
-                top: this.translate.y,
-                width: this.width,
-                height: this.height
+                left: Math.round(this.translate.x),
+                top: Math.round(this.translate.y),
+                width: Math.round(this.width),
+                height: Math.round(this.height)
             });
         },
 

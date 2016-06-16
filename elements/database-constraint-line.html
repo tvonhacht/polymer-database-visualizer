@@ -484,8 +484,8 @@
             var positions = [];
             this._points.forEach(function (point) {
                 positions.push({
-                    x: point.translate.x,
-                    y: point.translate.y
+                    x: Math.round(point.translate.x),
+                    y: Math.round(point.translate.y)
                 });
             });
 

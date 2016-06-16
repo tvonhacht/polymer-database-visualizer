@@ -309,8 +309,8 @@
         fireUpdateTable() {
             this.fire('update-table', {
                 dvTableId: this.table.id,
-                left: this.translate.x,
-                top: this.translate.y
+                left: Math.round(this.translate.x),
+                top: Math.round(this.translate.y)
             });
         },
 
