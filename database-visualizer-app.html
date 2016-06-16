@@ -22,6 +22,75 @@ Example:
 
     <database-visualizer-app></database-visualizer-app>
 
+### Database
+
+The database json structure should be build like this:
+
+    {
+        "id": 1,
+        "schemas": [
+            {
+                "id": 641148,
+                "name": "BP_ADMIN",
+                "schemaId": 701,
+                "left": -2000,
+                "top": -2000,
+                "width": 3926,
+                "height": 1852,
+                "tables": [
+                    {
+                        "id": 641164,
+                        "name": "DOCKER_APPLICATION_DEPLOYMENT",
+                        "tableId": 3770775,
+                        "left": 2877,
+                        "top": 765,
+                        "columns": [
+                            {
+                                "id": 641287,
+                                "name": "APPLICATION_DEPLOYMENT_ID",
+                                "columnId": 1,
+                                "keyType": "PK",
+                                "nullable": false,
+                                "type": "NUMBER(22)",
+                                "defaultValue": ""
+                            },
+                            …
+                        ],
+                        "constraints": [
+                            {
+                                "positions": [
+                                    {
+                                        "id": 653024,
+                                        "position": {
+                                            "x": 1,
+                                            "y": 2
+                                        },
+                                        …
+                                    }
+                                ],
+                                "isConnectedLeft": false,
+                                "isConnectedLeftRef": true,
+                                "id": 641403,
+                                "name": "FK_DOCK_APP_DEP_APP",
+                                "schema": "BP_ADMIN",
+                                "table": "DOCKER_APPLICATION_DEPLOYMENT",
+                                "columns": [
+                                    "APPLICATION_ID"
+                                ],
+                                "rschema": "BP_ADMIN",
+                                "rtable": "DOCKER_APPLICATION",
+                                "rcolumns": [
+                                    "APPLICATION_ID"
+                                ]
+                            }
+                        ]
+                    },
+                    …
+                ]
+            }
+        ]
+    }
+
 ### Styling
 
 The following custom properties and mixins are available for styling:

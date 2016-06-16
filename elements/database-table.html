@@ -247,7 +247,7 @@
 
         _handleTrack(e) {
             if (e.target.classList.contains('table-column')) {
-                this.getSchema().visualizer.track(e);
+                this.getSchema().visualizer._onTrack(e);
             }
         },
 

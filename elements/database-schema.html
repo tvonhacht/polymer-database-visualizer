@@ -212,6 +212,12 @@
                     this.refresh();
                     this.refreshMinimap();
 
+                    this.tables.forEach(function (table) {
+                        table._constraints.forEach(function(constraint) {
+                            constraint._tracking = false;
+                        });
+                    });
+
                     this.fireUpdateSchema();
                     break;
             }
@@ -229,7 +235,7 @@
         },
         _handleTrack: function (e) {
             if (e.target === this) {
-                this.visualizer.track(e);
+                this.visualizer._onTrack(e);
             }
         },
 
@@ -271,14 +277,23 @@ console.log("state: " + e.detail.state);
                     });
 
                     this._resizing(direction, e);
+
+                    this.refresh();
+                    this.refreshMinimap();
                     break;
                 case 'track':
                     this._resizing(direction, e);
+
+                    this.refresh();
+                    this.refreshMinimap();
                     break;
                 case 'end':
                     this.style.pointerEvents = '';
 
                     this._resizing(direction, e);
+
+                    this.refresh();
+                    this.refreshMinimap();
 
                     this.tables.forEach(function (table) {
                         table._constraints.forEach(function(constraint) {
@@ -291,8 +306,7 @@ console.log("state: " + e.detail.state);
             }
 
 
-            this.refresh();
-            this.refreshMinimap();
+
         },
         _resizing(direction, e) {
 
@@ -412,6 +426,7 @@ console.log("state: " + e.detail.state);
         _trackStart() {
             this.getTables().forEach(function (table) {
                 table._constraints.forEach(function (constraint) {
+                    constraint._tracking = true;
                     constraint._points.forEach(function (point) {
                         point.trackStartSchema();
                     });
