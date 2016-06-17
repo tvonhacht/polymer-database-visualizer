@@ -77,7 +77,7 @@ Example:
 
         <iron-pages selected="{{selected}}">
             <paper-header-panel id="schema" class="fullbleed">
-                <paper-input class="paper-header" label="search"
+                <paper-input id="input" class="paper-header" label="search"
                              value="{{searchTermSchemas::input}}">
                     <iron-icon icon="icons:search" suffix></iron-icon>
                 </paper-input>
@@ -144,6 +144,10 @@ Example:
 
             var schemaid = e.currentTarget.getAttribute('schemaid');
             this.fire('schema-selected', {schemaid});
+        },
+
+        selectInput() {
+            this.$.input.$.input.focus();
         },
 
         // Element Lifecycle

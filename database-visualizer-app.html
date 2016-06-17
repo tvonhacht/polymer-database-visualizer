@@ -163,7 +163,7 @@ The following custom properties and mixins are available for styling:
             };
         }
 
-        #menu {
+        #menu-button {
             --paper-fab-background: var(--database-visualizer-menu-button-background, --accent-color);
 
             position: absolute;
@@ -174,11 +174,11 @@ The following custom properties and mixins are available for styling:
     </style>
 
     <template>
-        <paper-drawer-panel id="panel" responsive-width="3000px">
-            <database-visualizer-menu schemas={{schemas}} applications="{{applications}}" setups="{{setups}}"
+        <paper-drawer-panel id="panel" responsive-width="3000px" edgeSwipeSensitivity="0">
+            <database-visualizer-menu id="menu" schemas={{schemas}} applications="{{applications}}" setups="{{setups}}"
                                       drawer></database-visualizer-menu>
             <div main>
-                <paper-fab id="menu" class="menu" icon="icons:menu" on-tap="_openMenu" title="menu"></paper-fab>
+                <paper-fab id="menu-button" class="menu" icon="icons:menu" on-tap="_openMenu" title="menu"></paper-fab>
                 <database-visualizer database="{{database}}"></database-visualizer>
             </div>
         </paper-drawer-panel>
@@ -221,6 +221,14 @@ The following custom properties and mixins are available for styling:
             //
             // This is the point where you should make modifications to the DOM (when
             // necessary), or kick off any processes the element wants to perform.
+
+
+            var menu = this.$.menu;
+            this.$.panel.addEventListener("iron-select", function(e) {
+                this.async(function() {
+                        menu.selectInput();
+                }, 300);
+            });
         },
 
         attached: function () {
