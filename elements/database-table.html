@@ -169,6 +169,9 @@
                             x: table.translate.x,
                             y: table.translate.y
                         };
+                        table._constraints.forEach(function (constraint) {
+                            constraint._tracking = true;
+                        });
                     });
 
                     this._calcTrack(e);
@@ -187,6 +190,13 @@
 
                     this.refresh();
                     this.refreshMinimap();
+
+
+                    this.getSchema().getTables().forEach(function (table) {
+                        table._constraints.forEach(function (constraint) {
+                            constraint._tracking = false;
+                        });
+                    });
 
                     this.fireUpdateTable();
                     this.getSchema().fireUpdateSchema();
