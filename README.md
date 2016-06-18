@@ -12,7 +12,7 @@ install that via:
 
 Then, go ahead and download the element's dependencies:
 
-    bower install
+    bower install thorbenvh8/polymer-database-visualizer
 
 
 ## Playing With Your Element

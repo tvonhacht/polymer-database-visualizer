@@ -164,7 +164,6 @@
         _handleHeaderTrack: function (e) {
             switch (e.detail.state) {
                 case 'start':
-                    this.style.pointerEvents = 'none';
                     this._track = {
                         x: this.translate.x,
                         y: this.translate.y
@@ -196,7 +195,6 @@
                     this.refresh();
                     break;
                 case 'end':
-                    this.style.pointerEvents = '';
                     this.translate = {
                         x: this._track.x + e.detail.dx / this.getScale(),
                         y: this._track.y + e.detail.dy / this.getScale()
@@ -253,7 +251,6 @@
 console.log("state: " + e.detail.state);
             switch (e.detail.state) {
                 case 'start':
-                    this.style.pointerEvents = 'none';
                     this._track = {
                         x: this.translate.x,
                         y: this.translate.y
@@ -286,8 +283,6 @@ console.log("state: " + e.detail.state);
                     this.refreshMinimap();
                     break;
                 case 'end':
-                    this.style.pointerEvents = '';
-
                     this._resizing(direction, e);
 
                     this.refresh();

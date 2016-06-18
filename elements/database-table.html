@@ -151,7 +151,6 @@
                 case 'start':
                     this._beforeTrackSelected = this.isSelected();
                     this.select();
-                    this.style.pointerEvents = 'none';
                     this._track = {
                         x: this.translate.x,
                         y: this.translate.y
@@ -182,7 +181,6 @@
                     this.refresh();
                     break;
                 case 'end':
-                    this.style.pointerEvents = '';
                     this._calcTrack(e);
                     if (!this._beforeTrackSelected) {
                         this.deselect();

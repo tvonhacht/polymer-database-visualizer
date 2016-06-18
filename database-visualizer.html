@@ -372,7 +372,7 @@ The following custom properties and mixins are available for styling:
         _onTrack: function (e) {
             switch (e.detail.state) {
                 case 'start':
-                    this.style.pointerEvents = 'none';
+                    e.target.style.cursor = '-webkit-grabbing';
 
                     this._track = {
                         x: this._translate.x,
@@ -390,7 +390,7 @@ The following custom properties and mixins are available for styling:
                     };
                     break;
                 case 'end':
-                    this.style.pointerEvents = '';
+                    e.target.style.cursor = '';
 
                     this._translate = {
                         x: this._track.x + e.detail.dx / this._getScale(),

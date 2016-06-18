@@ -101,8 +101,6 @@ Example:
         _handleZoomTrack(e) {
             switch (e.detail.state) {
                 case 'start':
-                    this.style.pointerEvents = 'none';
-
                     this.visualizer._track = {
                         x: this.visualizer._translate.x,
                         y: this.visualizer._translate.y
@@ -135,8 +133,6 @@ Example:
 
                     break;
                 case 'end':
-                    this.style.pointerEvents = '';
-
                     this.visualizer._translate = {
                         x: this.visualizer._track.x - e.detail.dx * this.getMinimapWidth() / 150,
                         y: this.visualizer._track.y - e.detail.dy * this.getMinimapWidth() / 150

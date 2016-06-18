@@ -111,7 +111,6 @@
 
             switch (e.detail.state) {
                 case 'start':
-                    this.style.pointerEvents = 'none';
                     this._track = {
                         x: this.translate.x,
                         y: this.translate.y
@@ -131,7 +130,6 @@
                     this._refresh();
                     break;
                 case 'end':
-                    this.style.pointerEvents = '';
                     this.translate = {
                         x: this._track.x + e.detail.dx / this._getScale(),
                         y: this._track.y + e.detail.dy / this._getScale()
