@@ -33,8 +33,8 @@ Once running, you can preview your element at
 
 ## Develop Backend (SQLS)
 
-Sql to create the [tables](sqls/tables.sql).
-[Sqls](sqls/sqls.xml) for mabatis for selecting and updating data.
+Execut the following script to create the tables to saving positions in the datbase [here](sqls/tables.sql).
+Sqls to select and update the tables can be found [here](sqls/sqls.xml).
 
 
 ## Testing It
