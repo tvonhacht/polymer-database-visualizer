@@ -15,7 +15,7 @@ Then, go ahead and download the element's dependencies:
     bower install thorbenvh8/polymer-database-visualizer
 
 
-## Playing With Your Element
+## Playing With It
 
 If you wish to work on your element in isolation, we recommend that you use
 [Polyserve](https://github.com/PolymerLabs/polyserve) to keep your element's
@@ -31,7 +31,13 @@ Once running, you can preview your element at
 `http://localhost:8080/components/database-visualizer/`, where `database-visualizer` is the name of the directory containing it.
 
 
-## Testing Your Element
+## Develop Backend (SQLS)
+
+Sql to create the [tables](sqls/tables.sql).
+[Sqls](sqls/sqls.xml) for mabatis for selecting and updating data.
+
+
+## Testing It
 
 Simply navigate to the `/test` directory of your element to run its tests. If
 you are using Polyserve: `http://localhost:8080/components/database-visualizer/test/`

@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="de.bonprix.dao.db.DatabaseVisualizerDao">
+
+    <select id="getAllSchemas" resultType="de.bonprix.model.Schema">
+        SELECT S.USER_ID id,
+        S.USERNAME name
+        FROM SYS.DBA_USERS S
+        WHERE S.INITIAL_RSRC_CONSUMER_GROUP = 'DEFAULT_CONSUMER_GROUP'
+        ORDER BY S.USERNAME
+    </select>
+
+    <resultMap id="resultMapColumn" type="String">
+        <result column="fk_column_name" javaType="String" />
+    </resultMap>
+
+    <resultMap id="resultMapRColumn" type="String">
+        <result column="fk_r_column_name" javaType="String" />
+    </resultMap>
+
+    <resultMap id="resultMapPosition" type="de.bonprix.model.databasevisualizer.DatabaseVisualizerConstraintPosition">
+        <id column="fk_constraint_pos_id" property="id" javaType="Long" />
+        <association property="position" javaType="de.bonprix.model.Position">
+            <result column="fk_constraint_pos_x" property="x" javaType="Long" />
+            <result column="fk_constraint_pos_y" property="y" javaType="Long" />
+        </association>
+    </resultMap>
+
+    <resultMap type="de.bonprix.model.databasevisualizer.DatabaseVisualizerSchema" id="resultMapSchema">
+        <id column="schema_schema_id" property="schemaId"/>
+        <result column="schema_id" property="id"/>
+        <result column="schema_name" property="name"/>
+        <result column="schema_left" property="left"/>
+        <result column="schema_top" property="top"/>
+        <result column="schema_width" property="width"/>
+        <result column="schema_height" property="height"/>
+        <collection property="tables" javaType="ArrayList" ofType="de.bonprix.model.databasevisualizer.DatabaseVisualizerTable">
+            <id column="table_table_id" property="tableId"/>
+            <result column="table_id" property="id"/>
+            <result column="table_name" property="name"/>
+            <result column="table_left" property="left"/>
+            <result column="table_top" property="top"/>
+            <collection property="columns" javaType="ArrayList" ofType="de.bonprix.model.databasevisualizer.DatabaseVisualizerColumn">
+                <id column="column_column_id" property="columnId"/>
+                <result column="column_id" property="id"/>
+                <result column="column_name" property="name"/>
+                <result column="column_order_id" property="orderId"/>
+                <result column="column_key_type" property="keyType" typeHandler="de.bonprix.typehandler.EmptyStringTypeHandler"/>
+                <result column="column_nullable" property="nullable"/>
+                <result column="column_type" property="type"/>
+                <result column="column_default_value" property="defaultValue" typeHandler="de.bonprix.typehandler.LongRawTypeHandler"/>
+            </collection>
+            <!-- maybe own sql for each constraint?! -->
+            <collection property="constraints" javaType="ArrayList" ofType="de.bonprix.model.databasevisualizer.DatabaseVisualizerConstraint">
+                <id column="fk_constraint_name" property="name"/>
+                <result column="fk_schema_name" property="schema"/>
+                <result column="fk_constraint_id" property="id"/>
+                <result column="fk_constraint_conn_left" property="isConnectedLeft"/>
+                <result column="fk_constraint_conn_left_ref" property="isConnectedLeftRef"/>
+                <result column="fk_table_name" property="table"/>
+                <result column="fk_r_schema_name" property="rSchema"/>
+                <result column="fk_r_table_name" property="rTable"/>
+                <collection property="columns" resultMap="resultMapColumn"/>
+                <collection property="rColumns" resultMap="resultMapRColumn"/>
+                <collection property="positions" resultMap="resultMapPosition"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <resultMap type="de.bonprix.model.databasevisualizer.DatabaseVisualizerSetup" id="resultMapSetup">
+        <id column="id" property="id"/>
+        <collection property="schemas" resultMap="resultMapSchema" />
+    </resultMap>
+
+    <select id="getSchema" parameterType="Long" resultMap="resultMapSetup">
+        SELECT NVL(DV_SETUP.DV_SETUP_ID, 0) id,
+
+        S.USER_ID              schema_schema_id,
+        DV_SCHEMA.DV_SCHEMA_ID schema_id,
+        S.USERNAME             schema_name,
+        DV_SCHEMA.LEFT         schema_left,
+        DV_SCHEMA.TOP          schema_top,
+        DV_SCHEMA.WIDTH        schema_width,
+        DV_SCHEMA.HEIGHT       schema_height,
+
+        T.OBJECT_ID          table_table_id,
+        DV_TABLE.DV_TABLE_ID table_id,
+        T.OBJECT_NAME        table_name,
+        DV_TABLE.LEFT        table_left,
+        DV_TABLE.TOP         table_top,
+
+        DV_COLUMN.DV_COLUMN_ID column_id,
+        C.COLUMN_ID column_column_id,
+        C.COLUMN_NAME column_name,
+        DV_COLUMN.ORDER_ID column_order_id,
+        CASE
+        WHEN P_C.CONSTRAINT_NAME IS NOT NULL THEN
+        'PK'
+        WHEN U_C.CONSTRAINT_NAME IS NOT NULL THEN
+        'UQ'
+        ELSE
+        ''
+        END column_key_type,
+        C.DATA_TYPE || '(' || C.DATA_LENGTH || ')' column_type,
+        CASE
+        WHEN C.NULLABLE = 'Y' THEN
+        1
+        ELSE
+        0
+        END column_nullable,
+        C.DATA_DEFAULT column_default_value,
+        DV_CONSTRAINT.DV_CONSTRAINT_ID fk_constraint_id,
+        DV_CONSTRAINT.IS_CONNECTED_LEFT fk_constraint_conn_left,
+        DV_CONSTRAINT.IS_CONNECTED_LEFT_REF fk_constraint_conn_left_ref,
+        FK_CONS.CONSTRAINT_NAME fk_constraint_name,
+        FK_CONS.OWNER fk_schema_name,
+        FK_CONS.TABLE_NAME fk_table_name,
+        FK_CONS.COLUMN_NAME fk_column_name,
+        R_S.USER_ID fk_r_schema_id,
+        FK_R_CONS.OWNER fk_r_schema_name,
+        R_T.OBJECT_ID fk_r_table_id,
+        FK_R_CONS.TABLE_NAME fk_r_table_name,
+        R_C.COLUMN_ID fk_r_column_id,
+        FK_R_CONS.COLUMN_NAME fk_r_column_name,
+
+        DV_CONSTRAINT_POS.DV_CONSTRAINT_POS_ID fk_constraint_pos_id,
+        DV_CONSTRAINT_POS.X fk_constraint_pos_x,
+        DV_CONSTRAINT_POS.Y fk_constraint_pos_y
+        FROM SYS.DBA_USERS S
+        LEFT JOIN BP_ADMIN.DV_SETUP
+        ON DV_SETUP.SCHEMA_ID = S.USER_ID
+        LEFT JOIN BP_ADMIN.DV_SCHEMA
+        ON DV_SCHEMA.SCHEMA_ID = S.USER_ID
+        AND DV_SCHEMA.DV_SETUP_ID = DV_SETUP.DV_SETUP_ID
+        JOIN SYS.DBA_OBJECTS T
+        ON T.OWNER = S.USERNAME
+        AND T.OBJECT_TYPE = 'TABLE'
+        AND T.OBJECT_NAME NOT LIKE '%:%'
+        AND T.OBJECT_NAME NOT LIKE '%#%'
+        LEFT JOIN BP_ADMIN.DV_TABLE
+        ON DV_TABLE.TABLE_ID = T.OBJECT_ID
+        AND DV_TABLE.DV_SCHEMA_ID = DV_SCHEMA.DV_SCHEMA_ID
+        JOIN SYS.DBA_TAB_COLUMNS C
+        ON C.OWNER = T.OWNER
+        AND C.TABLE_NAME = T.OBJECT_NAME
+        LEFT JOIN BP_ADMIN.DV_COLUMN
+        ON DV_COLUMN.COLUMN_ID = C.COLUMN_ID
+        AND DV_COLUMN.DV_TABLE_ID = DV_TABLE.DV_TABLE_ID
+        LEFT JOIN SYS.DBA_CONSTRAINTS P
+        ON P.CONSTRAINT_TYPE = 'P'
+        AND P.OWNER = S.USERNAME
+        AND P.TABLE_NAME = T.OBJECT_NAME
+        LEFT JOIN SYS.DBA_CONS_COLUMNS P_C
+        ON P.CONSTRAINT_NAME = P_C.CONSTRAINT_NAME
+        AND P_C.COLUMN_NAME = C.COLUMN_NAME
+        LEFT JOIN SYS.DBA_CONSTRAINTS U
+        ON U.CONSTRAINT_TYPE = 'U'
+        AND U.OWNER = S.USERNAME
+        AND U.TABLE_NAME = T.OBJECT_NAME
+        LEFT JOIN SYS.DBA_CONS_COLUMNS U_C
+        ON U.CONSTRAINT_NAME = U_C.CONSTRAINT_NAME
+        AND U_C.COLUMN_NAME = C.COLUMN_NAME
+        LEFT JOIN SYS.DBA_CONSTRAINTS FK
+        ON FK.CONSTRAINT_TYPE = 'R'
+        AND FK.OWNER = S.USERNAME
+        AND FK.TABLE_NAME = T.OBJECT_NAME
+        LEFT JOIN SYS.DBA_CONS_COLUMNS FK_CONS
+        ON FK_CONS.CONSTRAINT_NAME = FK.CONSTRAINT_NAME
+        AND FK_CONS.COLUMN_NAME = C.COLUMN_NAME
+        LEFT JOIN BP_ADMIN.DV_CONSTRAINT
+        ON DV_CONSTRAINT.CONSTRAINT_NAME = FK_CONS.CONSTRAINT_NAME
+        AND DV_CONSTRAINT.DV_TABLE_ID = DV_TABLE.DV_TABLE_ID
+        LEFT JOIN BP_ADMIN.DV_CONSTRAINT_POS
+        ON DV_CONSTRAINT_POS.DV_CONSTRAINT_ID = DV_CONSTRAINT.DV_CONSTRAINT_ID
+        LEFT JOIN SYS.DBA_CONS_COLUMNS FK_R_CONS
+        ON FK_R_CONS.CONSTRAINT_NAME = FK.R_CONSTRAINT_NAME
+        AND FK_CONS.CONSTRAINT_NAME = FK.CONSTRAINT_NAME
+        AND FK_R_CONS.OWNER = FK.R_OWNER
+        LEFT JOIN SYS.DBA_USERS R_S
+        ON FK_R_CONS.OWNER = R_S.USERNAME
+        LEFT JOIN SYS.DBA_OBJECTS R_T
+        ON R_T.OWNER = R_S.USERNAME
+        AND R_T.OBJECT_NAME = FK_R_CONS.TABLE_NAME
+        AND R_T.OBJECT_TYPE = 'TABLE'
+        LEFT JOIN SYS.DBA_TAB_COLUMNS R_C
+        ON R_C.OWNER = R_T.OWNER
+        AND R_C.TABLE_NAME = R_T.OBJECT_NAME
+        AND R_C.COLUMN_NAME = FK_R_CONS.COLUMN_NAME
+        WHERE S.USER_ID = #{schemaId}
+        ORDER BY S.USERNAME, T.OBJECT_NAME, DV_COLUMN.ORDER_ID, C.COLUMN_ID, DV_CONSTRAINT_POS.ORDER_ID
+    </select>
+
+    <select id="getReferenceSchema" parameterType="de.bonprix.dvo.ReferenceSchemaDvo" resultMap="resultMapSchema">
+        SELECT S.USER_ID schema_schema_id,
+        DV_SCHEMA.DV_SCHEMA_ID schema_id,
+        S.USERNAME schema_name,
+        DV_SCHEMA.LEFT schema_left,
+        DV_SCHEMA.TOP schema_top,
+        DV_SCHEMA.WIDTH schema_width,
+        DV_SCHEMA.HEIGHT schema_height,
+
+        T.OBJECT_ID table_table_id,
+        DV_TABLE.DV_TABLE_ID table_id,
+        T.OBJECT_NAME table_name,
+        DV_TABLE.LEFT table_left,
+        DV_TABLE.TOP table_top,
+
+        DV_COLUMN.DV_COLUMN_ID column_id,
+        C.COLUMN_ID column_column_id,
+        C.COLUMN_NAME column_name,
+        DV_COLUMN.ORDER_ID column_order_id,
+        CASE
+        WHEN P_C.CONSTRAINT_NAME IS NOT NULL THEN
+        'PK'
+        WHEN U_C.CONSTRAINT_NAME IS NOT NULL THEN
+        'UQ'
+        ELSE
+        ''
+        END column_key_type,
+        C.DATA_TYPE || '(' || C.DATA_LENGTH || ')' column_type,
+        CASE
+        WHEN C.NULLABLE = 'Y' THEN
+        1
+        ELSE
+        0
+        END column_nullable,
+        C.DATA_DEFAULT column_default_value,
+        '' fk_constraint_name,
+        '' fk_constraint_conn_left,
+        '' fk_constraint_conn_left_ref,
+        '' fk_schema_name,
+        '' fk_table_name,
+        '' fk_column_name,
+        '' fk_r_schema_id,
+        '' fk_r_schema_name,
+        '' fk_r_table_id,
+        '' fk_r_table_name,
+        '' fk_r_column_id,
+        '' fk_r_column_name,
+
+        '' fk_constraint_pos_id,
+        '' fk_constraint_pos_x,
+        '' fk_constraint_pos_y
+        FROM SYS.DBA_USERS S
+        LEFT JOIN BP_ADMIN.DV_SCHEMA
+        ON DV_SCHEMA.SCHEMA_ID = S.USER_ID
+        AND DV_SCHEMA.DV_SETUP_ID = #{setupId}
+        JOIN SYS.DBA_OBJECTS T
+        ON T.OWNER = S.USERNAME
+        AND T.OBJECT_TYPE = 'TABLE'
+        AND T.OBJECT_NAME NOT LIKE '%:%'
+        AND T.OBJECT_NAME NOT LIKE '%#%'
+        LEFT JOIN BP_ADMIN.DV_TABLE
+        ON DV_TABLE.TABLE_ID = T.OBJECT_ID
+        AND DV_TABLE.DV_SCHEMA_ID = DV_SCHEMA.DV_SCHEMA_ID
+        JOIN SYS.DBA_TAB_COLUMNS C
+        ON C.OWNER = T.OWNER
+        AND C.TABLE_NAME = T.OBJECT_NAME
+        LEFT JOIN BP_ADMIN.DV_COLUMN
+        ON DV_COLUMN.COLUMN_ID = C.COLUMN_ID
+        AND DV_COLUMN.DV_TABLE_ID = DV_TABLE.DV_TABLE_ID
+        LEFT JOIN SYS.DBA_CONSTRAINTS P
+        ON P.CONSTRAINT_TYPE = 'P'
+        AND P.OWNER = S.USERNAME
+        AND P.TABLE_NAME = T.OBJECT_NAME
+        LEFT JOIN SYS.DBA_CONS_COLUMNS P_C
+        ON P.CONSTRAINT_NAME = P_C.CONSTRAINT_NAME
+        AND P_C.COLUMN_NAME = C.COLUMN_NAME
+        LEFT JOIN SYS.DBA_CONSTRAINTS U
+        ON U.CONSTRAINT_TYPE = 'U'
+        AND U.OWNER = S.USERNAME
+        AND U.TABLE_NAME = T.OBJECT_NAME
+        LEFT JOIN SYS.DBA_CONS_COLUMNS U_C
+        ON U.CONSTRAINT_NAME = U_C.CONSTRAINT_NAME
+        AND U_C.COLUMN_NAME = C.COLUMN_NAME
+        WHERE S.USERNAME = #{schema}
+        AND T.OBJECT_NAME IN
+        <foreach collection="tables" item="table" open="(" close=")" separator=",">
+            #{table}
+        </foreach>
+        ORDER BY S.USERNAME, T.OBJECT_NAME, DV_COLUMN.ORDER_ID, C.COLUMN_ID
+    </select>
+
+    <insert id="addSetupWithSchemaId" parameterType="de.bonprix.dvo.AddSetupDvo">
+        <selectKey keyProperty="id" resultType="long" order="BEFORE">
+            SELECT BP_ADMIN.SEQ_ID.NEXTVAL ID FROM DUAL
+        </selectKey>
+        INSERT INTO BP_ADMIN.DV_SETUP
+        (DV_SETUP_ID, SCHEMA_ID)
+        VALUES
+        (#{id}, #{schemaId})
+    </insert>
+
+    <insert id="addSchema" parameterType="de.bonprix.dvo.AddSchemaDvo">
+        <selectKey keyProperty="id" resultType="long" order="BEFORE">
+            SELECT BP_ADMIN.SEQ_ID.NEXTVAL ID FROM DUAL
+        </selectKey>
+        INSERT INTO BP_ADMIN.DV_SCHEMA
+        (DV_SCHEMA_ID, DV_SETUP_ID, SCHEMA_ID)
+        VALUES
+        (#{id}, #{setupId}, #{schemaId})
+    </insert>
+
+    <insert id="addTable" parameterType="de.bonprix.dvo.AddTableDvo">
+        <selectKey keyProperty="id" resultType="long" order="BEFORE">
+            SELECT BP_ADMIN.SEQ_ID.NEXTVAL ID FROM DUAL
+        </selectKey>
+        INSERT INTO BP_ADMIN.DV_TABLE
+        (DV_TABLE_ID, DV_SCHEMA_ID, TABLE_ID)
+        VALUES
+        (#{id}, #{schemaId}, #{tableId})
+    </insert>
+
+    <insert id="addColumn" parameterType="de.bonprix.dvo.AddColumnDvo">
+        <selectKey keyProperty="id" resultType="long" order="BEFORE">
+            SELECT BP_ADMIN.SEQ_ID.NEXTVAL ID FROM DUAL
+        </selectKey>
+        INSERT INTO BP_ADMIN.DV_COLUMN
+        (DV_COLUMN_ID, DV_TABLE_ID, COLUMN_ID)
+        VALUES
+        (#{id}, #{tableId}, #{columnId})
+    </insert>
+
+    <insert id="addConstraint" parameterType="de.bonprix.dvo.AddConstraintDvo">
+        <selectKey keyProperty="id" resultType="long" order="BEFORE">
+            SELECT BP_ADMIN.SEQ_ID.NEXTVAL ID FROM DUAL
+        </selectKey>
+        INSERT INTO BP_ADMIN.DV_CONSTRAINT
+        (DV_CONSTRAINT_ID, DV_TABLE_ID, CONSTRAINT_NAME)
+        VALUES
+        (#{id}, #{tableId}, #{constraintName})
+    </insert>
+
+    <update id="updateSchema" parameterType="de.bonprix.dvo.UpdateSchemaDvo">
+        UPDATE BP_ADMIN.DV_SCHEMA
+        SET
+        LEFT = #{left},
+        TOP = #{top},
+        WIDTH = #{width},
+        HEIGHT = #{height}
+        WHERE
+        DV_SCHEMA_ID = #{dvSchemaId}
+    </update>
+
+    <update id="updateTable" parameterType="de.bonprix.dvo.UpdateTableDvo">
+        UPDATE BP_ADMIN.DV_TABLE
+        SET
+        LEFT = #{left},
+        TOP = #{top}
+        WHERE
+        DV_TABLE_ID = #{dvTableId}
+    </update>
+
+    <update id="updateColumn" parameterType="de.bonprix.dvo.UpdateColumnDvo">
+        UPDATE BP_ADMIN.DV_COLUMN
+        SET
+        ORDER_ID = #{orderId}
+        WHERE
+        DV_TABLE_ID = #{dvColumnId}
+    </update>
+
+    <update id="updateConstraint" parameterType="de.bonprix.dvo.UpdateConstraintDvo">
+        UPDATE BP_ADMIN.DV_CONSTRAINT
+        SET
+        IS_CONNECTED_LEFT = #{isConnectedLeft},
+        IS_CONNECTED_LEFT_REF =  #{isConnectedLeftRef},
+        WHERE
+        DV_CONSTRAINT_ID = #{dvConstraintId}
+    </update>
+
+    <update id="removeAllConstraintPositions" parameterType="Long">
+        DELETE FROM BP_ADMIN.DV_CONSTRAINT_POS
+        WHERE DV_CONSTRAINT_ID = #{dvConstraintId}
+    </update>
+
+    <insert id="addConstraintPosition" parameterType="de.bonprix.dvo.AddConstraintPositionDvo">
+        <selectKey keyProperty="id" resultType="long" order="BEFORE">
+            SELECT BP_ADMIN.SEQ_ID.NEXTVAL ID FROM DUAL
+        </selectKey>
+        INSERT INTO BP_ADMIN.DV_CONSTRAINT_POS
+        (DV_CONSTRAINT_POS_ID, DV_CONSTRAINT_ID, X, Y, ORDER_ID)
+        VALUES
+        (#{id}, #{dvConstraintId}, #{position.x}, #{position.y}, #{orderId})
+    </insert>
+</mapper>
