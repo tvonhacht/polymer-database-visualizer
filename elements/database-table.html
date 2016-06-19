@@ -182,19 +182,19 @@
                     break;
                 case 'end':
                     this._calcTrack(e);
-                    if (!this._beforeTrackSelected) {
-                        this.deselect();
-                    }
 
                     this.refresh();
                     this.refreshMinimap();
-
 
                     this.getSchema().getTables().forEach(function (table) {
                         table._constraints.forEach(function (constraint) {
                             constraint._tracking = false;
                         });
                     });
+
+                    if (!this._beforeTrackSelected) {
+                        this.deselect();
+                    }
 
                     this.fireUpdateTable();
                     this.getSchema().fireUpdateSchema();
