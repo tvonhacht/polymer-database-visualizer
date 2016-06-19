@@ -1,6 +1,16 @@
 # database-visualizer
 
-An element providing a starting point for your own reusable Polymer elements.
+An element providing a solution for a visualization of a relational database.
+
+Example:
+
+    <database-visualizer></database-visualizer>
+
+An element providing a solution for a visualization of a relational database with a menu.
+
+Example:
+
+    <database-visualizer-app></database-visualizer-app>
 
 
 ## Dependencies
