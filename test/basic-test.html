@@ -22,15 +22,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <body>
 
     <!-- You can use the document as a place to set up your fixtures. -->
-    <database-visualizer schemas='[{"id":1,"name":"DIGIKETTE"},{"id":2,"name":"DIGISTYLE"}]'></database-visualizer>
+    <database-visualizer-app schemas='[{"id":1,"name":"DEMO"}]'></database-visualizer-app>
 
     <script>
       var myEl = document.querySelector('database-visualizer-app');
 
-      suite('<database-visualizer>', function() {
+      suite('<database-visualizer-app>', function() {
 
         test('defines the "schemas" property', function() {
-          console.log(myEl.schemas);
+          console.log(myEl);
+          console.log(document.querySelector('database-visualizer-app').schemas);
+          console.log(document.querySelector('database-visualizer-app'));
+          console.log(myEl.database);
 //          assert.equal(myEl.schemas[0].id, 1);
 //          assert.equal(myEl.schemas[0].name, 'DIGIKETTE');
         });

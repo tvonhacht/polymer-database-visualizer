@@ -12,6 +12,12 @@ Example:
 
     <database-visualizer-app></database-visualizer-app>
 
+![screenshot](screenshots/screenshot1.png)
+
+
+## Demo
+
+
 
 ## Dependencies
 
@@ -45,6 +51,8 @@ Once running, you can preview your element at
 
 Execut the following script to create the tables to saving positions in the datbase [here](sqls/tables.sql).
 Sqls to select and update the tables can be found [here](sqls/sqls.xml).
+
+![screenshot](screenshots/screenshot2.png)
 
 
 ## Testing It
