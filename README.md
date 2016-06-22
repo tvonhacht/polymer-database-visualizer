@@ -15,8 +15,10 @@ Example:
 ![screenshot](screenshots/screenshot1.png)
 
 
-## Demo
+## Polymer Documentation & Demo
 
+[Polymer Documentation](https://thorbenvh8.github.io/polymer-database-visualizer/)
+[Only Demo](https://thorbenvh8.github.io/polymer-database-visualizer/demo/)
 
 
 ## Dependencies
