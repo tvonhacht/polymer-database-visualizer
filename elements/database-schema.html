@@ -17,16 +17,17 @@
             background: white;
         }
 
-        h2 {
-            margin: 0;
+        :host h2 {
+            margin: 0 !important;
             font-size: 72px;
             line-height: 2em;
             text-align: center;
+            font-weight: bold;
+            color: var(--database-schema-color, white);
         }
 
         #header {
             background: var(--database-schema-background, --dark-primary-color);
-            color: var(--database-schema-color, white);
             border-bottom: 1px solid #e5e5e5;
             cursor: move;
         }

@@ -24,16 +24,17 @@
             z-index: 4;
         }
 
-        h3 {
-            margin: 0;
+        :host h3 {
+            margin: 0 !important;
             font-size: 24px;
             line-height: 2em;
             text-align: center;
+            font-weight: bold;
+            color: var(--database-table-color, white);
         }
 
         #header {
             background: var(--database-table-background, --primary-color);
-            color: var(--database-table-color, white);
             padding: 10px 24px;
             line-height: 56px;
             font-size: 12px;
